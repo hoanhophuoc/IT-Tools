@@ -6,7 +6,7 @@ export default function ToolTab({ tool, index }) {
     return (
         <Link
             key={index}
-            href={tool.link}
+            href={`tool/${tool.link}`}
             className="flex flex-col bg-white h-36 justify-between w-auto p-4 rounded-md"
         >
             <LuHouse size={35} color="black" />

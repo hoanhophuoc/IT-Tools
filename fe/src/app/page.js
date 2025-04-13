@@ -72,7 +72,7 @@ export default function Home() {
   ];
 
   return (
-    <>
+    <div>
       <div className="font-bold mb-4  text-gray-500">
         Premium tools
       </div>
@@ -96,6 +96,6 @@ export default function Home() {
             <ToolTab key={index} tool={tool} index={index} />
           ))}
       </div>
-    </>
+    </div>
   );
 }

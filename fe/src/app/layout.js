@@ -38,7 +38,7 @@ export default function RootLayout({ children }) {
           <Header isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
 
 
-          <main className='m-4'>{children}</main>
+          <main className='m-4 justify-center items-center flex'>{children}</main>
         </section>
         {isSidebarOpen && (
           <button
