@@ -27,7 +27,7 @@ export default function RootLayout({ children }) {
   }, []);
 
   return (
-    <html lang="en" className="bg-gray-200">
+    <html lang="en" className="bg-gray-200 overflow-x-hidden">
       <body className="bg-gray-200 flex">
         <Sidebar isSidebarOpen={isSidebarOpen} tabs={tabs}/>
 
