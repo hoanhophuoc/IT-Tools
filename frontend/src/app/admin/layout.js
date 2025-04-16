@@ -17,7 +17,7 @@ export default function AdminLayout({ children, params }) {
 
     return (
         <div>
-            <div className='bg-white w-dvh p-4 rounded-lg shadow-lg'>
+            <div className='bg-white w-[clamp(20rem,80vw,100dvh)] p-4 rounded-lg shadow-lg '>
                 <nav className='text-gray-500 text-xl font-semibold flex gap-4 p-4'>
                     <Link href='/admin/tools' className={linkClass('tools')}>TOOLS</Link>
                     <Link href='/admin/customers' className={linkClass('customers')}>CUSTOMERS</Link>
