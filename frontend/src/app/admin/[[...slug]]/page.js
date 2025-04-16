@@ -2,6 +2,7 @@
 
 import Table from "@/component/Table";
 import PagingBar from "@/component/PagingBar";
+import EditTool from "@/component/EditTool";
 
 const columns = [
     { key: 'id', label: 'ID' },
@@ -53,6 +54,9 @@ export default function ToolsPage() {
             pageSize={apiData.pageSize}
             onPageChange={handlePageChange}
             />
+{/*  
+            <EditTool toolName={'abc'} toolDescription={'lol'} icon={'icon1.png'}isPremium={false}/>
+*/}
         </div>
     );
 }
