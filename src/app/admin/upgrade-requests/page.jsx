@@ -2,7 +2,7 @@
 import { useState, useEffect, useCallback } from "react";
 import Table from "@/components/ui/Table";
 import Button from "@/components/ui/Button"; // Use button for actions if preferred
-import { Spinner } from "@/components/ui/Button";
+import Spinner from "@/components/ui/Spinner";
 import { apiAdminGetPendingRequests, apiAdminProcessRequest } from "@/lib/api";
 import { useAuth } from "@/hooks/useAuth";
 

@@ -4,7 +4,7 @@ import Modal from "@/components/ui/Modal"; // Your Modal component
 import Button from "@/components/ui/Button"; // Your Button component
 import { apiRequestPremium } from "@/lib/api";
 import { useAuth } from "@/hooks/useAuth"; // To check if already premium/admin
-import Spinner from "@/components/ui/Spinner";
+import Spinner from "@/components/ui/Button";
 import { FiStar } from "react-icons/fi";
 
 export default function PremiumRequestButton() {
@@ -32,7 +32,7 @@ export default function PremiumRequestButton() {
     setError(null);
     setSuccess(false);
     try {
-      await apiRequestPremium();
+      await apiRequestPremium({ userId: user.userId });
       setSuccess(true);
       // Keep modal open to show success message, close after a delay?
       setTimeout(() => setIsModalOpen(false), 3000); // Close after 3s
@@ -68,8 +68,9 @@ export default function PremiumRequestButton() {
                 will grant you access to all exclusive tools.
               </p>
               <p className="text-xs text-gray-500 dark:text-gray-500">
-                An administrator will review your request. This is not an
-                automatic payment process.
+                An administrator will review your request. Please note that
+                approval may take some time. You are already premium role if you
+                don't see this upgrade request modal.
               </p>
               {error && <p className="text-sm text-red-600">{error}</p>}
               <div className="flex justify-end gap-3 pt-4">

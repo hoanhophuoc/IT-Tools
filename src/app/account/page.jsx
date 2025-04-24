@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import { apiChangePassword } from "@/lib/api";
-import { Spinner } from "@/components/ui/Button";
+import Spinner from "@/components/ui/Spinner";
 
 export default function AccountPage() {
   const { user, isAuthenticated, loading: authLoading } = useAuth();
@@ -33,6 +33,7 @@ export default function AccountPage() {
     try {
       // API endpoint needs to accept { OldPassword, NewPassword }
       await apiChangePassword({
+        Username: user.username, // Assuming username is part of user context
         OldPassword: oldPassword,
         NewPassword: newPassword,
       });
@@ -57,7 +58,7 @@ export default function AccountPage() {
 
   if (!isAuthenticated) {
     // Optionally redirect to login
-    // useRouter().push('/login');
+    // useRouter().push('/auth/login');
     return (
       <div className="p-4 text-center text-red-600">
         You must be logged in to view this page.

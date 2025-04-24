@@ -32,9 +32,7 @@ export default function RegisterForm() {
       if (success) {
         setSuccess("Registration successful! Redirecting to login...");
         // Redirect to login page after a short delay
-        setTimeout(() => {
-          router.push("/login");
-        }, 2000); // 2 seconds delay
+        router.push("/auth/login");
       } else {
         // Error handled by register function setting its own error or throwing
         // Might get specific error from API (e.g., username taken)
@@ -106,7 +104,7 @@ export default function RegisterForm() {
       <p className="text-center text-sm text-gray-600 dark:text-gray-400">
         Already have an account?{" "}
         <Link
-          href="/login"
+          href="/auth/login"
           className="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
         >
           Login here

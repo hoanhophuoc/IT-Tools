@@ -4,7 +4,7 @@ import Table from "@/components/ui/Table";
 import Button from "@/components/ui/Button";
 import Modal from "@/components/ui/Modal";
 import ToolForm from "@/components/admin/ToolForm"; // Import the new form
-import { Spinner } from "@/components/ui/Button";
+import Spinner from "@/components/ui/Spinner";
 import {
   apiAdminGetAllTools,
   apiAdminCreateTool,

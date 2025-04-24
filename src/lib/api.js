@@ -3,14 +3,16 @@ const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:7119/api"; // Use your actual backend URL
 
 async function fetchWithAuth(url, options = {}) {
-  const token =
-    typeof window !== "undefined" ? localStorage.getItem("authToken") : null; // Check if window exists for localStorage
+  const user =
+    typeof window !== "undefined"
+      ? JSON.parse(localStorage.getItem("authUser"))
+      : null; // Check if window exists for localStorage
   const headers = {
     "Content-Type": "application/json",
     ...options.headers,
   };
-  if (token) {
-    headers["Authorization"] = `Bearer ${token}`;
+  if (user && user.token) {
+    headers["Authorization"] = `Bearer ${user.token}`;
   }
 
   try {
@@ -57,67 +59,82 @@ export const apiLogin = (credentials) =>
     method: "POST",
     body: JSON.stringify(credentials),
   });
+
 export const apiRegister = (credentials) =>
   fetchWithAuth("/auth/register", {
     method: "POST",
     body: JSON.stringify(credentials),
   });
-// Backend needs an endpoint to get current user profile based on token
-export const apiFetchUserProfile = () => fetchWithAuth("/auth/profile"); // GET request assumed
+
 // Backend needs endpoint for password change
 export const apiChangePassword = (passwords) =>
-  fetchWithAuth("/account/change-password", {
+  fetchWithAuth("/auth/change-password", {
     method: "POST",
     body: JSON.stringify(passwords),
   }); // Requires Auth
 
-// --- Tools ---
-export const apiGetEnabledTools = () => fetchWithAuth("/tools"); // Assumes returns array including: { toolId, name, description, component_url, icon, isPremium, categoryId }
+// --- Direct Password Reset (for forgot password) ---
+export const apiDirectResetPassword = (resetData) =>
+  fetchWithAuth("/auth/forgot-password", {
+    method: "POST",
+    body: JSON.stringify(resetData), // Expects { username: "...", newPassword: "..." }
+  });
+
+// --- Tools & Categories Combined Endpoint ---
+// This single endpoint now returns the hierarchical data needed for sidebar/home
+// Returns: Array<CategoryWithToolsDto>
+export const apiGetCategorizedTools = () => fetchWithAuth("/tools"); // Call the GET /api/tools endpoint
+
+// --- Individual Tool Details ---
 export const apiGetToolDetails = (
-  toolName, // <-- Changed parameter name for clarity
-) => fetchWithAuth(`/tools/${encodeURIComponent(toolName)}`); // <-- Use tool name in the API path, properly encoded
+  toolSlug, // Parameter is now slug
+) => fetchWithAuth(`/tools/${encodeURIComponent(toolSlug)}`); // Use slug in the URL
 
-// --- Categories ---
-// Assumes endpoint returns Array<{ categoryId, name, tools: Array<{ toolId, name, component_url, isPremium }>}>
-// **IMPORTANT**: Ensure this endpoint returns 'name' and 'component_url' for each tool within the category.
-export const apiGetCategories = () => fetchWithAuth("/categories");
-// Admin endpoint to get categories for dropdowns etc.
-export const apiAdminGetCategories = () => fetchWithAuth("/admin/categories"); // Assumes returns array including: { categoryId, name }
+// --- User: Upgrade Requests ---
+// User requests to upgrade to premium
+export const apiRequestPremium = (userData) =>
+  fetchWithAuth("/user/upgrade-requests", {
+    method: "POST",
+    body: JSON.stringify(userData),
+  });
 
-// --- Premium ---
-export const apiRequestPremium = () =>
-  fetchWithAuth("/premium/request", { method: "POST" }); // Requires Auth
+// --- Admin Category Fetching (Still needed for forms) ---
+// Assumes returns flat list [{ categoryId, name }]
+export const apiAdminGetCategories = () => fetchWithAuth("/admin/categories");
 
 // --- Admin: Tools ---
 export const apiAdminGetAllTools = () => fetchWithAuth("/admin/tools");
+
 export const apiAdminCreateTool = (toolData) =>
   fetchWithAuth("/admin/tools", {
     method: "POST",
     body: JSON.stringify(toolData),
   });
+
 // Assuming PUT replaces the entire resource or specific fields based on DTO
 export const apiAdminUpdateTool = (id, toolData) =>
   fetchWithAuth(`/admin/tools/${id}`, {
     method: "PUT",
     body: JSON.stringify(toolData),
   });
+
 export const apiAdminUpdateToolStatus = (id, statusData) =>
   fetchWithAuth(`/admin/tools/${id}/status`, {
     method: "PUT",
     body: JSON.stringify(statusData),
   });
+
 export const apiAdminDeleteTool = (id) =>
   fetchWithAuth(`/admin/tools/${id}`, { method: "DELETE" });
 
 // --- Admin: Users ---
 export const apiAdminGetAllUsers = () => fetchWithAuth("/admin/users");
-// Add other user management endpoints if needed
-// export const apiAdminUpdateUserRole = (userId, roleData) => fetchWithAuth(`/admin/users/${userId}/role`, { method: 'PUT', body: JSON.stringify(roleData) });
 // export const apiAdminDeleteUser = (userId) => fetchWithAuth(`/admin/users/${userId}`, { method: 'DELETE' });
 
 // --- Admin: Upgrade Requests ---
 export const apiAdminGetPendingRequests = () =>
   fetchWithAuth("/admin/upgrade-requests");
+
 export const apiAdminProcessRequest = (requestId, statusData) =>
   fetchWithAuth(`/admin/upgrade-requests/${requestId}/status`, {
     method: "PUT",

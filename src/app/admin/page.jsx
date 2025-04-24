@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth"; // Optional: for better loading/auth check
-import { Spinner } from "@/components/ui/Button";
+import Spinner from "@/components/ui/Spinner";
 
 export default function AdminRootPage() {
   const router = useRouter();

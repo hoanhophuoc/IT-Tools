@@ -2,7 +2,7 @@
 import { useState, useEffect, useCallback } from "react";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
-import { Spinner } from "@/components/ui/Button";
+import Spinner from "@/components/ui/Spinner";
 import { apiAdminGetCategories } from "@/lib/api"; // API to fetch categories
 
 // initialData will be null for adding, or a tool object for editing

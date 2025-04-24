@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import Table from "@/components/ui/Table";
-import { Spinner } from "@/components/ui/Button";
+import Spinner from "@/components/ui/Spinner";
 import { apiAdminGetAllUsers } from "@/lib/api";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -20,6 +20,7 @@ export default function AdminUsersPage() {
       // e.g., { userId, username, role, createdAt } - NO PasswordHash
       const data = await apiAdminGetAllUsers();
       setUsers(data);
+      console.log("Fetched users:", data); // Debugging log
     } catch (err) {
       setError(err.message || "Failed to load users.");
     } finally {

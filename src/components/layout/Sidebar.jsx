@@ -1,27 +1,29 @@
 // src/components/layout/Sidebar.jsx
 "use client";
-import { useState } from "react";
+import { useState } from "react"; // Removed unused useEffect from here
 import Link from "next/link";
-import { useAuth } from "@/hooks/useAuth";
-import { slugify } from "@/lib/utils"; // Import slugify
-import {
-  FiChevronRight,
-  FiChevronDown,
-  FiGrid,
-  FiSettings,
-  FiUsers,
-  FiCheckSquare,
-  FiChevronsLeft,
-  FiChevronsRight,
-} from "react-icons/fi";
+// Assuming using slugs stored in DB now
+import { FiChevronRight, FiChevronDown } from "react-icons/fi"; // Removed FiChevronsLeft
+import Spinner from "@/components/ui/Spinner"; // Import Spinner
 
-export default function Sidebar({ categories = [] }) {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+// Removed Icon Mapping - Add back if you implement category-specific icons
+
+// Receive toggleSidebar as a prop
+export default function Sidebar({
+  categories = [],
+  isSidebarOpen,
+  toggleSidebar,
+  isLoading,
+  error,
+}) {
   const [visibleCategories, setVisibleCategories] = useState({});
-  const { user } = useAuth();
+  // Removed useAuth import and related logic as Account/Admin sections are removed
+  // const { user, isAuthenticated } = useAuth();
 
-  const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
   const toggleCategory = (categoryId) => {
+    // If sidebar is closed, clicking the category name won't do anything
+    // The user needs to click the main toggle in the header first
+    if (!isSidebarOpen) return;
     setVisibleCategories((prev) => ({
       ...prev,
       [categoryId]: !prev[categoryId],
@@ -30,118 +32,103 @@ export default function Sidebar({ categories = [] }) {
 
   return (
     <>
-      {/* Sidebar Container */}
+      {/* Sidebar Container - Reverted to Dark Styling */}
       <aside
-        className={`sticky top-0 z-30 h-screen flex-shrink-0 bg-white shadow-lg transition-all duration-300 dark:bg-gray-800 ${isSidebarOpen ? "w-64" : "w-0"}`}
+        className={`sticky top-0 z-30 h-screen flex-shrink-0 border-r border-gray-700 bg-gradient-to-b from-gray-800 to-gray-900 text-gray-300 shadow-lg transition-all duration-300 md:sticky ${
+          isSidebarOpen ? "w-64" : "w-0 overflow-hidden"
+        }`}
       >
+        {/* Render content ONLY when open */}
         {isSidebarOpen && (
-          <div className="flex h-full flex-col overflow-y-auto p-4">
-            {/* Logo/Title */}
-            <div className="mb-6 flex items-center justify-between">
-              <Link
-                href="/"
-                className="text-2xl font-bold text-indigo-600 dark:text-indigo-400"
-              >
-                {" "}
-                IT-Tools{" "}
+          <div className="flex h-full flex-col">
+            {/* Header Section - Reverted Styling & Removed Button */}
+            <div className="flex h-16 flex-shrink-0 items-center justify-start border-b border-gray-700 px-4">
+              <Link href="/" className="text-xl font-bold text-white">
+                IT-Tools
               </Link>
-              <button
-                onClick={toggleSidebar}
-                className="rounded p-1 text-gray-500 hover:bg-gray-200 dark:text-gray-400 dark:hover:bg-gray-700"
-                aria-label="Collapse sidebar"
-              >
-                {" "}
-                <FiChevronsLeft size={20} />{" "}
-              </button>
+              {/* Removed Collapse Button */}
             </div>
 
-            {/* Navigation Links */}
-            <nav className="flex-grow space-y-2">
-              {(categories || []).map((category) => (
-                <div key={category.categoryId}>
-                  {/* Category Toggle Button (remains the same) */}
-                  <button
-                    onClick={() => toggleCategory(category.categoryId)}
-                    className="flex w-full items-center justify-between rounded px-3 py-2 text-left text-sm font-medium text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
-                  >
-                    <span className="flex items-center gap-2">
-                      {" "}
-                      <FiGrid size={16} /> {category.name}{" "}
-                    </span>
-                    {visibleCategories[category.categoryId] ? (
-                      <FiChevronDown size={16} />
-                    ) : (
-                      <FiChevronRight size={16} />
-                    )}
-                  </button>
-                  {/* Tool Links */}
-                  {visibleCategories[category.categoryId] && (
-                    <ul className="mt-1 space-y-1 pl-6">
-                      {(category.tools || []).map((tool) => (
-                        <li key={tool.toolId}>
-                          {/* *** CHANGE HERE: Link using tool.name (encoded) *** */}
-                          <Link
-                            href={`/${slugify(tool.name)}`} // Point directly to /{slugified-name}
-                            className="block rounded px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700"
-                          >
-                            {tool.name}{" "}
-                            {tool.isPremium && (
-                              <span className="text-xs text-yellow-500">
-                                {" "}
-                                ★
-                              </span>
-                            )}
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              ))}
+            {/* Subtitle Removed */}
+            {/* Gradient Separator Removed */}
 
-              {/* Admin Links */}
-              {user?.role === "Admin" && (
-                <>
-                  <hr className="my-4 border-gray-200 dark:border-gray-700" />
-                  <div className="space-y-1">
-                    <span className="px-3 text-xs font-semibold text-gray-500 uppercase dark:text-gray-400">
-                      Admin
-                    </span>
-                    <Link
-                      href="/admin/tools"
-                      className="flex items-center gap-2 rounded px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
-                    >
-                      <FiSettings size={16} /> Tools
-                    </Link>
-                    <Link
-                      href="/admin/users"
-                      className="flex items-center gap-2 rounded px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
-                    >
-                      <FiUsers size={16} /> Users
-                    </Link>
-                    <Link
-                      href="/admin/upgrade-requests"
-                      className="flex items-center gap-2 rounded px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
-                    >
-                      <FiCheckSquare size={16} /> Upgrade Requests
-                    </Link>
-                  </div>
-                </>
+            {/* Navigation Links - Reverted Styling */}
+            <nav className="flex-grow overflow-y-auto px-2 py-4">
+              {/* Loading State - Reverted Styling */}
+              {isLoading && (
+                <div className="flex justify-center p-4">
+                  <Spinner size="md" />
+                </div>
               )}
+              {/* Error State - Reverted Styling */}
+              {error && !isLoading && (
+                <div className="p-3 text-center text-sm text-red-400">
+                  {error}
+                </div>
+              )}
+              {/* No Categories State - Reverted Styling */}
+              {!isLoading && !error && categories.length === 0 && (
+                <div className="p-4 text-center text-sm text-gray-400">
+                  No categories found.
+                </div>
+              )}
+
+              {/* Categories and Tools - Reverted Styling */}
+              {!isLoading &&
+                !error &&
+                (categories || []).map((category) => (
+                  <div key={category.categoryId} className="mb-1">
+                    {" "}
+                    {/* Added margin-bottom */}
+                    {/* Category Toggle Button - Reverted Styling */}
+                    <button
+                      onClick={() => toggleCategory(category.categoryId)}
+                      className="group flex w-full items-center justify-between rounded px-2 py-2 text-left text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
+                    >
+                      {/* Removed icon */}
+                      <span className="flex-1">{category.name}</span>
+                      {visibleCategories[category.categoryId] ? (
+                        <FiChevronDown
+                          size={16}
+                          className="text-gray-400 opacity-60"
+                        />
+                      ) : (
+                        <FiChevronRight
+                          size={16}
+                          className="text-gray-400 opacity-60"
+                        />
+                      )}
+                    </button>
+                    {/* Tool Links - Reverted Styling */}
+                    {visibleCategories[category.categoryId] && (
+                      <ul className="mt-1 space-y-1 pl-8">
+                        {" "}
+                        {/* Adjusted padding */}
+                        {(category.tools || []).map((tool) => (
+                          <li key={tool.toolId}>
+                            <Link
+                              href={`/tools/${tool.slug}`} // Use slug
+                              className="block rounded py-1 pr-2 pl-1 text-sm text-gray-400 hover:bg-gray-700 hover:text-white"
+                            >
+                              {tool.name}
+                              {/* Premium indicator removed for simplicity, add back if needed */}
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                ))}
+
+              {/* Separator before Account/Admin Removed */}
+              {/* Account Link Removed */}
+              {/* Admin Links Removed */}
             </nav>
           </div>
         )}
       </aside>
-      {/* Expand Button outside when closed */}
-      {!isSidebarOpen && (
-        <button
-          onClick={toggleSidebar}
-          className="fixed bottom-4 left-2 z-40 rounded-full bg-indigo-600 p-2 text-white shadow-lg hover:bg-indigo-700 sm:sticky sm:top-4 sm:bottom-auto"
-          aria-label="Expand sidebar"
-        >
-          <FiChevronsRight size={20} />
-        </button>
-      )}
+
+      {/* Mobile Overlay Removed */}
     </>
   );
 }

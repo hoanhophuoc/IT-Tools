@@ -1,50 +1,34 @@
 "use client";
-import {
-  createContext,
-  useState,
-  useEffect,
-  useContext,
-  useCallback,
-} from "react";
-import { useRouter } from "next/navigation"; // Use next/navigation with App Router
-import { apiLogin, apiRegister, apiFetchUserProfile } from "@/lib/api"; // Assuming API functions exist
+import { createContext, useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import { apiLogin, apiRegister } from "@/lib/api";
 
-const AuthContext = createContext(null);
+// *** EXPORT AuthContext HERE ***
+export const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null); // Store user info { id, username, role }
-  const [token, setToken] = useState(null);
-  const [loading, setLoading] = useState(true); // Initial check loading state
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  // Check local storage on initial load
   useEffect(() => {
-    const storedToken = localStorage.getItem("authToken");
-    if (storedToken) {
-      setToken(storedToken);
-      // Optionally fetch user profile based on stored token
-      apiFetchUserProfile(storedToken)
-        .then((userData) => setUser(userData))
-        .catch(() => {
-          // Handle invalid/expired token
-          localStorage.removeItem("authToken");
-          setToken(null);
-          setUser(null);
-        })
-        .finally(() => setLoading(false));
-    } else {
-      setLoading(false); // No token found
+    let authUser = localStorage.getItem("authUser"); // Check if user is logged in
+    authUser = authUser ? JSON.parse(authUser) : null; // Parse user info from localStorage
+
+    if (authUser) {
+      setUser(authUser);
     }
+    setLoading(false); // Stop loading after checking localStorage
   }, []);
 
   const login = useCallback(
     async (username, password) => {
       try {
+        setLoading(true); // Start loading
         const response = await apiLogin({ username, password });
         if (response && response.token) {
-          setToken(response.token);
-          setUser({ username: response.username, role: response.role }); // Store basic info
-          localStorage.setItem("authToken", response.token);
+          setUser(response); // Store basic info
+          localStorage.setItem("authUser", JSON.stringify(response)); // Store user info in localStorage
           router.push("/"); // Redirect to home after login
           return true;
         }
@@ -52,6 +36,8 @@ export const AuthProvider = ({ children }) => {
       } catch (error) {
         console.error("Login failed:", error);
         return false;
+      } finally {
+        setLoading(false); // Stop loading regardless of success or failure
       }
     },
     [router],
@@ -59,26 +45,27 @@ export const AuthProvider = ({ children }) => {
 
   const register = useCallback(async (username, password) => {
     try {
+      setLoading(true); // Start loading
       await apiRegister({ username, password });
       // Optionally auto-login after registration or just show success message
       return true;
     } catch (error) {
       console.error("Registration failed:", error);
       return false;
+    } finally {
+      setLoading(false); // Stop loading regardless of success or failure
     }
   }, []);
 
   const logout = useCallback(() => {
-    setToken(null);
     setUser(null);
-    localStorage.removeItem("authToken");
-    router.push("/login"); // Redirect to login after logout
+    localStorage.removeItem("authUser");
+    router.push("/auth/login"); // Redirect to login after logout
   }, [router]);
 
   const value = {
     user,
-    token,
-    isAuthenticated: !!token,
+    isAuthenticated: !!user,
     loading,
     login,
     logout,

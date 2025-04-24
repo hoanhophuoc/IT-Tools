@@ -56,6 +56,14 @@ export default function LoginForm() {
         required
         autoComplete="current-password"
       />
+      <div className="text-right text-sm">
+        <Link
+          href="/auth/forgot-password" // Link to the new forgot password page
+          className="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
+        >
+          Forgot Password?
+        </Link>
+      </div>
       {error && (
         <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
       )}
@@ -71,7 +79,7 @@ export default function LoginForm() {
       <p className="text-center text-sm text-gray-600 dark:text-gray-400">
         Don't have an account?{" "}
         <Link
-          href="/register"
+          href="/auth/register"
           className="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
         >
           Register here

@@ -5,7 +5,7 @@ import { useAuth } from "@/hooks/useAuth"; // To protect the whole section
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { FiSettings, FiUsers, FiCheckSquare } from "react-icons/fi"; // Icons for tabs
-import { Spinner } from "@/components/ui/Button"; // Loading spinner
+import Spinner from "@/components/ui/Spinner"; // Loading spinner
 
 export default function AdminLayout({ children }) {
   const pathname = usePathname();
@@ -17,7 +17,7 @@ export default function AdminLayout({ children }) {
   useEffect(() => {
     if (!authLoading) {
       if (!isAuthenticated) {
-        router.replace("/login?redirect=/admin"); // Redirect to login if not authenticated
+        router.replace("/auth/login?redirect=/admin"); // Redirect to login if not authenticated
       } else if (user?.role !== "Admin") {
         router.replace("/?error=unauthorized"); // Redirect to home if not Admin
         // Or show a dedicated "Forbidden" page: router.replace('/forbidden');
