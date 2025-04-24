@@ -41,6 +41,11 @@ public partial class Tool
     public string ComponentUrl { get; set; } = null!;
 
     /// <summary>
+    /// Đường dẫn tới trang web của công cụ
+    /// </summary>
+    public string Slug { get; set; } = string.Empty;
+
+    /// <summary>
     /// Tên hoặc đường dẫn đến icon của công cụ
     /// </summary>
     public string Icon { get; set; } = null!;

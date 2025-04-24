@@ -3,6 +3,7 @@ using AutoMapper.QueryableExtensions;
 using IT_Tools.Data;
 using IT_Tools.Dtos.Admin;
 using IT_Tools.Dtos.Auth;
+using IT_Tools.Dtos.Categories;
 using IT_Tools.Dtos.Tools;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,6 +18,15 @@ public class AdminService(PostgreSQLContext context, IMapper mapper)
             .Include(t => t.Category)
             .OrderBy(t => t.Name)
             .ProjectTo<AdminToolDto>(mapper.ConfigurationProvider) // Use ProjectTo for efficiency
+            .ToListAsync();
+
+    /// <summary>
+    /// Gets all categories for admin view.
+    /// </summary>
+    public async Task<IEnumerable<AdminCategoryDto>> GetCategoriesAsync() =>
+        await context.Categories
+            .OrderBy(t => t.Name)
+            .ProjectTo<AdminCategoryDto>(mapper.ConfigurationProvider)
             .ToListAsync();
 
     /// <summary>
@@ -38,8 +48,7 @@ public class AdminService(PostgreSQLContext context, IMapper mapper)
         return true;
     }
 
-    // --- Upgrade Request Management ---
-
+    // --- Upgrade Request Management 
     /// <summary>
     /// Gets all pending upgrade requests.
     /// </summary>

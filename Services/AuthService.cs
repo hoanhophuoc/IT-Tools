@@ -46,4 +46,38 @@ public class AuthService(PostgreSQLContext context, IMapper mapper, PasswordHash
 
         return response;
     }
+
+    public async Task<bool> ChangePasswordAsync(ChangePasswordRequestDto changePasswordDto)
+    {
+        var user = await context.Users.FirstOrDefaultAsync(u => u.Username == changePasswordDto.Username);
+        if (user == null)
+        {
+            return false; // Người dùng không tồn tại
+        }
+        // Kiểm tra mật khẩu cũ
+        if (!passwordHasher.VerifyPassword(changePasswordDto.OldPassword, user.Password))
+        {
+            return false; // Mật khẩu cũ không đúng
+        }
+        // Hash mật khẩu mới và cập nhật
+        user.Password = passwordHasher.HashPassword(changePasswordDto.NewPassword);
+        context.Users.Update(user);
+        await context.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<bool> HandleForgotPasswordAsync(ForgotPasswordRequestDto forgotPasswordDto)
+    {
+        var user = await context.Users.FirstOrDefaultAsync(u => u.Username == forgotPasswordDto.Username);
+        if (user == null)
+        {
+            return false; // Người dùng không tồn tại
+        }
+        // Hash mật khẩu mới và cập nhật
+        user.Password = passwordHasher.HashPassword(forgotPasswordDto.NewPassword);
+        context.Users.Update(user);
+        await context.SaveChangesAsync();
+
+        return true;
+    }
 }

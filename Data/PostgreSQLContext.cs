@@ -75,6 +75,7 @@ public partial class PostgreSQLContext : DbContext
             entity.ToTable("tool", tb => tb.HasComment("Bảng lưu trữ thông tin về các công cụ IT"));
 
             entity.HasIndex(e => e.IsEnabled, "idx_tools_is_enabled");
+            entity.HasIndex(e => e.Slug, "idx_tool_slug ");
 
             entity.HasIndex(e => e.ComponentUrl, "tool_component_url_key").IsUnique();
 
@@ -90,6 +91,10 @@ public partial class PostgreSQLContext : DbContext
                 .HasMaxLength(100)
                 .HasComment("Tên component ReactJS tương ứng với công cụ, phải là duy nhất")
                 .HasColumnName("component_url");
+            entity.Property(e => e.Slug)
+                .HasMaxLength(100)
+                .HasComment("Đường dẫn thân thiện với SEO, phải là duy nhất")
+                .HasColumnName("slug");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasComment("Thời gian tạo công cụ")

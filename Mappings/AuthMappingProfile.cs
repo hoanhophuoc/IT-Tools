@@ -18,5 +18,19 @@ public class AuthMappingProfile : Profile
 
         // Map: Entity -> DTO (for Login Response - Token is set separately)
         CreateMap<User, LoginResponseDto>();
+
+        // Map: DTO -> Entity (for password change)
+        CreateMap<ChangePasswordRequestDto, User>()
+            .ForMember(dest => dest.UserId, opt => opt.Ignore()) // Ignore UserId during mapping
+            .ForMember(dest => dest.Username, opt => opt.Ignore()) // Ignore Username during mapping
+            .ForMember(dest => dest.Role, opt => opt.Ignore())     // Ignore Role during mapping
+            .ForMember(dest => dest.CreatedAt, opt => opt.Ignore()); // Ignore CreatedAt during mapping
+
+        // Map: DTO -> Entity (for forgot password)
+        CreateMap<ForgotPasswordRequestDto, User>()
+            .ForMember(dest => dest.UserId, opt => opt.Ignore()) // Ignore UserId during mapping
+            .ForMember(dest => dest.Username, opt => opt.Ignore()) // Ignore Username during mapping
+            .ForMember(dest => dest.Role, opt => opt.Ignore())     // Ignore Role during mapping
+            .ForMember(dest => dest.CreatedAt, opt => opt.Ignore()); // Ignore CreatedAt during mapping
     }
 }

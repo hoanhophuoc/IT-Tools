@@ -1,5 +1,6 @@
 ﻿using IT_Tools.Dtos.Admin;
 using IT_Tools.Dtos.Auth;
+using IT_Tools.Dtos.Categories;
 using IT_Tools.Dtos.Tools;
 using IT_Tools.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -13,7 +14,6 @@ namespace IT_Tools.Controllers;
 public class AdminController(AdminService adminService) : ControllerBase
 {
     // --- Tool Endpoints ---
-
     /// <summary>
     /// Gets a list of all tools (for admin purposes).
     /// </summary>
@@ -23,6 +23,14 @@ public class AdminController(AdminService adminService) : ControllerBase
     {
         var tools = await adminService.GetAllToolsAsync();
         return Ok(tools);
+    }
+
+    [HttpGet("categories")]
+    [ProducesResponseType(typeof(IEnumerable<AdminCategoryDto>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<IEnumerable<AdminCategoryDto>>> GetAllCategories()
+    {
+        var categories = await adminService.GetCategoriesAsync();
+        return Ok(categories);
     }
 
     /// <summary>
@@ -47,7 +55,6 @@ public class AdminController(AdminService adminService) : ControllerBase
     }
 
     // --- Upgrade Request Endpoints ---
-
     /// <summary>
     /// Gets a list of pending premium upgrade requests.
     /// </summary>

@@ -17,6 +17,7 @@ CREATE TABLE "tool" (
   "component_url" VARCHAR(100) NOT NULL UNIQUE, -- Đường dẫn đến component ReactJS
   "icon" VARCHAR(100) NOT NULL,
   "created_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+  "slug" VARCHAR(100) NOT NULL UNIQUE -- Đường dẫn thân thiện với SEO
 );
 COMMENT ON TABLE "tool" IS 'Bảng lưu trữ thông tin về các công cụ IT';
 COMMENT ON COLUMN "tool"."tool_id" IS 'ID định danh duy nhất cho mỗi công cụ';
@@ -28,6 +29,7 @@ COMMENT ON COLUMN "tool"."is_premium" IS 'Đánh dấu công cụ có phải là
 COMMENT ON COLUMN "tool"."component_url" IS 'Đường dẫn tới component ReactJS tương ứng với công cụ, phải là duy nhất';
 COMMENT ON COLUMN "tool"."icon" IS 'Tên hoặc đường dẫn đến icon của công cụ';
 COMMENT ON COLUMN "tool"."created_at" IS 'Thời gian tạo công cụ';
+COMMENT ON COLUMN "tool"."slug" IS 'Đường dẫn thân thiện với SEO, phải là duy nhất';
 
 CREATE TABLE "user" (
   "user_id" serial PRIMARY KEY,
@@ -78,5 +80,7 @@ CREATE INDEX idx_users_role ON "user"(role);
 COMMENT ON INDEX idx_users_role IS 'Index trên cột role của bảng user để tăng tốc độ truy vấn theo vai trò';
 CREATE INDEX idx_tools_is_enabled ON tool(is_enabled);
 COMMENT ON INDEX idx_tools_is_enabled IS 'Index trên cột is_enabled của bảng tool để tăng tốc độ lọc công cụ theo trạng thái';
+CREATE UNIQUE INDEX idx_tool_slug ON "tool"(slug);
+COMMENT ON INDEX idx_tool_slug IS 'Index trên cột slug của bảng tool để tăng tốc độ truy vấn theo đường dẫn thân thiện với SEO';
 CREATE INDEX idx_userfavoritetools_user ON favorite_tool(user_id);
 COMMENT ON INDEX idx_userfavoritetools_user IS 'Index trên cột user_id của bảng favorite_tool để tăng tốc độ truy vấn công cụ yêu thích của người dùng';

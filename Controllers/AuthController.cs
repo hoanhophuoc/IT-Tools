@@ -63,4 +63,50 @@ public class AuthController(AuthService authService) : ControllerBase
         // Đăng nhập thành công, trả về token và thông tin user (đã có trong LoginResponseDto)
         return Ok(loginResponse);
     }
+
+    /// <summary>
+    /// Thay đổi mật khẩu cho người dùng đã đăng nhập.
+    /// </summary>
+    [HttpPost("change-password")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequestDto changePasswordDto)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+        var result = await authService.ChangePasswordAsync(changePasswordDto);
+        if (!result)
+        {
+            // Thất bại, có thể do mật khẩu cũ không đúng hoặc người dùng không tồn tại
+            return Unauthorized(new { message = "Invalid old password or user not found." });
+        }
+        // Đổi mật khẩu thành công
+        return Ok(new { message = "Password changed successfully." });
+    }
+
+    /// <summary>
+    /// Khôi phục mật khẩu cho người dùng.
+    /// </summary>
+    [HttpPost("forgot-password")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequestDto forgotPasswordDto)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+        var result = await authService.HandleForgotPasswordAsync(forgotPasswordDto);
+        if (!result)
+        {
+            // Thất bại, có thể do người dùng không tồn tại
+            return Unauthorized(new { message = "User not found." });
+        }
+        // Khôi phục mật khẩu thành công
+        return Ok(new { message = "Password reset successfully." });
+    }
 }

@@ -8,14 +8,14 @@ public class ToolMappingProfile : Profile
 {
     public ToolMappingProfile()
     {
-        // Map: Entity -> DTO (for reading data)
-        CreateMap<Tool, ToolSummaryDto>()
-            .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category != null ? src.Category.Name : null)); // Handle Category Name
+        // Tool Entity -> ToolSummaryDto
+        CreateMap<Tool, ToolSummaryDto>(); // Slug should map automatically by name
 
-        CreateMap<Tool, ToolDetailsDto>()
-            .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category != null ? src.Category.Name : null)); // Handle Category Name
+        // Tool Entity -> ToolDetailsDto
+        CreateMap<Tool, ToolDetailsDto>();
 
-        // Map: DTO -> Entity (for creating data)
-        CreateMap<CreateToolDto, Tool>(); // AutoMapper maps matching property names
+        // CreateToolDto -> Tool Entity (IGNORE Slug - it will be generated)
+        CreateMap<CreateToolDto, Tool>()
+            .ForMember(dest => dest.Slug, opt => opt.Ignore()); // Don't map from DTO
     }
 }
