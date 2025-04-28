@@ -1,11 +1,12 @@
-// src/app/(main)/[toolSlug]/page.jsx <-- Renamed file
+// src/app/[toolSlug]/page.jsx (or src/app/(main)/[toolSlug]/page.jsx)
 "use client";
 
 import React, { Suspense, useState, useEffect } from "react";
 import dynamic from "next/dynamic";
-import { useParams, notFound } from "next/navigation";
+import { useParams, notFound, useRouter } from "next/navigation";
 import { apiGetToolDetails } from "@/lib/api";
-import Spinner from "@/components/ui/Spinner";
+import Spinner from "@/components/ui/Spinner"; // Ensure correct import
+import Button from "@/components/ui/Button"; // Import Button if used in permission denied block
 import { useAuth } from "@/hooks/useAuth";
 
 const getComponentPath = (componentUrl) => {
@@ -51,7 +52,7 @@ export default function ToolPage() {
     const fetchAndLoadTool = async () => {
       try {
         const details = await apiGetToolDetails(toolSlug);
-        if (!details || !details.component_url) {
+        if (!details || !details.componentUrl) {
           throw new Error("Tool details not found or invalid configuration.");
         }
         setToolDetails(details);
@@ -75,10 +76,10 @@ export default function ToolPage() {
         }
         // --- END PERMISSION CHECK ---
 
-        const componentPath = getComponentPath(details.component_url);
+        const componentPath = getComponentPath(details.componentUrl);
         if (!componentPath) {
           throw new Error(
-            `Invalid component path configured: ${details.component_url}`,
+            `Invalid component path configured: ${details.componentUrl}`,
           );
         }
 
@@ -86,11 +87,11 @@ export default function ToolPage() {
           () =>
             import(componentPath).catch((err) => {
               console.error(
-                `Failed to import component at ${componentPath} (URL: ${details.component_url}):`,
+                `Failed to import component at ${componentPath} (URL: ${details.componentUrl}):`,
                 err,
               );
               throw new Error(
-                `Component module not found or failed to load at path: ${details.component_url}. Check server logs.`,
+                `Component module not found or failed to load at path: ${details.componentUrl}. Check server logs.`,
               );
             }),
           { suspense: true, ssr: false },
@@ -132,7 +133,7 @@ export default function ToolPage() {
         <h2 className="mb-2 text-lg font-semibold">
           Premium Tool Access Required
         </h2>
-        <p className="mb-4 text-sm">{error}</p>
+        <p className="mb-4">{error}</p>
         {!isAuthenticated && ( // Prompt anonymous users to log in
           <Button
             variant="primary"
@@ -169,16 +170,14 @@ export default function ToolPage() {
 
   return (
     <div className="w-full rounded-lg bg-white p-6 shadow dark:bg-gray-800">
-      <h1 className="mb-4 border-b border-gray-200 pb-2 text-2xl font-semibold dark:border-gray-700">
+      <h1 className="mb-4 border-b border-gray-200 pb-2 text-4xl font-semibold dark:border-gray-700">
         {toolDetails.name}
         {toolDetails.isPremium && (
-          <span className="ml-2 align-middle text-sm text-yellow-500">
-            ★ Premium
-          </span>
+          <span className="ml-2 align-middle text-yellow-500">★ Premium</span>
         )}
       </h1>
       {toolDetails.description && (
-        <p className="mb-6 text-sm text-gray-600 dark:text-gray-400">
+        <p className="mb-6 text-gray-600 dark:text-gray-400">
           {toolDetails.description}
         </p>
       )}

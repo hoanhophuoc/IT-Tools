@@ -11,6 +11,7 @@ import {
   FiStar,
   FiMenu,
   FiHome,
+  FiShield,
 } from "react-icons/fi";
 
 // Receive props from layout - only toggleSidebar is strictly needed now
@@ -63,6 +64,16 @@ export default function Header({ isSidebarOpen, toggleSidebar }) {
           <div className="h-6 w-16 animate-pulse rounded bg-gray-700"></div>
         ) : isAuthenticated ? (
           <>
+            {/* Admin Link - Add this */}
+            {user?.role === "Admin" && (
+              <Link
+                href="/admin"
+                className="flex items-center gap-1 rounded p-2 text-sm text-gray-400 hover:bg-gray-700 hover:text-white"
+                title="Admin Panel"
+              >
+                <FiShield size={16} />
+              </Link>
+            )}
             {/* Account Link */}
             <Link
               href="/account"

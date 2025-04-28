@@ -1,4 +1,4 @@
-// src/tools/converters/ColorConverter.jsx
+// src/tools/converter/ColorConverter.jsx
 "use client"; // This specific tool needs client-side interaction
 import { useState } from "react";
 import Input from "@/components/ui/Input";

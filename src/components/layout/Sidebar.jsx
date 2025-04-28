@@ -2,8 +2,13 @@
 "use client";
 import { useState } from "react"; // Removed unused useEffect from here
 import Link from "next/link";
+import Image from "next/image";
 // Assuming using slugs stored in DB now
-import { FiChevronRight, FiChevronDown } from "react-icons/fi"; // Removed FiChevronsLeft
+import {
+  FiChevronRight,
+  FiChevronDown,
+  FiTool, // <-- Thêm FiTool làm icon mặc định
+} from "react-icons/fi";
 import Spinner from "@/components/ui/Spinner"; // Import Spinner
 
 // Removed Icon Mapping - Add back if you implement category-specific icons
@@ -17,12 +22,7 @@ export default function Sidebar({
   error,
 }) {
   const [visibleCategories, setVisibleCategories] = useState({});
-  // Removed useAuth import and related logic as Account/Admin sections are removed
-  // const { user, isAuthenticated } = useAuth();
-
   const toggleCategory = (categoryId) => {
-    // If sidebar is closed, clicking the category name won't do anything
-    // The user needs to click the main toggle in the header first
     if (!isSidebarOpen) return;
     setVisibleCategories((prev) => ({
       ...prev,
@@ -62,13 +62,11 @@ export default function Sidebar({
               )}
               {/* Error State - Reverted Styling */}
               {error && !isLoading && (
-                <div className="p-3 text-center text-sm text-red-400">
-                  {error}
-                </div>
+                <div className="p-3 text-center text-red-400">{error}</div>
               )}
               {/* No Categories State - Reverted Styling */}
               {!isLoading && !error && categories.length === 0 && (
-                <div className="p-4 text-center text-sm text-gray-400">
+                <div className="p-4 text-center text-gray-400">
                   No categories found.
                 </div>
               )}
@@ -83,7 +81,7 @@ export default function Sidebar({
                     {/* Category Toggle Button - Reverted Styling */}
                     <button
                       onClick={() => toggleCategory(category.categoryId)}
-                      className="group flex w-full items-center justify-between rounded px-2 py-2 text-left text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
+                      className="group flex w-full items-center justify-between rounded px-2 py-2 text-left font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
                     >
                       {/* Removed icon */}
                       <span className="flex-1">{category.name}</span>
@@ -104,31 +102,69 @@ export default function Sidebar({
                       <ul className="mt-1 space-y-1 pl-8">
                         {" "}
                         {/* Adjusted padding */}
-                        {(category.tools || []).map((tool) => (
-                          <li key={tool.toolId}>
-                            <Link
-                              href={`/tools/${tool.slug}`} // Use slug
-                              className="block rounded py-1 pr-2 pl-1 text-sm text-gray-400 hover:bg-gray-700 hover:text-white"
-                            >
-                              {tool.name}
-                              {/* Premium indicator removed for simplicity, add back if needed */}
-                            </Link>
-                          </li>
-                        ))}
+                        {(category.tools || []).map((tool) => {
+                          // *** THÊM LOGIC ICON TOOL ***
+                          const iconSrc = tool.icon
+                            ? `/images/icons/${tool.icon}`
+                            : null;
+                          return (
+                            <li key={tool.toolId}>
+                              <Link
+                                href={`/tools/${tool.slug}`}
+                                // Thêm flex và items-center để căn chỉnh icon và text
+                                className="flex items-center gap-2 rounded py-1 pr-2 pl-1 text-gray-400 hover:bg-gray-700 hover:text-white"
+                              >
+                                {/* Render Icon */}
+                                {iconSrc ? (
+                                  <Image
+                                    src={iconSrc}
+                                    alt="" // Alt text trống vì link đã có text
+                                    width={24} // Kích thước nhỏ cho sidebar
+                                    height={24}
+                                    className="flex-shrink-0" // Ngăn icon co lại
+                                    onError={(e) => {
+                                      e.currentTarget.style.display =
+                                        "none"; /* Hide broken image */
+                                    }}
+                                  />
+                                ) : (
+                                  <FiTool
+                                    size={24}
+                                    className="flex-shrink-0 text-gray-500"
+                                  /> // Icon mặc định
+                                )}
+                                {/* Tool Name */}
+                                <span className="flex-grow text-white opacity-80">
+                                  {tool.name}
+                                </span>{" "}
+                                {/* Cho phép text giãn ra */}
+                                {/* Premium indicator */}
+                                {tool.isPremium && (
+                                  <span className="ml-1 flex-shrink-0 text-yellow-500">
+                                    ★
+                                  </span>
+                                )}
+                              </Link>
+                            </li>
+                          );
+                        })}
                       </ul>
                     )}
                   </div>
                 ))}
-
-              {/* Separator before Account/Admin Removed */}
-              {/* Account Link Removed */}
-              {/* Admin Links Removed */}
             </nav>
           </div>
         )}
       </aside>
 
-      {/* Mobile Overlay Removed */}
+      {/* Mobile Overlay - Vẫn nên giữ lại để đóng sidebar trên mobile */}
+      {isSidebarOpen && (
+        <div
+          onClick={toggleSidebar}
+          className="fixed inset-0 z-20 bg-black opacity-30 md:hidden"
+          aria-hidden="true"
+        ></div>
+      )}
     </>
   );
 }

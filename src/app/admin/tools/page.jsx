@@ -61,34 +61,28 @@ export default function AdminToolsPage() {
   // Called by ToolForm on successful save
   const handleSaveTool = async (formData) => {
     setIsSaving(true);
-    setError(null); // Clear previous errors specifically for save action
+    setError(null);
     try {
-      // Backend expects DTO matching CreateToolDto or UpdateToolDto structure
-      // Ensure formData is correctly structured before sending
       const payload = {
         name: formData.name,
         description: formData.description,
-        categoryId: parseInt(formData.categoryId, 10), // Ensure integer
-        component_url: formData.component_url,
+        categoryName: formData.categoryName,
+        componentUrl: formData.componentUrl,
         icon: formData.icon,
         isPremium: formData.isPremium,
         isEnabled: formData.isEnabled,
       };
 
       if (editingTool) {
-        // Update requires the ID
         await apiAdminUpdateTool(editingTool.toolId, payload);
       } else {
-        // Create
         await apiAdminCreateTool(payload);
       }
       handleCloseModal();
       fetchTools(); // Refresh the list
     } catch (err) {
       console.error("Failed to save tool:", err);
-      // Display error to the user, potentially inside the modal or globally
       setError(`Save failed: ${err.message}`);
-      // Keep modal open by *not* calling handleCloseModal() here
     } finally {
       setIsSaving(false);
     }
@@ -121,7 +115,7 @@ export default function AdminToolsPage() {
     { key: "toolId", label: "ID" },
     { key: "name", label: "Name" },
     { key: "categoryName", label: "Category" },
-    { key: "component_url", label: "Component URL" }, // Updated field name
+    { key: "componentUrl", label: "Component URL" }, // Updated field name
     { key: "isPremium", label: "Premium" }, // Rendered by Table component
     { key: "isEnabled", label: "Status" }, // Rendered by Table component
     {

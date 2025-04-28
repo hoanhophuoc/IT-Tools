@@ -5,31 +5,28 @@ import Button from "@/components/ui/Button";
 import Spinner from "@/components/ui/Spinner";
 import { apiAdminGetCategories } from "@/lib/api"; // API to fetch categories
 
-// initialData will be null for adding, or a tool object for editing
 export default function ToolForm({ initialData, onSave, onCancel, isLoading }) {
   const [formData, setFormData] = useState({
     name: "",
     description: "",
-    categoryId: "", // Store ID, not name
-    component_url: "", // Renamed from componentName based on user feedback
+    categoryName: "",
+    componentUrl: "",
     icon: "",
     isPremium: false,
-    isEnabled: true, // Default to enabled for new tools
-    // Add other fields if your Tool entity has them
+    isEnabled: true,
   });
   const [categories, setCategories] = useState([]);
   const [loadingCategories, setLoadingCategories] = useState(true);
-  const [errors, setErrors] = useState({}); // For form validation
+  const [errors, setErrors] = useState({});
 
-  // Fetch categories for the dropdown
   const fetchCategories = useCallback(async () => {
     setLoadingCategories(true);
     try {
       const cats = await apiAdminGetCategories(); // Assumes API returns [{ categoryId, name }]
       setCategories(cats || []);
-      // Set default category if adding and categories exist
+      // Set default category NAME if adding and categories exist
       if (!initialData && cats && cats.length > 0) {
-        setFormData((prev) => ({ ...prev, categoryId: cats[0].categoryId }));
+        setFormData((prev) => ({ ...prev, categoryName: cats[0].name })); // <-- Set name
       }
     } catch (error) {
       console.error("Failed to load categories:", error);
@@ -49,31 +46,35 @@ export default function ToolForm({ initialData, onSave, onCancel, isLoading }) {
   // Populate form if initialData (for editing) is provided
   useEffect(() => {
     if (initialData) {
+      const initialCategory = categories.find(
+        (c) => c.categoryId === initialData.categoryId,
+      );
       setFormData({
         name: initialData.name || "",
         description: initialData.description || "",
-        categoryId:
-          initialData.categoryId ||
-          (categories.length > 0 ? categories[0].categoryId : ""), // Use existing or default
-        component_url: initialData.component_url || "", // Use the correct field name
+        categoryName:
+          initialCategory?.name ||
+          (categories.length > 0 ? categories[0].name : ""), // <-- Set name
+        componentUrl: initialData.componentUrl || "",
         icon: initialData.icon || "",
         isPremium: initialData.isPremium || false,
         isEnabled:
-          initialData.isEnabled === undefined ? true : initialData.isEnabled, // Handle undefined status
+          initialData.isEnabled === undefined ? true : initialData.isEnabled,
       });
     } else {
-      // Reset form for adding (ensure default category is set if categories loaded)
+      // Reset form for adding
       setFormData({
         name: "",
         description: "",
-        categoryId: categories.length > 0 ? categories[0].categoryId : "",
-        component_url: "",
+        categoryName: categories.length > 0 ? categories[0].name : "", // <-- Set default name
+        componentUrl: "",
         icon: "",
         isPremium: false,
         isEnabled: true,
       });
     }
-  }, [initialData, categories]); // Re-run if initialData or categories change
+    // Depend on categories loading as well to set default/initial correctly
+  }, [initialData, categories]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -88,38 +89,30 @@ export default function ToolForm({ initialData, onSave, onCancel, isLoading }) {
   };
 
   const handleCategoryChange = (e) => {
-    setFormData((prev) => ({
-      ...prev,
-      categoryId: parseInt(e.target.value, 10) || "",
-    }));
-    if (errors.categoryId) {
-      setErrors((prev) => ({ ...prev, categoryId: null }));
+    setFormData((prev) => ({ ...prev, categoryName: e.target.value }));
+    if (errors.categoryName) {
+      setErrors((prev) => ({ ...prev, categoryName: null }));
     }
   };
 
   const validateForm = () => {
     const newErrors = {};
     if (!formData.name.trim()) newErrors.name = "Tool name is required.";
-    if (!formData.component_url.trim())
-      newErrors.component_url = "Component URL is required.";
-    else if (!formData.component_url.startsWith("tools/"))
-      newErrors.component_url = "URL must start with 'tools/'.";
-    if (!formData.categoryId) newErrors.categoryId = "Category is required.";
-    // Add more validation rules as needed
+    if (!formData.componentUrl.trim())
+      newErrors.componentUrl = "Component URL is required.";
+    else if (!formData.componentUrl.startsWith("tools/"))
+      newErrors.componentUrl = "URL must start with 'tools/'.";
+    if (!formData.categoryName)
+      newErrors.categoryName = "Category is required."; // <-- Validate name
 
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0; // Return true if no errors
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (validateForm()) {
-      // Create payload, ensuring categoryId is a number
-      const payload = {
-        ...formData,
-        categoryId: parseInt(formData.categoryId, 10),
-      };
-      onSave(payload); // Pass validated and formatted data to parent
+      onSave(formData);
     }
   };
 
@@ -145,12 +138,12 @@ export default function ToolForm({ initialData, onSave, onCancel, isLoading }) {
         // Not strictly required maybe
       />
       <Input
-        label="Component URL (e.g., tools/converters/MyTool.jsx)"
-        id="component_url"
-        name="component_url"
-        value={formData.component_url}
+        label="Component URL (e.g., tools/converter/MyTool.jsx)"
+        id="componentUrl"
+        name="componentUrl"
+        value={formData.componentUrl}
         onChange={handleChange}
-        error={errors.component_url}
+        error={errors.componentUrl}
         required
         placeholder="tools/category/ComponentName.jsx"
       />
@@ -165,25 +158,25 @@ export default function ToolForm({ initialData, onSave, onCancel, isLoading }) {
           <Spinner size="sm" />
         ) : (
           <select
-            id="categoryId"
-            name="categoryId"
-            value={formData.categoryId}
+            id="categoryName"
+            name="categoryName"
+            value={formData.categoryName}
             onChange={handleCategoryChange}
             required
-            className={`mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-indigo-400 ${errors.categoryId ? "border-red-500" : ""}`}
+            className={`mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-indigo-400 ${errors.categoryName ? "border-red-500" : ""}`}
           >
             <option value="" disabled>
               -- Select Category --
             </option>
             {categories.map((cat) => (
-              <option key={cat.categoryId} value={cat.categoryId}>
+              <option key={cat.categoryId} value={cat.name}>
                 {cat.name}
               </option>
             ))}
           </select>
         )}
-        {errors.categoryId && (
-          <p className="mt-1 text-xs text-red-600">{errors.categoryId}</p>
+        {errors.categoryName && (
+          <p className="mt-1 text-xs text-red-600">{errors.categoryName}</p>
         )}
         {errors.category && (
           <p className="mt-1 text-xs text-red-600">{errors.category}</p>
