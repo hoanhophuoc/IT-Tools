@@ -28,5 +28,14 @@ public class AdminMappingProfile : Profile
 
         // Map Category Entity to AdminCategoryDto
         CreateMap<Category, AdminCategoryDto>();
+        // CreateToolDto -> Tool Entity (IGNORE Slug - it will be generated)
+
+        CreateMap<CreateToolDto, Tool>()
+            .ForMember(dest => dest.Slug, opt => opt.Ignore()) // Slug is generated in service
+            .ForMember(dest => dest.CategoryId, opt => opt.Ignore()) // CategoryId is looked up in service
+            .ForMember(dest => dest.Category, opt => opt.Ignore()) // Ignore navigation property during mapping
+            .ForMember(dest => dest.FavoriteTools, opt => opt.Ignore()) // Ignore collections
+            .ForMember(dest => dest.ToolId, opt => opt.Ignore()) // Ignore PK
+            .ForMember(dest => dest.CreatedAt, opt => opt.Ignore()); // Ignore timestamp (DB default or service sets)
     }
 }

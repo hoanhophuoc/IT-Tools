@@ -1,9 +1,6 @@
 ﻿using AutoMapper;
 using IT_Tools.Data;
 using IT_Tools.Dtos.Categories;
-using IT_Tools.Dtos.Tools;
-using IT_Tools.Models;
-using IT_Tools.Utils;
 using Microsoft.EntityFrameworkCore;
 
 namespace IT_Tools.Services;
@@ -49,25 +46,5 @@ public class ToolService(PostgreSQLContext context, IMapper mapper)
             .FirstOrDefaultAsync(t => t.Slug == slug && t.IsEnabled); // Find by slug and ensure enabled
 
         return mapper.Map<ToolDetailsDto?>(foundTool); // Map (handles null)
-    }
-
-    public async Task<bool> CreateToolAsync(CreateToolDto createDto)
-    {
-        var categoryExists = await context.Categories.AnyAsync(c => c.Name == createDto.CategoryName);
-        if (!categoryExists)
-        {
-            await context.Categories.AddAsync(new Category { Name = createDto.CategoryName! });
-        }
-
-        // *** Generate Slug from Name ***
-        string generatedSlug = StringUtils.Slugify(createDto.Name);
-
-        var newTool = mapper.Map<Tool>(createDto);
-        newTool.Slug = generatedSlug;
-
-        await context.Tools.AddAsync(newTool);
-        await context.SaveChangesAsync();
-
-        return true;
     }
 }

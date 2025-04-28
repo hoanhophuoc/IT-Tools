@@ -5,6 +5,8 @@ using IT_Tools.Dtos.Admin;
 using IT_Tools.Dtos.Auth;
 using IT_Tools.Dtos.Categories;
 using IT_Tools.Dtos.Tools;
+using IT_Tools.Models;
+using IT_Tools.Utils;
 using Microsoft.EntityFrameworkCore;
 
 namespace IT_Tools.Services;
@@ -96,4 +98,62 @@ public class AdminService(PostgreSQLContext context, IMapper mapper)
     public async Task<IEnumerable<AdminUserDto>> GetAllUsersAsync() => await context.Users
             .ProjectTo<AdminUserDto>(mapper.ConfigurationProvider) // Use ProjectTo for efficiency
             .ToListAsync();
+
+
+    /// <summary>
+    /// Creates a new tool.
+    /// </summary>
+    public async Task<bool> CreateToolAsync(CreateToolDto createDto)
+    {
+        var category = await context.Categories
+                                .AsNoTracking()
+                                .FirstOrDefaultAsync(c => c.Name == createDto.CategoryName);
+
+        if (category == null)
+        {
+            Console.WriteLine($"Error: Category '{createDto.CategoryName}' not found.");
+            return false;
+        }
+
+        // *** Generate Slug from Name ***
+        string generatedSlug = StringUtils.Slugify(createDto.Name);
+
+        var newTool = mapper.Map<Tool>(createDto);
+        newTool.Slug = generatedSlug;
+        newTool.CategoryId = category.CategoryId;
+
+        await context.Tools.AddAsync(newTool);
+        await context.SaveChangesAsync();
+
+        return true;
+    }
+    //public async Task<ToolDetailsDto?> CreateToolAsync(CreateToolDto createDto)
+    //{
+    //    var category = await context.Categories
+    //                            .AsNoTracking()
+    //                            .FirstOrDefaultAsync(c => c.Name == createDto.CategoryName);
+
+    //    if (category == null)
+    //    {
+    //        Console.WriteLine($"Error: Category '{createDto.CategoryName}' not found.");
+    //        return null;
+    //    }
+
+    //    // *** Generate Slug from Name ***
+    //    string generatedSlug = StringUtils.Slugify(createDto.Name);
+
+    //    var newTool = mapper.Map<Tool>(createDto);
+    //    newTool.Slug = generatedSlug;
+    //    newTool.CategoryId = category.CategoryId;
+
+    //    await context.Tools.AddAsync(newTool);
+    //    await context.SaveChangesAsync();
+
+    //    var createdToolEntity = await context.Tools
+    //    .Include(t => t.Category)
+    //    .AsNoTracking() // Read-only fetch for response
+    //    .FirstOrDefaultAsync(t => t.ToolId == newTool.ToolId);
+
+    //    return mapper.Map<ToolDetailsDto>(createdToolEntity);
+    //}
 }

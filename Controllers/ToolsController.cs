@@ -1,5 +1,4 @@
 ﻿using IT_Tools.Dtos.Categories;
-using IT_Tools.Dtos.Tools;
 using IT_Tools.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -42,20 +41,5 @@ public class ToolsController(ToolService toolService) : ControllerBase
 
         // Permission check etc.
         return Ok(tool);
-    }
-
-    // Tạo tool mới
-    [HttpPost]
-    [ProducesResponseType(StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<IActionResult>> CreateTool([FromBody] CreateToolDto createDto)
-    {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-        var success = await toolService.CreateToolAsync(createDto);
-
-        return !success ? BadRequest(new { message = "Failed to create tool." }) : Created();
     }
 }

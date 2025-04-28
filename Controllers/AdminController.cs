@@ -98,4 +98,35 @@ public class AdminController(AdminService adminService) : ControllerBase
         var users = await adminService.GetAllUsersAsync();
         return Ok(users);
     }
+
+    /// <summary>
+    /// Creates a new tool
+    /// </summary>
+    [HttpPost("tools")]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> CreateTool([FromBody] CreateToolDto createDto)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+        var success = await adminService.CreateToolAsync(createDto);
+
+        //if (newTool == null)
+        //{
+        //    // Service trả về null (ví dụ: category không hợp lệ)
+        //    // Trả về BadRequestObjectResult (là một ActionResult) -> HỢP LỆ với ActionResult<T>
+        //    return BadRequest(new { message = "Failed to create tool. Invalid Category Name or other issue." });
+        //}
+
+        //return CreatedAtAction(
+        //     nameof(ToolsController.GetToolDetails),
+        //     "Tools", // Controller name
+        //     new { slugIdentifier = newTool.Slug }, // Route values
+        //     newTool); // <-- Value trả về (kiểu ToolDetailsDto)
+        return !success ?
+            BadRequest(new { message = "Failed to create tool. Invalid Category Name or other issue." }) :
+            Created();
+    }
 }
