@@ -4,7 +4,7 @@ import Modal from "@/components/ui/Modal"; // Your Modal component
 import Button from "@/components/ui/Button"; // Your Button component
 import { apiRequestPremium } from "@/lib/api";
 import { useAuth } from "@/hooks/useAuth"; // To check if already premium/admin
-import Spinner from "@/components/ui/Button";
+import Spinner from "@/components/ui/Spinner";
 import { FiStar } from "react-icons/fi";
 
 export default function PremiumRequestButton() {

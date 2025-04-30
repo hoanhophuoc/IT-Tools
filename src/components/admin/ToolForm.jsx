@@ -95,24 +95,64 @@ export default function ToolForm({ initialData, onSave, onCancel, isLoading }) {
     }
   };
 
+  // *** ENHANCED VALIDATION FUNCTION ***
   const validateForm = () => {
     const newErrors = {};
-    if (!formData.name.trim()) newErrors.name = "Tool name is required.";
-    if (!formData.componentUrl.trim())
-      newErrors.componentUrl = "Component URL is required.";
-    else if (!formData.componentUrl.startsWith("tools/"))
-      newErrors.componentUrl = "URL must start with 'tools/'.";
-    if (!formData.categoryName)
-      newErrors.categoryName = "Category is required."; // <-- Validate name
+    // Trim values before checking emptiness
+    const name = formData.name.trim();
+    const description = formData.description.trim();
+    const componentUrl = formData.componentUrl.trim();
+    const icon = formData.icon.trim();
+    const categoryName = formData.categoryName; // Dropdown ensures selection or empty string
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    // Check required fields based on your NOT NULL constraints
+    if (!name) {
+      newErrors.name = "Tool name is required.";
+    } else if (name.length > 50) {
+      // Optional: Check max length from DB
+      newErrors.name = "Tool name cannot exceed 50 characters.";
+    }
+
+    if (!description) {
+      newErrors.description = "Tool description is required.";
+    }
+    // Note: categoryId is handled via categoryName lookup on backend,
+    // but we need to ensure a category *name* is selected
+    if (!categoryName) {
+      // Check if a category name was selected/provided
+      newErrors.categoryName = "Category is required.";
+    }
+
+    if (!componentUrl) {
+      newErrors.componentUrl = "Component URL is required.";
+    } else if (!componentUrl.startsWith("tools/")) {
+      newErrors.componentUrl = "URL must start with 'tools/'.";
+    } else if (componentUrl.length > 100) {
+      // Optional: Check max length
+      newErrors.componentUrl = "Component URL cannot exceed 100 characters.";
+    }
+
+    if (!icon) {
+      newErrors.icon = "Icon filename is required.";
+    } else if (icon.length > 100) {
+      // Optional: Check max length
+      newErrors.icon = "Icon filename cannot exceed 100 characters.";
+    }
+
+    // isEnabled and isPremium are booleans, usually have default values,
+    // no empty check needed unless you have specific rules.
+
+    setErrors(newErrors); // Update the errors state
+    return Object.keys(newErrors).length === 0; // Return true if no errors found
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    // *** Call validateForm before proceeding ***
     if (validateForm()) {
-      onSave(formData);
+      onSave(formData); // Call parent save function only if validation passes
+    } else {
+      console.log("Form validation failed:", errors); // Log errors for debugging
     }
   };
 
@@ -127,6 +167,7 @@ export default function ToolForm({ initialData, onSave, onCancel, isLoading }) {
         onChange={handleChange}
         error={errors.name}
         required
+        maxLength={50}
       />
       <Input
         label="Description"
@@ -135,6 +176,8 @@ export default function ToolForm({ initialData, onSave, onCancel, isLoading }) {
         value={formData.description}
         onChange={handleChange}
         error={errors.description}
+        required
+        rows={4}
         // Not strictly required maybe
       />
       <Input
@@ -146,6 +189,7 @@ export default function ToolForm({ initialData, onSave, onCancel, isLoading }) {
         error={errors.componentUrl}
         required
         placeholder="tools/category/ComponentName.jsx"
+        maxLength={100}
       />
       <div>
         <label
@@ -190,7 +234,9 @@ export default function ToolForm({ initialData, onSave, onCancel, isLoading }) {
         value={formData.icon}
         onChange={handleChange}
         error={errors.icon}
-        placeholder="my-tool-icon.png"
+        required
+        placeholder="my-tool-icon.svg"
+        maxLength={100}
       />
 
       {/* Checkboxes/Toggles for booleans */}

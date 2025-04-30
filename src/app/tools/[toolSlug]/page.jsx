@@ -1,12 +1,13 @@
-// src/app/[toolSlug]/page.jsx (or src/app/(main)/[toolSlug]/page.jsx)
+// src/app/[toolSlug]/page.jsx
 "use client";
 
 import React, { Suspense, useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { useParams, notFound, useRouter } from "next/navigation";
 import { apiGetToolDetails } from "@/lib/api";
-import Spinner from "@/components/ui/Spinner"; // Ensure correct import
-import Button from "@/components/ui/Button"; // Import Button if used in permission denied block
+import Spinner from "@/components/ui/Spinner";
+import Button from "@/components/ui/Button";
+import FavoriteButton from "@/components/ui/FavoriteButton"; // Import FavoriteButton
 import { useAuth } from "@/hooks/useAuth";
 
 const getComponentPath = (componentUrl) => {
@@ -105,6 +106,12 @@ export default function ToolPage() {
             err.message.toLowerCase().includes("not found"))
         ) {
           notFound();
+        } else if (
+          err.message &&
+          (err.message.includes("403") ||
+            err.message.toLowerCase().includes("not found"))
+        ) {
+          setPermissionDenied(true); // Set specific state
         } else {
           setError(`Failed to load tool: ${err.message}`);
         }
@@ -142,8 +149,6 @@ export default function ToolPage() {
             Login to Access
           </Button>
         )}
-        {/* Optionally show Go Premium button for logged-in non-premium users */}
-        {/* {isAuthenticated && user?.role === 'User' && <PremiumRequestButton />} */}
       </div>
     );
   }
@@ -170,12 +175,32 @@ export default function ToolPage() {
 
   return (
     <div className="w-full rounded-lg bg-white p-6 shadow dark:bg-gray-800">
-      <h1 className="mb-4 border-b border-gray-200 pb-2 text-4xl font-semibold dark:border-gray-700">
-        {toolDetails.name}
-        {toolDetails.isPremium && (
-          <span className="ml-2 align-middle text-yellow-500">★ Premium</span>
-        )}
-      </h1>
+      {/* *** Wrap Title and Favorite Button in Flex Container *** */}
+      <div className="mb-4 flex items-center justify-between border-b border-gray-200 pb-2 dark:border-gray-700">
+        {/* Title */}
+        <h1 className="text-4xl font-semibold">
+          {toolDetails.name}
+          {toolDetails.isPremium && (
+            <span className="ml-2 align-middle text-sm text-yellow-500">
+              ★ Premium
+            </span>
+          )}
+        </h1>
+        {/* Favorite Button (appears only if logged in) */}
+        <div className="ml-4 flex-shrink-0">
+          {" "}
+          {/* Add margin-left */}
+          {isAuthenticated && toolDetails && (
+            <FavoriteButton
+              toolId={toolDetails.toolId}
+              size={24} // Larger size
+            />
+          )}
+        </div>
+      </div>
+      {/* *** End Flex Container *** */}
+
+      {/* Description */}
       {toolDetails.description && (
         <p className="mb-6 text-gray-600 dark:text-gray-400">
           {toolDetails.description}

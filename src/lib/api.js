@@ -142,4 +142,8 @@ export const apiAdminProcessRequest = (requestId, statusData) =>
   });
 
 // --- Favorites ---
-// Add API calls for favorites if needed (e.g., get favorites, add/remove favorite)
+export const apiGetMyFavorites = () => fetchWithAuth("/favorites"); // GET Requires Auth
+export const apiAddFavorite = (toolId) =>
+  fetchWithAuth(`/favorites/${toolId}`, { method: "POST" }); // POST Requires Auth
+export const apiRemoveFavorite = (toolId) =>
+  fetchWithAuth(`/favorites/${toolId}`, { method: "DELETE" }); // DELETE Requires Auth

@@ -63,20 +63,10 @@ export default function AdminToolsPage() {
     setIsSaving(true);
     setError(null);
     try {
-      const payload = {
-        name: formData.name,
-        description: formData.description,
-        categoryName: formData.categoryName,
-        componentUrl: formData.componentUrl,
-        icon: formData.icon,
-        isPremium: formData.isPremium,
-        isEnabled: formData.isEnabled,
-      };
-
       if (editingTool) {
-        await apiAdminUpdateTool(editingTool.toolId, payload);
+        await apiAdminUpdateTool(editingTool.toolId, formData);
       } else {
-        await apiAdminCreateTool(payload);
+        await apiAdminCreateTool(formData);
       }
       handleCloseModal();
       fetchTools(); // Refresh the list

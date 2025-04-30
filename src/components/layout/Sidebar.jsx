@@ -1,13 +1,14 @@
 // src/components/layout/Sidebar.jsx
 "use client";
-import { useState } from "react"; // Removed unused useEffect from here
+import { useState, useMemo } from "react"; // Added useMemo
 import Link from "next/link";
 import Image from "next/image";
-// Assuming using slugs stored in DB now
+import { useAuth } from "@/hooks/useAuth";
 import {
   FiChevronRight,
   FiChevronDown,
-  FiTool, // <-- Thêm FiTool làm icon mặc định
+  FiTool,
+  FiHeart, // Added Heart icon
 } from "react-icons/fi";
 import Spinner from "@/components/ui/Spinner"; // Import Spinner
 
@@ -22,6 +23,8 @@ export default function Sidebar({
   error,
 }) {
   const [visibleCategories, setVisibleCategories] = useState({});
+  const { isAuthenticated, favoriteToolIds } = useAuth(); // Get favorite IDs
+  const [showFavorites, setShowFavorites] = useState(true); // State to toggle favorites list
   const toggleCategory = (categoryId) => {
     if (!isSidebarOpen) return;
     setVisibleCategories((prev) => ({
@@ -29,7 +32,16 @@ export default function Sidebar({
       [categoryId]: !prev[categoryId],
     }));
   };
-
+  const favoriteToolsList = useMemo(
+    () =>
+      isAuthenticated
+        ? categories
+            .flatMap((cat) => cat.tools || [])
+            .filter((tool) => favoriteToolIds.has(tool.toolId))
+            .sort((a, b) => a.name.localeCompare(b.name))
+        : [],
+    [isAuthenticated, categories, favoriteToolIds],
+  ); // Depend on fetched categories too
   return (
     <>
       {/* Sidebar Container - Reverted to Dark Styling */}
@@ -54,7 +66,75 @@ export default function Sidebar({
 
             {/* Navigation Links - Reverted Styling */}
             <nav className="flex-grow overflow-y-auto px-2 py-4">
+              {/* --- Favorites Section --- */}
+              {isAuthenticated && favoriteToolsList.length > 0 && (
+                <div className="mb-1">
+                  <button
+                    onClick={() => setShowFavorites(!showFavorites)}
+                    className="group flex w-full items-center justify-between rounded px-2 py-2 text-left font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
+                  >
+                    <span className="flex flex-1 items-center gap-2">
+                      <FiHeart
+                        size={16}
+                        className="flex-shrink-0 text-pink-400"
+                      />{" "}
+                      Your favorite tools
+                    </span>
+                    {showFavorites ? (
+                      <FiChevronDown
+                        size={16}
+                        className="text-gray-400 opacity-60"
+                      />
+                    ) : (
+                      <FiChevronRight
+                        size={16}
+                        className="text-gray-400 opacity-60"
+                      />
+                    )}
+                  </button>
+                  {showFavorites && (
+                    <ul className="mt-1 space-y-1 pl-8">
+                      {favoriteToolsList.map((tool) => (
+                        <li key={tool.toolId}>
+                          <Link
+                            href={`/tools/${tool.slug}`}
+                            className="flex items-center gap-2 rounded py-1 pr-2 pl-1 text-sm text-gray-400 hover:bg-gray-700 hover:text-white"
+                          >
+                            <Image
+                              src={`/images/icons/${tool.icon}`}
+                              alt=""
+                              width={16}
+                              height={16}
+                              className="flex-shrink-0"
+                              onError={(e) => {
+                                e.currentTarget.style.display = "none";
+                              }}
+                            />
+                            <span className="flex-grow truncate text-sm text-white opacity-80">
+                              {tool.name}
+                            </span>
+                            {tool.isPremium && (
+                              <span className="ml-1 flex-shrink-0 text-xs text-yellow-500">
+                                ★
+                              </span>
+                            )}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              )}
+              {/* --- End Favorites --- */}
               {/* Loading State - Reverted Styling */}
+              {/* Separator only if favorites were shown AND categories exist */}
+              {isAuthenticated &&
+                favoriteToolsList.length > 0 &&
+                !isLoading &&
+                !error &&
+                categories.length > 0 && (
+                  <hr className="my-3 border-gray-700" />
+                )}
               {isLoading && (
                 <div className="flex justify-center p-4">
                   <Spinner size="md" />
@@ -114,27 +194,19 @@ export default function Sidebar({
                                 // Thêm flex và items-center để căn chỉnh icon và text
                                 className="flex items-center gap-2 rounded py-1 pr-2 pl-1 text-gray-400 hover:bg-gray-700 hover:text-white"
                               >
-                                {/* Render Icon */}
-                                {iconSrc ? (
-                                  <Image
-                                    src={iconSrc}
-                                    alt="" // Alt text trống vì link đã có text
-                                    width={24} // Kích thước nhỏ cho sidebar
-                                    height={24}
-                                    className="flex-shrink-0" // Ngăn icon co lại
-                                    onError={(e) => {
-                                      e.currentTarget.style.display =
-                                        "none"; /* Hide broken image */
-                                    }}
-                                  />
-                                ) : (
-                                  <FiTool
-                                    size={24}
-                                    className="flex-shrink-0 text-gray-500"
-                                  /> // Icon mặc định
-                                )}
+                                <Image
+                                  src={iconSrc}
+                                  alt="" // Alt text trống vì link đã có text
+                                  width={16} // Kích thước nhỏ cho sidebar
+                                  height={16}
+                                  className="flex-shrink-0" // Ngăn icon co lại
+                                  onError={(e) => {
+                                    e.currentTarget.style.display =
+                                      "none"; /* Hide broken image */
+                                  }}
+                                />
                                 {/* Tool Name */}
-                                <span className="flex-grow text-white opacity-80">
+                                <span className="flex-grow truncate text-sm text-white opacity-80">
                                   {tool.name}
                                 </span>{" "}
                                 {/* Cho phép text giãn ra */}
