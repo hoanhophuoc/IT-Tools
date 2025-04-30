@@ -12,8 +12,9 @@ var configuration = builder.Configuration; // Lấy configuration
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins"; // Đặt tên cho policy CORS
 
 // --- CẤU HÌNH CORS SERVICES ---
+var frontendUrl = configuration["AppSettings:FrontendBaseUrl"] ?? "http://localhost:3000";
 builder.Services.AddCors(options => options.AddPolicy(name: MyAllowSpecificOrigins,
-                      policy => policy.WithOrigins("http://localhost:3000") // Frontend dev URL
+                      policy => policy.WithOrigins(frontendUrl) // Frontend URL from config with fallback
                                 .AllowAnyHeader()
                                 .AllowAnyMethod()));
 // -----------------------------------------
@@ -54,7 +55,7 @@ builder.Services.AddAuthentication(options =>
         ClockSkew = TimeSpan.Zero // Đặt để không cho phép chênh lệch thời gian
     };
 });
-builder.Services.AddAuthorization(); // Đăng ký Authorization (cần thiết để phân quyền theo Role)
+builder.Services.AddAuthorization(); // Đăng ký Authorization để phân quyền theo Role
 
 // Services nghiệp vụ
 builder.Services.AddScoped<PasswordHasherService>();
@@ -64,23 +65,21 @@ builder.Services.AddScoped<ToolService>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<AdminService>();
 builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<FavoriteService>();
 // -----------------------------------
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
-//---------------------------------------------------------------------
 var app = builder.Build();
-//---------------------------------------------------------------------
 
 app.UseHttpsRedirection(); // Đặt trước CORS và Auth
 
-// *** SỬ DỤNG CORS MIDDLEWARE ***
+// Sử dụng CORS Middleware
 // Sử dụng policy đã định nghĩa bằng tên
 app.UseCors(MyAllowSpecificOrigins);
-// --------------------------------------
 
-// Authentication & Authorization Middleware (Thứ tự quan trọng)
+// Authentication & Authorization Middleware
 app.UseAuthentication();
 app.UseAuthorization();
 

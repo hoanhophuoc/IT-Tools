@@ -8,4 +8,5 @@ public class ToolSummaryDto
     public string Slug { get; set; } = string.Empty;
     public string? Icon { get; set; }
     public bool IsPremium { get; set; }
+    public bool IsFavorite { get; set; } = false;
 }

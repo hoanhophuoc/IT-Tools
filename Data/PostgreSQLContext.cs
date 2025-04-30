@@ -3,13 +3,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace IT_Tools.Data;
 
-public partial class PostgreSQLContext : DbContext
+public partial class PostgreSQLContext(DbContextOptions<PostgreSQLContext> options) : DbContext(options)
 {
-    public PostgreSQLContext(DbContextOptions<PostgreSQLContext> options)
-        : base(options)
-    {
-    }
-
     public virtual DbSet<Category> Categories { get; set; }
 
     public virtual DbSet<FavoriteTool> FavoriteTools { get; set; }

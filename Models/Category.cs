@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace IT_Tools.Models;
+﻿namespace IT_Tools.Models;
 
 /// <summary>
 /// Bảng lưu trữ các danh mục công cụ
@@ -18,5 +15,5 @@ public partial class Category
     /// </summary>
     public string Name { get; set; } = null!;
 
-    public virtual ICollection<Tool> Tools { get; set; } = new List<Tool>();
+    public virtual ICollection<Tool> Tools { get; set; } = [];
 }

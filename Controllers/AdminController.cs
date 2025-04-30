@@ -10,10 +10,9 @@ namespace IT_Tools.Controllers;
 
 [ApiController]
 [Route("api/[controller]")] // Route: /api/admin
-[Authorize(Roles = "Admin")] // Restrict access to Admin role ONLY
+[Authorize(Roles = "Admin")] // Restrict access to Admin role only
 public class AdminController(AdminService adminService) : ControllerBase
 {
-    // --- Tool Endpoints ---
     /// <summary>
     /// Gets a list of all tools (for admin purposes).
     /// </summary>
@@ -25,6 +24,9 @@ public class AdminController(AdminService adminService) : ControllerBase
         return Ok(tools);
     }
 
+    /// <summary>
+    /// Gets a list of all categories (for admin purposes).
+    /// </summary>
     [HttpGet("categories")]
     [ProducesResponseType(typeof(IEnumerable<AdminCategoryDto>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IEnumerable<AdminCategoryDto>>> GetAllCategories()
@@ -36,25 +38,32 @@ public class AdminController(AdminService adminService) : ControllerBase
     /// <summary>
     /// Updates the enabled/premium status of a tool.
     /// </summary>
-    [HttpPut("tools/{id}/status")]
+    [HttpPut("tools/{id:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> UpdateToolStatus(int id, [FromBody] UpdateToolStatusDto updateDto)
+    public async Task<IActionResult> UpdateTool(int id, [FromBody] UpdateToolDto updateDto)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
 
-        var success = await adminService.UpdateToolStatusAsync(id, updateDto);
+        var success = await adminService.UpdateToolAsync(id, updateDto);
 
-        if (!success)
-        {
-            return NotFound(new { message = $"Tool with ID {id} not found." });
-        }
-
-        return NoContent(); // Success
+        return !success ? NotFound(new { message = $"Tool with ID {id} not found." }) : NoContent();
     }
 
-    // --- Upgrade Request Endpoints ---
+    /// <summary>
+    /// Updates the enabled/premium status of a tool.
+    /// </summary>
+    [HttpDelete("tools/{id:int}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DeleteTool(int id)
+    {
+        var success = await adminService.DeleteToolAsync(id);
+
+        return !success ? NotFound(new { message = $"Tool with ID {id} not found." }) : NoContent();
+    }
+
     /// <summary>
     /// Gets a list of pending premium upgrade requests.
     /// </summary>
@@ -79,15 +88,9 @@ public class AdminController(AdminService adminService) : ControllerBase
 
         var success = await adminService.ProcessUpgradeRequestAsync(requestId, processDto);
 
-        if (!success)
-        {
-            return NotFound(new { message = $"Upgrade request with ID {requestId} not found or already processed." });
-        }
-
-        return NoContent(); // Success
+        return !success ? NotFound(new { message = $"Upgrade request with ID {requestId} not found or already processed." }) : NoContent();
     }
 
-    // --- User Management Endpoints ---
     /// <summary>
     /// Gets a list of users
     /// </summary>
@@ -113,18 +116,6 @@ public class AdminController(AdminService adminService) : ControllerBase
         }
         var success = await adminService.CreateToolAsync(createDto);
 
-        //if (newTool == null)
-        //{
-        //    // Service trả về null (ví dụ: category không hợp lệ)
-        //    // Trả về BadRequestObjectResult (là một ActionResult) -> HỢP LỆ với ActionResult<T>
-        //    return BadRequest(new { message = "Failed to create tool. Invalid Category Name or other issue." });
-        //}
-
-        //return CreatedAtAction(
-        //     nameof(ToolsController.GetToolDetails),
-        //     "Tools", // Controller name
-        //     new { slugIdentifier = newTool.Slug }, // Route values
-        //     newTool); // <-- Value trả về (kiểu ToolDetailsDto)
         return !success ?
             BadRequest(new { message = "Failed to create tool. Invalid Category Name or other issue." }) :
             Created();

@@ -8,10 +8,10 @@ public class ToolMappingProfile : Profile
 {
     public ToolMappingProfile()
     {
-        // Tool Entity -> ToolSummaryDto
-        CreateMap<Tool, ToolSummaryDto>(); // Slug should map automatically by name
+        CreateMap<Tool, ToolSummaryDto>()
+            .ForMember(dest => dest.IsFavorite, opt => opt.Ignore());
 
-        // Tool Entity -> ToolDetailsDto
-        CreateMap<Tool, ToolDetailsDto>();
+        CreateMap<Tool, ToolDetailsDto>()
+            .ForMember(dest => dest.IsFavorite, opt => opt.Ignore());
     }
 }

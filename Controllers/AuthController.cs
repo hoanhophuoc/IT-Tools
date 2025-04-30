@@ -18,7 +18,7 @@ public class AuthController(AuthService authService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Register([FromBody] RegisterRequestDto registerDto)
     {
-        // Kiểm tra validation cơ bản (ví dụ: [Required] trên DTO)
+        // Kiểm tra validation cơ bản (như là [Required] trong DTO)
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
@@ -26,14 +26,9 @@ public class AuthController(AuthService authService) : ControllerBase
 
         var createdUser = await authService.RegisterAsync(registerDto);
 
-        if (createdUser == null)
-        {
-            // Lý do thất bại có thể là username đã tồn tại
-            return BadRequest(new { message = "Username already exists." });
-        }
-
-        // Đăng ký thành công
-        return Ok(new { message = "User registered successfully." });
+        return createdUser == null
+            ? BadRequest(new { message = "Username already exists." })
+            : Ok(new { message = "User registered successfully." });
     }
 
     /// <summary>
@@ -54,14 +49,7 @@ public class AuthController(AuthService authService) : ControllerBase
 
         var loginResponse = await authService.LoginAsync(loginDto);
 
-        if (loginResponse == null)
-        {
-            // Sai username hoặc password
-            return Unauthorized(new { message = "Invalid username or password." });
-        }
-
-        // Đăng nhập thành công, trả về token và thông tin user (đã có trong LoginResponseDto)
-        return Ok(loginResponse);
+        return loginResponse == null ? Unauthorized(new { message = "Invalid username or password." }) : Ok(loginResponse);
     }
 
     /// <summary>
@@ -78,13 +66,9 @@ public class AuthController(AuthService authService) : ControllerBase
             return BadRequest(ModelState);
         }
         var result = await authService.ChangePasswordAsync(changePasswordDto);
-        if (!result)
-        {
-            // Thất bại, có thể do mật khẩu cũ không đúng hoặc người dùng không tồn tại
-            return Unauthorized(new { message = "Invalid old password or user not found." });
-        }
-        // Đổi mật khẩu thành công
-        return Ok(new { message = "Password changed successfully." });
+        return !result
+            ? Unauthorized(new { message = "Invalid old password or user not found." })
+            : Ok(new { message = "Password changed successfully." });
     }
 
     /// <summary>
@@ -101,12 +85,6 @@ public class AuthController(AuthService authService) : ControllerBase
             return BadRequest(ModelState);
         }
         var result = await authService.HandleForgotPasswordAsync(forgotPasswordDto);
-        if (!result)
-        {
-            // Thất bại, có thể do người dùng không tồn tại
-            return Unauthorized(new { message = "User not found." });
-        }
-        // Khôi phục mật khẩu thành công
-        return Ok(new { message = "Password reset successfully." });
+        return !result ? Unauthorized(new { message = "User not found." }) : Ok(new { message = "Password reset successfully." });
     }
 }

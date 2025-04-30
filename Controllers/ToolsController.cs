@@ -1,6 +1,8 @@
 ﻿using IT_Tools.Dtos.Categories;
+using IT_Tools.Dtos.Tools;
 using IT_Tools.Services;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace IT_Tools.Controllers;
 
@@ -8,38 +10,35 @@ namespace IT_Tools.Controllers;
 [Route("api/[controller]")]
 public class ToolsController(ToolService toolService) : ControllerBase
 {
+    private int? GetCurrentUserId()
+    {
+        var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        return int.TryParse(userIdClaim, out var id) ? id : (int?)null;
+    }
+
     /// <summary>
     /// Gets enabled tools grouped by category for display on home page and sidebar.
     /// </summary>
-    [HttpGet] // Matches GET /api/tools
+    [HttpGet] // GET /api/tools
     [ProducesResponseType(typeof(IEnumerable<CategoryWithToolsDto>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IEnumerable<CategoryWithToolsDto>>> GetGroupedEnabledTools()
     {
-        var groupedTools = await toolService.GetGroupedEnabledToolsAsync();
+        var userId = GetCurrentUserId(); // Get logged-in user ID
+        var groupedTools = await toolService.GetGroupedEnabledToolsAsync(userId);
         return Ok(groupedTools);
     }
 
-    // GET /api/tools/{slug} <-- Route param reflects usage
-    [HttpGet("{slug}")] // Route uses slug
+    // GET /api/tools/{slug}
+    [HttpGet("{slug}")]
     [ProducesResponseType(typeof(ToolDetailsDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<ToolDetailsDto>> GetToolDetails(string slug) // Param is slug
+    public async Task<ActionResult<ToolDetailsDto>> GetToolDetails(string slug)
     {
-        // Call the service method that uses the stored slug
-        var tool = await toolService.GetToolBySlugAsync(slug); // Call correct method
+        var userId = GetCurrentUserId();
+        var tool = await toolService.GetToolBySlugAsync(slug, userId);
 
-        if (tool == null)
-        {
-            return NotFound();
-        }
-
-        // Kiểm tra quyền truy cập tool premium
-        if (tool.IsPremium && !User.IsInRole("Premium") && !User.IsInRole("Admin"))
-        {
-            return Forbid();
-        }
-
-        // Permission check etc.
-        return Ok(tool);
+        return tool == null
+            ? (ActionResult<ToolDetailsDto>)NotFound()
+            : tool.IsPremium && !User.IsInRole("Premium") && !User.IsInRole("Admin") ? (ActionResult<ToolDetailsDto>)Forbid() : (ActionResult<ToolDetailsDto>)Ok(tool);
     }
 }

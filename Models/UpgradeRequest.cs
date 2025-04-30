@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace IT_Tools.Models;
+﻿namespace IT_Tools.Models;
 
 /// <summary>
 /// Bảng lưu trữ các yêu cầu nâng cấp tài khoản lên Premium

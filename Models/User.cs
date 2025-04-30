@@ -30,7 +30,7 @@ public partial class User
     /// </summary>
     public DateTime CreatedAt { get; set; }
 
-    public virtual ICollection<FavoriteTool> FavoriteTools { get; set; } = new List<FavoriteTool>();
+    public virtual ICollection<FavoriteTool> FavoriteTools { get; set; } = [];
 
-    public virtual ICollection<UpgradeRequest> UpgradeRequests { get; set; } = new List<UpgradeRequest>();
+    public virtual ICollection<UpgradeRequest> UpgradeRequests { get; set; } = [];
 }

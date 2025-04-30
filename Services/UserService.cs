@@ -15,7 +15,7 @@ public class UserService(PostgreSQLContext context)
         var requestExists = await context.UpgradeRequests.AnyAsync(c => c.UserId == createDto.UserId && c.Status == "Pending");
         if (requestExists)
         {
-            return false; // Request already exists
+            return false;
         }
 
         var newRequest = new UpgradeRequest
@@ -24,6 +24,6 @@ public class UserService(PostgreSQLContext context)
         };
         await context.UpgradeRequests.AddAsync(newRequest);
         await context.SaveChangesAsync();
-        return true; // Request created successfully
+        return true;
     }
 }

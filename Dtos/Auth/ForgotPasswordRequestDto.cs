@@ -5,7 +5,7 @@ namespace IT_Tools.Dtos.Auth;
 public class ForgotPasswordRequestDto
 {
     [Required]
-    public string Username { get; set; } = string.Empty; // Tên đăng nhập của người dùng
+    public string Username { get; set; } = string.Empty;
     [Required]
-    public string NewPassword { get; set; } = string.Empty; // Mật khẩu mới
+    public string NewPassword { get; set; } = string.Empty;
 }

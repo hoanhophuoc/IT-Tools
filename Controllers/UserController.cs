@@ -8,7 +8,6 @@ namespace IT_Tools.Controllers;
 [Route("api/[controller]")]
 public class UserController(UserService userService) : ControllerBase
 {
-    // Tạo request mới
     [HttpPost("upgrade-requests")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

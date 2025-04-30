@@ -4,11 +4,9 @@ namespace IT_Tools.Services;
 
 public class PasswordHasherService
 {
-    // Hàm hash mật khẩu
     public string HashPassword(string password) =>
         BCryptNet.HashPassword(password);
 
-    // Hàm kiểm tra mật khẩu có khớp với hash đã lưu không
     public bool VerifyPassword(string providedPassword, string passwordHash)
     {
         try
@@ -17,7 +15,6 @@ public class PasswordHasherService
         }
         catch (BCrypt.Net.SaltParseException)
         {
-            // Xử lý trường hợp chuỗi hash không hợp lệ (ví dụ: lỗi dữ liệu)
             Console.WriteLine("Invalid password hash format.");
             return false;
         }

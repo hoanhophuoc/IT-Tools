@@ -57,5 +57,5 @@ public partial class Tool
 
     public virtual Category? Category { get; set; }
 
-    public virtual ICollection<FavoriteTool> FavoriteTools { get; set; } = new List<FavoriteTool>();
+    public virtual ICollection<FavoriteTool> FavoriteTools { get; set; } = [];
 }

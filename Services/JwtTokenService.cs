@@ -45,7 +45,7 @@ public class JwtTokenService
         ArgumentNullException.ThrowIfNull(user);
 
         var tokenHandler = new JwtSecurityTokenHandler();
-        var key = Encoding.ASCII.GetBytes(_jwtSettings.Secret); // Chuyển Secret thành byte array
+        var key = Encoding.ASCII.GetBytes(_jwtSettings.Secret);
 
         // Định nghĩa các Claims (thông tin nhúng vào token)
         var claims = new List<Claim>
