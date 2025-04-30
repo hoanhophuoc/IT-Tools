@@ -5,8 +5,6 @@ import ToolCard from "@/components/ToolCard";
 import { apiGetCategorizedTools } from "@/lib/api"; // API call for initial load
 import { useAuth } from "@/hooks/useAuth"; // Hook for auth state and favorite actions
 import Spinner from "@/components/ui/Spinner"; // Assuming Spinner is exported here or from ui/Spinner
-import Button from "@/components/ui/Button"; // Needed for remove favorite button action
-import { FiTrash2 } from "react-icons/fi"; // Icon for remove favorite button
 
 export default function RootHomePage() {
   // State for fetched data, loading, and errors
@@ -18,32 +16,20 @@ export default function RootHomePage() {
   const {
     isAuthenticated,
     favoriteToolIds,
-    removeFavorite,
     loading: authLoading,
+    searchTerm,
   } = useAuth();
-
-  // State for handling remove favorite button loading state
-  const [processingRemoveId, setProcessingRemoveId] = useState(null);
+  console.log("Home Page rendering with searchTerm:", searchTerm);
 
   // Fetch initial tool/category data when component mounts
   const fetchInitialData = useCallback(async () => {
-    console.log(">>> [Client] Root Home Page fetching categorized tools...");
     setLoading(true);
     setError(null);
     try {
-      // apiGetCategorizedTools uses fetchWithAuth, which handles token automatically
       const data = await apiGetCategorizedTools();
-      if (!Array.isArray(data)) {
-        console.warn("API did not return an array for categorized tools.");
-        setCategorizedTools([]);
-      } else {
-        setCategorizedTools(data);
-        console.log(
-          `>>> [Client] Root Home Page fetched ${data.length} categories.`,
-        );
-      }
+      setCategorizedTools(Array.isArray(data) ? data : []);
     } catch (err) {
-      console.error(">>> [Client] ERROR fetching tools for root page:", err);
+      console.error("Failed to fetch categorized tools:", err);
       setError(`Could not load tools: ${err.message || "Unknown error"}`);
       setCategorizedTools([]);
     } finally {
@@ -63,24 +49,35 @@ export default function RootHomePage() {
     [categorizedTools],
   );
 
+  const filteredTools = useMemo(() => {
+    if (!searchTerm) {
+      // Use searchTerm from context
+      return allTools;
+    }
+    const lowerCaseSearch = searchTerm.toLowerCase();
+    return allTools.filter(
+      (tool) =>
+        tool.name.toLowerCase().includes(lowerCaseSearch) ||
+        (tool.description &&
+          tool.description.toLowerCase().includes(lowerCaseSearch)),
+    );
+  }, [allTools, searchTerm]); // Depend on searchTerm from context
+
   // Memoize the list of favorite tools
   const favoriteToolsList = useMemo(
     () =>
       isAuthenticated
-        ? allTools
-            .filter((tool) => favoriteToolIds.has(tool.toolId)) // Filter based on IDs from context
+        ? filteredTools
+            .filter((tool) => favoriteToolIds.has(tool.toolId))
             .sort((a, b) => a.name.localeCompare(b.name)) // Sort favorites alphabetically
         : [],
-    [isAuthenticated, allTools, favoriteToolIds],
+    [isAuthenticated, filteredTools, favoriteToolIds],
   ); // Recompute when these change
 
-  // Memoize the list of non-favorite tools
   const nonFavoriteTools = useMemo(
-    () => allTools.filter((tool) => !favoriteToolIds.has(tool.toolId)),
-    [allTools, favoriteToolIds],
+    () => filteredTools.filter((tool) => !favoriteToolIds.has(tool.toolId)),
+    [filteredTools, favoriteToolIds],
   );
-
-  // Separate non-favorites into premium and free (optional, could combine in one list)
   const premiumTools = nonFavoriteTools.filter((tool) => tool.isPremium);
   const freeTools = nonFavoriteTools.filter((tool) => !tool.isPremium);
 
@@ -97,6 +94,9 @@ export default function RootHomePage() {
     );
   }
 
+  const noResultsFound = !error && searchTerm && filteredTools.length === 0;
+  const noToolsAvailable = !error && !searchTerm && allTools.length === 0;
+
   return (
     <div className="space-y-10">
       {" "}
@@ -107,12 +107,14 @@ export default function RootHomePage() {
           {error}
         </p>
       )}
+      {noResultsFound && (
+        <p className="...">No tools found matching "{searchTerm}".</p>
+      )}
       {/* --- Your favorite tools Section --- */}
-      {isAuthenticated && favoriteToolsList.length > 0 && (
+      {isAuthenticated && favoriteToolsList.length > 0 && !noResultsFound && (
         <section>
           <h2 className="mb-4 text-xl font-semibold text-gray-700 dark:text-gray-300">
-            {" "}
-            Your favorite tools ❤️
+            Your favorite tools {searchTerm && "(matching search)"} ❤️
           </h2>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             {favoriteToolsList.map((tool) => (
@@ -123,7 +125,7 @@ export default function RootHomePage() {
       )}
       {/* --- End Favorites --- */}
       {/* --- All the tools Section (Non-Favorites) --- */}
-      {(premiumTools.length > 0 || freeTools.length > 0) && (
+      {(premiumTools.length > 0 || freeTools.length > 0) && !noResultsFound && (
         <section>
           {/* Add separator if favorites were shown */}
           {isAuthenticated && favoriteToolsList.length > 0 && (
@@ -131,8 +133,7 @@ export default function RootHomePage() {
           )}
 
           <h2 className="mb-4 text-xl font-semibold text-gray-700 dark:text-gray-300">
-            {" "}
-            All the tools{" "}
+            {searchTerm ? "Matching tools" : "All the tools"}
           </h2>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             {/* Render non-favorite tools */}
@@ -148,6 +149,7 @@ export default function RootHomePage() {
       {/* --- End All Tools --- */}
       {/* No tools available message */}
       {!error &&
+        noToolsAvailable &&
         allTools.length === 0 &&
         !loading && ( // Also check loading state
           <p className="mt-10 text-center text-gray-500 dark:text-gray-400">

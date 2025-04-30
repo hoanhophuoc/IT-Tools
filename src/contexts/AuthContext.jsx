@@ -18,6 +18,8 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [favoriteToolIds, setFavoriteToolIds] = useState(new Set());
   const [loadingFavorites, setLoadingFavorites] = useState(false); // Loading riêng cho favs
+  const [searchTerm, setSearchTerm] = useState("");
+  console.log("AuthProvider searchTerm state:", searchTerm); // Log state
   const router = useRouter();
 
   // Function to fetch favorites (cần token)
@@ -145,6 +147,8 @@ export const AuthProvider = ({ children }) => {
     login,
     logout,
     register,
+    searchTerm,
+    setSearchTerm,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

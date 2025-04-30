@@ -118,7 +118,7 @@ export default function HashText() {
         default:
           encoder = (digest) => digest.toString();
       }
-      console.log( console.log("Hashing with encoding type:", encodingType))
+      console.log(console.log("Hashing with encoding type:", encodingType));
 
       setMd5Result(encoder(md5Func(text)));
       setSha1Result(encoder(sha1Func(text)));
@@ -142,10 +142,6 @@ export default function HashText() {
 
   return (
     <div className="space-y-2">
-      <p className="text-sm text-gray-500">
-        Hash a text string using the function you need : MD5, SHA1, SHA256,
-        SHA224, SHA512, SHA384, SHA3 or RIPEMD160
-      </p>
       {error && <p className="text-sm text-red-600">{error}</p>}
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2"></div>
 
@@ -154,7 +150,7 @@ export default function HashText() {
           label="Text to Hash"
           id="hashText"
           value={hashText}
-          onChange={(e) => handleHashChange(e.target.value,encodingType)}
+          onChange={(e) => handleHashChange(e.target.value, encodingType)}
           placeholder="Your string to hash"
         />
       </div>
