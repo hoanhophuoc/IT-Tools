@@ -114,7 +114,7 @@ export default function RootHomePage() {
       {isAuthenticated && favoriteToolsList.length > 0 && !noResultsFound && (
         <section>
           <h2 className="mb-4 text-xl font-semibold text-gray-700 dark:text-gray-300">
-            Your favorite tools {searchTerm && "(matching search)"} ❤️
+            Your favorite tools ❤️
           </h2>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             {favoriteToolsList.map((tool) => (
@@ -133,7 +133,7 @@ export default function RootHomePage() {
           )}
 
           <h2 className="mb-4 text-xl font-semibold text-gray-700 dark:text-gray-300">
-            {searchTerm ? "Matching tools" : "All the tools"}
+            All the tools
           </h2>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             {/* Render non-favorite tools */}

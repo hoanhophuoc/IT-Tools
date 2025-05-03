@@ -1,33 +1,31 @@
 // src/tools/web/UrlEncoderDecoder.jsx
-"use client"; // Required for state and event handlers
+"use client";
 
-import { useState, useCallback } from "react";
-import TextArea from "@/components/ui/TextArea"; // Use the TextArea component
-import Button from "@/components/ui/Button";
-import { FiCopy } from "react-icons/fi"; // Icon for copy button
+import { useState, useEffect } from "react";
+import TextArea from "@/components/ui/TextArea";
+import CopyToClipboardButton from "@/components/ui/CopyToClipboardButton";
 
 export default function UrlEncoderDecoder() {
   // State for Encoder
   const [encodeInput, setEncodeInput] = useState("Hello world :)");
   const [encodeOutput, setEncodeOutput] = useState("");
   const [encodeError, setEncodeError] = useState("");
-  const [encodeCopied, setEncodeCopied] = useState(false);
+  // No need for encodeCopied state here anymore, CopyToClipboardButton handles it
 
   // State for Decoder
   const [decodeInput, setDecodeInput] = useState("Hello%20world%20%3A%29");
   const [decodeOutput, setDecodeOutput] = useState("");
   const [decodeError, setDecodeError] = useState("");
-  const [decodeCopied, setDecodeCopied] = useState(false);
+  // No need for decodeCopied state here anymore
 
   // --- Encoding Logic ---
   const handleEncodeInputChange = (e) => {
     const value = e.target.value;
     setEncodeInput(value);
-    setEncodeError(""); // Clear previous errors
+    setEncodeError("");
     try {
       setEncodeOutput(encodeURIComponent(value));
     } catch (err) {
-      // This usually shouldn't happen with encodeURIComponent unless very strange input
       console.error("Encoding error:", err);
       setEncodeError("Failed to encode this string.");
       setEncodeOutput("");
@@ -38,44 +36,28 @@ export default function UrlEncoderDecoder() {
   const handleDecodeInputChange = (e) => {
     const value = e.target.value;
     setDecodeInput(value);
-    setDecodeError(""); // Clear previous errors
+    setDecodeError("");
     try {
-      // decodeURIComponent throws an error for invalid sequences
       setDecodeOutput(decodeURIComponent(value));
     } catch (err) {
       console.error("Decoding error:", err);
-      setDecodeError("Invalid URI sequence."); // More specific error
+      setDecodeError("Invalid URI sequence.");
       setDecodeOutput("");
     }
   };
 
-  // --- Copy Logic ---
-  const copyToClipboard = useCallback(async (textToCopy, setCopiedState) => {
-    if (!navigator.clipboard) {
-      // Fallback for older browsers or insecure contexts (http)
-      alert("Clipboard API not available. Please copy manually.");
-      return;
-    }
-    try {
-      await navigator.clipboard.writeText(textToCopy);
-      setCopiedState(true);
-      setTimeout(() => setCopiedState(false), 1500); // Reset after 1.5 seconds
-    } catch (err) {
-      console.error("Failed to copy text: ", err);
-      alert("Failed to copy text to clipboard.");
-    }
-  }, []);
+  // --- Removed copyToClipboard function, logic is in CopyToClipboardButton ---
 
-  // --- Initial Calculation (like computed properties) ---
-  // Calculate initial outputs when component mounts
-  useState(() => {
+  // --- Initial Calculation ---
+  // Use useEffect to calculate initial values AFTER component mounts
+  useEffect(() => {
     try {
-      setEncodeOutput(encodeURIComponent(encodeInput));
+      setEncodeOutput(encodeURIComponent("Hello world :)")); // Use initial state value
     } catch {
       setEncodeOutput("");
     }
     try {
-      setDecodeOutput(decodeURIComponent(decodeInput));
+      setDecodeOutput(decodeURIComponent("Hello%20world%20%3A%29")); // Use initial state value
     } catch {
       setDecodeOutput("");
     }
@@ -83,8 +65,6 @@ export default function UrlEncoderDecoder() {
 
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-      {" "}
-      {/* Grid layout */}
       {/* Encode Card */}
       <div className="space-y-4 rounded-md border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-slate-800">
         <h3 className="text-lg font-medium text-gray-900 dark:text-white">
@@ -96,29 +76,28 @@ export default function UrlEncoderDecoder() {
           value={encodeInput}
           onChange={handleEncodeInputChange}
           placeholder="The string to encode"
-          rows={4} // Adjust rows as needed
+          rows={4}
           error={encodeError}
         />
         <TextArea
           label="Your string encoded:"
           id="encodeOutput"
           value={encodeOutput}
-          readOnly // Output is read-only
+          readOnly
           placeholder="URL-encoded string"
           rows={4}
-          className="bg-gray-100 dark:bg-gray-700" // Slightly different background for output
+          className="bg-gray-100 dark:bg-gray-700"
         />
-        <div className="flex justify-center">
-          <Button
-            onClick={() => copyToClipboard(encodeOutput, setEncodeCopied)}
-            disabled={!encodeOutput}
-            variant="secondary"
-            size="sm"
-          >
-            <FiCopy className="mr-1.5" /> {encodeCopied ? "Copied!" : "Copy"}
-          </Button>
+        <div className="flex justify-center pt-2">
+          {/* *** Use CopyToClipboardButton *** */}
+          <CopyToClipboardButton
+            textToCopy={encodeOutput}
+            disabled={!encodeOutput || !!encodeError} // Disable if no output or error
+          />
+          {/* ----------------------------- */}
         </div>
       </div>
+
       {/* Decode Card */}
       <div className="space-y-4 rounded-md border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-slate-800">
         <h3 className="text-lg font-medium text-gray-900 dark:text-white">
@@ -142,15 +121,13 @@ export default function UrlEncoderDecoder() {
           rows={4}
           className="bg-gray-100 dark:bg-gray-700"
         />
-        <div className="flex justify-center">
-          <Button
-            onClick={() => copyToClipboard(decodeOutput, setDecodeCopied)}
-            disabled={!decodeOutput}
-            variant="secondary"
-            size="sm"
-          >
-            <FiCopy className="mr-1.5" /> {decodeCopied ? "Copied!" : "Copy"}
-          </Button>
+        <div className="flex justify-center pt-2">
+          {/* *** Use CopyToClipboardButton *** */}
+          <CopyToClipboardButton
+            textToCopy={decodeOutput}
+            disabled={!decodeOutput || !!decodeError} // Disable if no output or error
+          />
+          {/* ----------------------------- */}
         </div>
       </div>
     </div>

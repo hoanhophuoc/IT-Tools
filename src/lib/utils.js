@@ -51,9 +51,3 @@ export const truncateText = (str, maxLength = 50) => {
   }
   return str.substring(0, maxLength) + "...";
 };
-
-// Add other utility functions as needed:
-// - capitalizeFirstLetter(string)
-// - generateRandomId()
-// - debounce(func, wait)
-// - etc.
