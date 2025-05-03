@@ -51,3 +51,32 @@ export const truncateText = (str, maxLength = 50) => {
   }
   return str.substring(0, maxLength) + "...";
 };
+
+/**
+ * Encodes a UTF-8 string to Base64, suitable for data URLs.
+ * @param {string} str The UTF-8 string to encode.
+ * @returns {string} The Base64 encoded string.
+ */
+export const utf8ToBase64 = (str) => {
+  if (typeof window !== "undefined" && typeof window.btoa === "function") {
+    try {
+      // Encode UTF-8 string to Base64 (handles Unicode characters)
+      return window.btoa(unescape(encodeURIComponent(str)));
+    } catch (e) {
+      console.error("Base64 encoding failed:", e);
+      // Fallback or simple btoa for basic cases if needed, but might corrupt unicode
+      try {
+        return window.btoa(str);
+      } catch {
+        return "";
+      }
+    }
+  } else {
+    // Fallback for non-browser environments (SSR, Node.js tests) - might not handle all chars
+    try {
+      return Buffer.from(str, "utf-8").toString("base64");
+    } catch {
+      return "";
+    }
+  }
+};
