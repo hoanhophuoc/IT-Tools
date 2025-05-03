@@ -1,4 +1,3 @@
-// Simple Spinner component (replace with your preferred one)
 const Spinner = ({ size = "md" }) => {
   const sizeClasses = {
     sm: "w-4 h-4",

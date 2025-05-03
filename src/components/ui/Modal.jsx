@@ -5,7 +5,6 @@ import { FiX } from "react-icons/fi";
 const Modal = ({ isOpen, onClose, title, children, size = "md" }) => {
   const modalRef = useRef(null);
 
-  // Close modal on clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (modalRef.current && !modalRef.current.contains(event.target)) {
@@ -22,7 +21,6 @@ const Modal = ({ isOpen, onClose, title, children, size = "md" }) => {
     };
   }, [isOpen, onClose]);
 
-  // Close modal on Escape key
   useEffect(() => {
     const handleEscape = (event) => {
       if (event.key === "Escape") {
@@ -60,7 +58,6 @@ const Modal = ({ isOpen, onClose, title, children, size = "md" }) => {
         ref={modalRef}
         className={`m-4 w-full rounded-lg bg-white p-6 shadow-xl dark:bg-gray-800 ${sizeClasses[size]}`}
       >
-        {/* Header */}
         <div className="mb-4 flex items-center justify-between border-b border-gray-200 pb-3 dark:border-gray-700">
           <h3
             id="modal-title"
@@ -77,7 +74,6 @@ const Modal = ({ isOpen, onClose, title, children, size = "md" }) => {
           </button>
         </div>
 
-        {/* Body */}
         <div className="modal-body">{children}</div>
       </div>
     </div>

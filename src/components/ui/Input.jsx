@@ -1,5 +1,4 @@
 import React from "react";
-
 const Input = React.forwardRef(
   (
     { type = "text", label, name, id, error, className = "", ...props },

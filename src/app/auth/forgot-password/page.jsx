@@ -1,16 +1,15 @@
-// src/app/(auth)/forgot-password/page.jsx
 "use client";
 import { useState } from "react";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
-import { apiDirectResetPassword } from "@/lib/api"; // Import the new API function
+import { apiDirectResetPassword } from "@/lib/api";
 import Link from "next/link";
-import { useRouter } from "next/navigation"; // For redirection
+import { useRouter } from "next/navigation";
 
 export default function ForgotPasswordPage() {
   const [username, setUsername] = useState("");
   const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState(""); // Still good practice to confirm
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
@@ -32,13 +31,11 @@ export default function ForgotPasswordPage() {
 
     setIsLoading(true);
     try {
-      // Call the direct reset API
       const response = await apiDirectResetPassword({ username, newPassword });
       setSuccessMessage(
         response.message ||
           "Password reset successfully! Redirecting to login...",
       );
-      // Redirect to login after a short delay
       router.push("/auth/login");
     } catch (err) {
       setError(
@@ -60,7 +57,6 @@ export default function ForgotPasswordPage() {
           Reset Password
         </h2>
 
-        {/* Show form only if no success message */}
         {!successMessage ? (
           <>
             <p className="text-center text-sm text-gray-600 dark:text-gray-400">
@@ -108,7 +104,6 @@ export default function ForgotPasswordPage() {
             </Button>
           </>
         ) : (
-          // Show success message
           <p className="text-center text-green-600 dark:text-green-400">
             {successMessage}
           </p>

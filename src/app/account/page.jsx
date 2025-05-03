@@ -31,9 +31,8 @@ export default function AccountPage() {
 
     setIsLoading(true);
     try {
-      // API endpoint needs to accept { OldPassword, NewPassword }
       await apiChangePassword({
-        Username: user.username, // Assuming username is part of user context
+        Username: user.username,
         OldPassword: oldPassword,
         NewPassword: newPassword,
       });
@@ -57,8 +56,6 @@ export default function AccountPage() {
   }
 
   if (!isAuthenticated) {
-    // Optionally redirect to login
-    // useRouter().push('/auth/login');
     return (
       <div className="p-4 text-center text-red-600">
         You must be logged in to view this page.
@@ -68,13 +65,11 @@ export default function AccountPage() {
 
   return (
     <div>
-      {/* Use clamp for responsive width */}
       <div className="w-[clamp(300px,90vw,800px)] rounded-lg bg-white p-6 shadow-lg md:p-8 dark:bg-gray-800">
         <h1 className="mb-6 border-b border-gray-200 pb-3 text-2xl font-semibold dark:border-gray-700">
           Account Settings
         </h1>
 
-        {/* User Info Section (Readonly for now) */}
         <section className="mb-8">
           <h2 className="mb-3 text-lg font-medium">Your Information</h2>
           <div className="space-y-3 text-sm text-gray-700 dark:text-gray-300">
@@ -84,11 +79,9 @@ export default function AccountPage() {
             <p>
               <strong>Role:</strong> {user?.role}
             </p>
-            {/* Add email/other fields if available in user context */}
           </div>
         </section>
 
-        {/* Change Password Section */}
         <section>
           <h2 className="mb-4 text-lg font-medium">Change Password</h2>
           <form onSubmit={handlePasswordChange} className="space-y-4">
@@ -118,7 +111,7 @@ export default function AccountPage() {
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
               autoComplete="new-password"
-              error={error && error.includes("match") ? error : null} // Show match error here
+              error={error && error.includes("match") ? error : null}
             />
 
             {error && !error.includes("match") && (

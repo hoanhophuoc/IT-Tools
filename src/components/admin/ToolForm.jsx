@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import Spinner from "@/components/ui/Spinner";
-import { apiAdminGetCategories } from "@/lib/api"; // API to fetch categories
+import { apiAdminGetCategories } from "@/lib/api";
 
 export default function ToolForm({ initialData, onSave, onCancel, isLoading }) {
   const [formData, setFormData] = useState({
@@ -22,11 +22,10 @@ export default function ToolForm({ initialData, onSave, onCancel, isLoading }) {
   const fetchCategories = useCallback(async () => {
     setLoadingCategories(true);
     try {
-      const cats = await apiAdminGetCategories(); // Assumes API returns [{ categoryId, name }]
+      const cats = await apiAdminGetCategories();
       setCategories(cats || []);
-      // Set default category NAME if adding and categories exist
       if (!initialData && cats && cats.length > 0) {
-        setFormData((prev) => ({ ...prev, categoryName: cats[0].name })); // <-- Set name
+        setFormData((prev) => ({ ...prev, categoryName: cats[0].name }));
       }
     } catch (error) {
       console.error("Failed to load categories:", error);
@@ -37,13 +36,12 @@ export default function ToolForm({ initialData, onSave, onCancel, isLoading }) {
     } finally {
       setLoadingCategories(false);
     }
-  }, [initialData]); // Depend on initialData to potentially reset default
+  }, [initialData]);
 
   useEffect(() => {
     fetchCategories();
   }, [fetchCategories]);
 
-  // Populate form if initialData (for editing) is provided
   useEffect(() => {
     if (initialData) {
       const initialCategory = categories.find(
@@ -54,7 +52,7 @@ export default function ToolForm({ initialData, onSave, onCancel, isLoading }) {
         description: initialData.description || "",
         categoryName:
           initialCategory?.name ||
-          (categories.length > 0 ? categories[0].name : ""), // <-- Set name
+          (categories.length > 0 ? categories[0].name : ""),
         componentUrl: initialData.componentUrl || "",
         icon: initialData.icon || "",
         isPremium: initialData.isPremium || false,
@@ -62,18 +60,16 @@ export default function ToolForm({ initialData, onSave, onCancel, isLoading }) {
           initialData.isEnabled === undefined ? true : initialData.isEnabled,
       });
     } else {
-      // Reset form for adding
       setFormData({
         name: "",
         description: "",
-        categoryName: categories.length > 0 ? categories[0].name : "", // <-- Set default name
+        categoryName: categories.length > 0 ? categories[0].name : "",
         componentUrl: "",
         icon: "",
         isPremium: false,
         isEnabled: true,
       });
     }
-    // Depend on categories loading as well to set default/initial correctly
   }, [initialData, categories]);
 
   const handleChange = (e) => {
@@ -82,7 +78,6 @@ export default function ToolForm({ initialData, onSave, onCancel, isLoading }) {
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
-    // Clear specific error on change
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: null }));
     }
@@ -95,31 +90,24 @@ export default function ToolForm({ initialData, onSave, onCancel, isLoading }) {
     }
   };
 
-  // *** ENHANCED VALIDATION FUNCTION ***
   const validateForm = () => {
     const newErrors = {};
-    // Trim values before checking emptiness
     const name = formData.name.trim();
     const description = formData.description.trim();
     const componentUrl = formData.componentUrl.trim();
     const icon = formData.icon.trim();
-    const categoryName = formData.categoryName; // Dropdown ensures selection or empty string
+    const categoryName = formData.categoryName;
 
-    // Check required fields based on your NOT NULL constraints
     if (!name) {
       newErrors.name = "Tool name is required.";
     } else if (name.length > 50) {
-      // Optional: Check max length from DB
       newErrors.name = "Tool name cannot exceed 50 characters.";
     }
 
     if (!description) {
       newErrors.description = "Tool description is required.";
     }
-    // Note: categoryId is handled via categoryName lookup on backend,
-    // but we need to ensure a category *name* is selected
     if (!categoryName) {
-      // Check if a category name was selected/provided
       newErrors.categoryName = "Category is required.";
     }
 
@@ -128,31 +116,25 @@ export default function ToolForm({ initialData, onSave, onCancel, isLoading }) {
     } else if (!componentUrl.startsWith("tools/")) {
       newErrors.componentUrl = "URL must start with 'tools/'.";
     } else if (componentUrl.length > 100) {
-      // Optional: Check max length
       newErrors.componentUrl = "Component URL cannot exceed 100 characters.";
     }
 
     if (!icon) {
       newErrors.icon = "Icon filename is required.";
     } else if (icon.length > 100) {
-      // Optional: Check max length
       newErrors.icon = "Icon filename cannot exceed 100 characters.";
     }
 
-    // isEnabled and isPremium are booleans, usually have default values,
-    // no empty check needed unless you have specific rules.
-
-    setErrors(newErrors); // Update the errors state
-    return Object.keys(newErrors).length === 0; // Return true if no errors found
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // *** Call validateForm before proceeding ***
     if (validateForm()) {
-      onSave(formData); // Call parent save function only if validation passes
+      onSave(formData);
     } else {
-      console.log("Form validation failed:", errors); // Log errors for debugging
+      console.log("Form validation failed:", errors);
     }
   };
 
@@ -178,7 +160,6 @@ export default function ToolForm({ initialData, onSave, onCancel, isLoading }) {
         error={errors.description}
         required
         rows={4}
-        // Not strictly required maybe
       />
       <Input
         label="Component URL (e.g., tools/converter/MyTool.jsx)"
@@ -239,7 +220,6 @@ export default function ToolForm({ initialData, onSave, onCancel, isLoading }) {
         maxLength={100}
       />
 
-      {/* Checkboxes/Toggles for booleans */}
       <div className="flex items-center justify-between gap-4 pt-2">
         <div className="flex items-center">
           <input

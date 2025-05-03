@@ -1,14 +1,13 @@
-// src/tools/images/WifiQrCodeGenerator.jsx
 "use client";
 
-import { useState, useEffect, useCallback, useRef, useMemo } from "react";
+import { useState, useCallback, useRef, useMemo } from "react";
 import { QRCodeCanvas } from "qrcode.react";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import { FiDownload, FiEye, FiEyeOff } from "react-icons/fi";
-import Spinner from "@/components/ui/Spinner";
+import { downloadCanvasAsPng } from "@/lib/utils";
+import ColorInput from "@/components/ui/ColorInput";
 
-const WIFI_ENCRYPTION_TYPES = ["nopass", "WEP", "WPA", "WPA2-EAP"];
 const EAP_METHODS = [
   "PWD",
   "LEAP",
@@ -20,12 +19,6 @@ const EAP_METHODS = [
   "AKA'",
 ];
 const EAP_PHASE2_METHODS = ["None", "MSCHAPV2", "GTC", "PAP", "MSCHAP"];
-const ERROR_CORRECTION_LEVELS = [
-  { value: "L", label: "Low" },
-  { value: "M", label: "Medium" },
-  { value: "Q", label: "Quartile" },
-  { value: "H", label: "High" },
-];
 
 function escapeWifiValue(str) {
   if (!str) return "";
@@ -123,46 +116,8 @@ export default function WifiQrCodeGenerator() {
     showPasswordField,
   ]);
 
-  const handleColorChange = (setter) => (e) => {
-    let value = e.target.value;
-    if (e.target.type === "text") {
-      if (!value.startsWith("#")) {
-        value = "#" + value;
-      }
-      value = "#" + value.substring(1).replace(/[^0-9a-fA-F]/g, "");
-      value = value.substring(0, 7);
-    }
-    setter(value);
-  };
-  const handleFgChange = handleColorChange(setFgColor);
-  const handleBgChange = handleColorChange(setBgColor);
-  const handleErrorLevelChange = (e) => {
-    setErrorLevel(e.target.value);
-  };
-
   const handleDownload = useCallback(() => {
-    const canvas = qrCodeCanvasRef.current?.querySelector("canvas");
-    const link = downloadLinkRef.current;
-    if (canvas && link && qrCodeText) {
-      try {
-        const pngUrl = canvas
-          .toDataURL("image/png")
-          .replace("image/png", "image/octet-stream");
-        link.href = pngUrl;
-        link.click();
-      } catch (err) {
-        console.error("Canvas toDataURL error:", err);
-        setError("Could not prepare QR code for download.");
-        alert("Error: Could not prepare QR code for download.");
-      }
-    } else if (!qrCodeText) {
-      setError("Cannot download: Invalid settings for QR code.");
-      alert("Error: Invalid settings for QR code generation.");
-    } else {
-      console.error("Canvas or download link ref not found.");
-      setError("Download failed: QR code element not ready.");
-      alert("Error: Download failed.");
-    }
+    downloadCanvasAsPng(qrCodeCanvasRef, downloadLinkRef, "wifi-qr-code.png");
   }, [qrCodeText]);
 
   const canGenerateQr = useMemo(
@@ -303,60 +258,18 @@ export default function WifiQrCodeGenerator() {
           )}
 
           <div className="grid grid-cols-1 gap-4 pt-2 sm:grid-cols-2">
-            <div>
-              <label
-                htmlFor="fgColor"
-                className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
-              >
-                Foreground color:
-              </label>
-              <div className="flex items-center gap-2">
-                <input
-                  type="color"
-                  id="fgColorPicker"
-                  aria-label="Foreground color picker"
-                  value={fgColor}
-                  onChange={handleFgChange}
-                  className="h-10 w-10 shrink-0 cursor-pointer appearance-none rounded border border-gray-300 bg-white p-0.5 dark:border-gray-600 dark:bg-gray-700"
-                />
-                <Input
-                  id="fgColor"
-                  name="fgColor"
-                  value={fgColor}
-                  onChange={handleFgChange}
-                  placeholder="#000000"
-                  maxLength={7}
-                  className="font-mono"
-                />
-              </div>
-            </div>
-            <div>
-              <label
-                htmlFor="bgColor"
-                className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
-              >
-                Background color:
-              </label>
-              <div className="flex items-center gap-2">
-                <input
-                  type="color"
-                  id="bgColorPicker"
-                  aria-label="Background color picker"
-                  value={bgColor}
-                  onChange={handleBgChange}
-                  className="h-10 w-10 shrink-0 cursor-pointer appearance-none rounded border border-gray-300 bg-white p-0.5 dark:border-gray-600 dark:bg-gray-700"
-                />
-                <Input
-                  id="bgColor"
-                  name="bgColor"
-                  value={bgColor}
-                  onChange={handleBgChange}
-                  placeholder="#FFFFFF"
-                  maxLength={7}
-                  className="font-mono"
-                />
-              </div>
-            </div>
+            <ColorInput
+              label="Foreground color:"
+              id="fgColor"
+              value={fgColor}
+              onChange={setFgColor}
+            />
+            <ColorInput
+              label="Background color:"
+              id="bgColor"
+              value={bgColor}
+              onChange={setBgColor}
+            />
           </div>
           {error && (
             <p className="text-sm text-red-500 dark:text-red-400">{error}</p>
@@ -375,7 +288,6 @@ export default function WifiQrCodeGenerator() {
                 fgColor={fgColor}
                 bgColor={bgColor}
                 level={errorLevel}
-                includeMargin={true}
               />
             ) : (
               <div

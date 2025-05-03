@@ -1,6 +1,5 @@
-// src/lib/api.js
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:7119/api"; // Use your actual backend URL
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:7119/api"; // Use actual backend URL
 
 async function fetchWithAuth(url, options = {}) {
   const user =
@@ -27,9 +26,9 @@ async function fetchWithAuth(url, options = {}) {
     if (contentType && contentType.indexOf("application/json") !== -1) {
       responseData = await response.json();
     } else if (response.ok && response.status === 204) {
-      responseData = null; // No content, successful
+      responseData = null;
     } else {
-      responseData = await response.text(); // Fallback for non-JSON or errors before JSON parsing
+      responseData = await response.text();
     }
 
     if (!response.ok) {
@@ -38,7 +37,6 @@ async function fetchWithAuth(url, options = {}) {
         responseData ||
         `Request failed with status ${response.status}`;
       console.error(`API Error (${response.status}): ${url}`, responseData);
-      // Try to extract specific error messages if backend provides them
       const specificError = responseData?.errors
         ? JSON.stringify(responseData.errors)
         : message;
@@ -48,8 +46,7 @@ async function fetchWithAuth(url, options = {}) {
     return responseData;
   } catch (error) {
     console.error(`Network or Fetch Error: ${url}`, error);
-    // Re-throw the error so calling components can handle it
-    throw error; // Ensure errors propagate
+    throw error;
   }
 }
 
@@ -66,29 +63,25 @@ export const apiRegister = (credentials) =>
     body: JSON.stringify(credentials),
   });
 
-// Backend needs endpoint for password change
 export const apiChangePassword = (passwords) =>
   fetchWithAuth("/auth/change-password", {
     method: "POST",
     body: JSON.stringify(passwords),
-  }); // Requires Auth
+  });
 
 // --- Direct Password Reset (for forgot password) ---
 export const apiDirectResetPassword = (resetData) =>
   fetchWithAuth("/auth/forgot-password", {
     method: "POST",
-    body: JSON.stringify(resetData), // Expects { username: "...", newPassword: "..." }
+    body: JSON.stringify(resetData),
   });
 
 // --- Tools & Categories Combined Endpoint ---
-// This single endpoint now returns the hierarchical data needed for sidebar/home
-// Returns: Array<CategoryWithToolsDto>
-export const apiGetCategorizedTools = () => fetchWithAuth("/tools"); // Call the GET /api/tools endpoint
+export const apiGetCategorizedTools = () => fetchWithAuth("/tools");
 
 // --- Individual Tool Details ---
-export const apiGetToolDetails = (
-  toolSlug, // Parameter is now slug
-) => fetchWithAuth(`/tools/${encodeURIComponent(toolSlug)}`); // Use slug in the URL
+export const apiGetToolDetails = (toolSlug) =>
+  fetchWithAuth(`/tools/${encodeURIComponent(toolSlug)}`);
 
 // --- User: Upgrade Requests ---
 // User requests to upgrade to premium
@@ -99,7 +92,6 @@ export const apiRequestPremium = (userData) =>
   });
 
 // --- Admin Category Fetching (Still needed for forms) ---
-// Assumes returns flat list [{ categoryId, name }]
 export const apiAdminGetCategories = () => fetchWithAuth("/admin/categories");
 
 // --- Admin: Tools ---
@@ -111,7 +103,6 @@ export const apiAdminCreateTool = (toolData) =>
     body: JSON.stringify(toolData),
   });
 
-// Assuming PUT replaces the entire resource or specific fields based on DTO
 export const apiAdminUpdateTool = (id, toolData) =>
   fetchWithAuth(`/admin/tools/${id}`, {
     method: "PUT",
@@ -129,7 +120,6 @@ export const apiAdminDeleteTool = (id) =>
 
 // --- Admin: Users ---
 export const apiAdminGetAllUsers = () => fetchWithAuth("/admin/users");
-// export const apiAdminDeleteUser = (userId) => fetchWithAuth(`/admin/users/${userId}`, { method: 'DELETE' });
 
 // --- Admin: Upgrade Requests ---
 export const apiAdminGetPendingRequests = () =>
@@ -142,8 +132,8 @@ export const apiAdminProcessRequest = (requestId, statusData) =>
   });
 
 // --- Favorites ---
-export const apiGetMyFavorites = () => fetchWithAuth("/favorites"); // GET Requires Auth
+export const apiGetMyFavorites = () => fetchWithAuth("/favorites");
 export const apiAddFavorite = (toolId) =>
-  fetchWithAuth(`/favorites/${toolId}`, { method: "POST" }); // POST Requires Auth
+  fetchWithAuth(`/favorites/${toolId}`, { method: "POST" });
 export const apiRemoveFavorite = (toolId) =>
-  fetchWithAuth(`/favorites/${toolId}`, { method: "DELETE" }); // DELETE Requires Auth
+  fetchWithAuth(`/favorites/${toolId}`, { method: "DELETE" });

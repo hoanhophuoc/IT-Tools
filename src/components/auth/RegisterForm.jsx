@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import Link from "next/link";
-import { useRouter } from "next/navigation"; // Import useRouter
+import { useRouter } from "next/navigation";
 
 export default function RegisterForm() {
   const [username, setUsername] = useState("");
@@ -14,7 +14,7 @@ export default function RegisterForm() {
   const [success, setSuccess] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const { register } = useAuth();
-  const router = useRouter(); // Get router instance
+  const router = useRouter();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -31,11 +31,8 @@ export default function RegisterForm() {
       const success = await register(username, password);
       if (success) {
         setSuccess("Registration successful! Redirecting to login...");
-        // Redirect to login page after a short delay
         router.push("/auth/login");
       } else {
-        // Error handled by register function setting its own error or throwing
-        // Might get specific error from API (e.g., username taken)
         setError("Registration failed. Username might already exist.");
       }
     } catch (err) {

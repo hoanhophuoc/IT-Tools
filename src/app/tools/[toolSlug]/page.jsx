@@ -1,4 +1,3 @@
-// src/app/[toolSlug]/page.jsx
 "use client";
 
 import React, { Suspense, useState, useEffect } from "react";
@@ -7,7 +6,7 @@ import { useParams, notFound, useRouter } from "next/navigation";
 import { apiGetToolDetails } from "@/lib/api";
 import Spinner from "@/components/ui/Spinner";
 import Button from "@/components/ui/Button";
-import FavoriteButton from "@/components/ui/FavoriteButton"; // Import FavoriteButton
+import FavoriteButton from "@/components/ui/FavoriteButton";
 import { useAuth } from "@/hooks/useAuth";
 
 const getComponentPath = (componentUrl) => {
@@ -23,29 +22,27 @@ const getComponentPath = (componentUrl) => {
 
 export default function ToolPage() {
   const params = useParams();
-  const router = useRouter(); // Get router
-  const { user, isAuthenticated, loading: authLoading } = useAuth(); // Get auth state
+  const router = useRouter();
+  const { user, isAuthenticated, loading: authLoading } = useAuth();
   const [toolDetails, setToolDetails] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [permissionDenied, setPermissionDenied] = useState(false); // Specific state for premium check
+  const [permissionDenied, setPermissionDenied] = useState(false);
   const [ToolComponent, setToolComponent] = useState(null);
 
   const toolSlug = params.toolSlug || null;
 
   useEffect(() => {
-    // *** Use toolSlug for checks and API calls ***
     if (!toolSlug) {
       setError("Tool identifier missing.");
       setLoading(false);
       return;
     }
-    // Don't start fetching tool details until auth state is known
     if (authLoading) {
-      setLoading(true); // Ensure loading state is true during auth check
+      setLoading(true);
       return;
     }
-    setLoading(true); // Start loading tool data
+    setLoading(true);
     setError(null);
     setPermissionDenied(false);
     setToolComponent(null);
@@ -58,24 +55,22 @@ export default function ToolPage() {
         }
         setToolDetails(details);
 
-        // *** PERMISSION CHECK (Client-side after fetch) ***
         const isPremium = details.isPremium;
         const canAccess =
-          !isPremium || // Free tools are always accessible
+          !isPremium ||
           (isAuthenticated &&
-            (user?.role === "Premium" || user?.role === "Admin")); // Premium/Admin can access premium
+            (user?.role === "Premium" || user?.role === "Admin"));
 
         if (!canAccess) {
-          setPermissionDenied(true); // Set specific state
+          setPermissionDenied(true);
           setError(
             isPremium
               ? "You need a Premium account to access this tool."
               : "Access Denied.",
-          ); // Specific message
+          );
           setLoading(false);
-          return; // Stop loading the component
+          return;
         }
-        // --- END PERMISSION CHECK ---
 
         const componentPath = getComponentPath(details.componentUrl);
         if (!componentPath) {
@@ -111,7 +106,7 @@ export default function ToolPage() {
           (err.message.includes("403") ||
             err.message.toLowerCase().includes("not found"))
         ) {
-          setPermissionDenied(true); // Set specific state
+          setPermissionDenied(true);
         } else {
           setError(`Failed to load tool: ${err.message}`);
         }
@@ -121,11 +116,9 @@ export default function ToolPage() {
     };
 
     fetchAndLoadTool();
-  }, [toolSlug, user, isAuthenticated, authLoading]); // Depend on auth state now
+  }, [toolSlug, user, isAuthenticated, authLoading]);
 
-  // --- Loading and Error Rendering ---
   if (loading || authLoading) {
-    // Show spinner while loading auth OR tool
     return (
       <div className="flex h-60 items-center justify-center">
         <Spinner size="lg" />
@@ -133,7 +126,6 @@ export default function ToolPage() {
     );
   }
 
-  // Specific Handling for Permission Denied
   if (permissionDenied) {
     return (
       <div className="rounded border border-yellow-400 bg-yellow-50 p-6 text-center text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300">
@@ -141,7 +133,7 @@ export default function ToolPage() {
           Premium Tool Access Required
         </h2>
         <p className="mb-4">{error}</p>
-        {!isAuthenticated && ( // Prompt anonymous users to log in
+        {!isAuthenticated && (
           <Button
             variant="primary"
             onClick={() => router.push(`/auth/login?redirect=/${toolSlug}`)}
@@ -153,7 +145,6 @@ export default function ToolPage() {
     );
   }
 
-  // General Error Handling
   if (error) {
     return (
       <div className="rounded border border-red-300 bg-red-50 p-4 text-center text-red-700 dark:bg-red-900/30 dark:text-red-300">
@@ -163,8 +154,6 @@ export default function ToolPage() {
   }
 
   if (!ToolComponent || !toolDetails) {
-    // This might happen if the import fails after loading state is false
-    // or if API returns success but missing data unexpectedly
     return (
       <div className="text-center text-gray-500">
         Could not load the tool component. Please check the configuration or
@@ -175,9 +164,7 @@ export default function ToolPage() {
 
   return (
     <div className="w-full rounded-lg bg-white p-6 shadow dark:bg-gray-800">
-      {/* *** Wrap Title and Favorite Button in Flex Container *** */}
       <div className="mb-4 flex items-center justify-between border-b border-gray-200 pb-2 dark:border-gray-700">
-        {/* Title */}
         <h1 className="text-4xl font-semibold">
           {toolDetails.name}
           {toolDetails.isPremium && (
@@ -186,21 +173,13 @@ export default function ToolPage() {
             </span>
           )}
         </h1>
-        {/* Favorite Button (appears only if logged in) */}
         <div className="ml-4 flex-shrink-0">
-          {" "}
-          {/* Add margin-left */}
           {isAuthenticated && toolDetails && (
-            <FavoriteButton
-              toolId={toolDetails.toolId}
-              size={24} // Larger size
-            />
+            <FavoriteButton toolId={toolDetails.toolId} size={24} />
           )}
         </div>
       </div>
-      {/* *** End Flex Container *** */}
 
-      {/* Description */}
       {toolDetails.description && (
         <p className="mb-6 text-gray-600 dark:text-gray-400">
           {toolDetails.description}
@@ -213,7 +192,7 @@ export default function ToolPage() {
           </div>
         }
       >
-        <ToolComponent /> {/* Render the actual tool */}
+        <ToolComponent />
       </Suspense>
     </div>
   );

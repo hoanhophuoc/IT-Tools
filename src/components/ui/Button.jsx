@@ -3,10 +3,10 @@ const Button = ({
   children,
   onClick,
   type = "button",
-  variant = "primary", // 'primary', 'secondary', 'danger', 'warning'
-  size = "md", // 'sm', 'md', 'lg'
+  variant = "primary",
+  size = "md",
   disabled = false,
-  isLoading = false, // Optional loading state
+  isLoading = false,
   className = "",
   ...props
 }) => {

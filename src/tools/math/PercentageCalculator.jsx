@@ -1,4 +1,3 @@
-// src/tools/math/PercentageCalculator.jsx
 "use client";
 
 import { useState, useMemo } from "react";
@@ -125,6 +124,7 @@ export default function PercentageCalculator() {
             className="min-w-[100px] flex-1 bg-gray-100 dark:bg-gray-700"
             aria-label="Is what percent result"
           />
+          <span className="flex-shrink-0 text-sm">%</span>
           <CopyToClipboardButton
             textToCopy={isWhatPercentResult}
             disabled={!isWhatPercentResult}
@@ -133,7 +133,6 @@ export default function PercentageCalculator() {
             className="flex-shrink-0"
             buttonText="Copy"
           />
-          <span className="flex-shrink-0 text-sm">%</span>
         </div>
       </div>
       <div className="rounded-md bg-white p-4 shadow-sm dark:bg-slate-800">
@@ -173,6 +172,7 @@ export default function PercentageCalculator() {
             className="min-w-[100px] flex-1 bg-gray-100 dark:bg-gray-700"
             aria-label="Percentage change result"
           />
+          <span className="flex-shrink-0 text-sm">%</span>
           <CopyToClipboardButton
             textToCopy={percentChangeResult}
             disabled={!percentChangeResult}
@@ -181,7 +181,6 @@ export default function PercentageCalculator() {
             className="flex-shrink-0"
             buttonText="Copy"
           />
-          <span className="flex-shrink-0 text-sm">%</span>
         </div>
       </div>
     </div>

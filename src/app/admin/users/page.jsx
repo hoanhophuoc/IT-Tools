@@ -16,11 +16,9 @@ export default function AdminUsersPage() {
     setLoading(true);
     setError(null);
     try {
-      // Backend needs to return appropriate AdminUserDto
-      // e.g., { userId, username, role, createdAt } - NO PasswordHash
       const data = await apiAdminGetAllUsers();
       setUsers(data);
-      console.log("Fetched users:", data); // Debugging log
+      console.log("Fetched users:", data);
     } catch (err) {
       setError(err.message || "Failed to load users.");
     } finally {
@@ -32,7 +30,6 @@ export default function AdminUsersPage() {
     fetchUsers();
   }, [fetchUsers]);
 
-  // Define columns for the users table
   const columns = [
     { key: "userId", label: "ID" },
     { key: "username", label: "Username" },
@@ -41,17 +38,8 @@ export default function AdminUsersPage() {
       key: "createdAt",
       label: "Registered At",
       render: (row) => new Date(row.createdAt).toLocaleString(),
-    }, // Format date
+    },
   ];
-
-  // Define actions (e.g., change role, delete user) - requires corresponding API calls
-  // const handleEditUser = (user) => { console.log("Edit user:", user); /* Open modal */ };
-  // const handleDeleteUser = async (user) => {
-  //    if (window.confirm(`Delete user ${user.username}?`)) {
-  //         // call apiAdminDeleteUser(user.userId);
-  //         // fetchUsers();
-  //    }
-  // };
 
   if (!isAuthenticated) {
     return <div className="p-4 text-center">Authenticating...</div>;
@@ -72,17 +60,7 @@ export default function AdminUsersPage() {
         </div>
       )}
 
-      {!loading && !error && (
-        <Table
-          columns={columns}
-          data={users}
-          // actions={{
-          //   edit: handleEditUser,
-          //   delete: handleDeleteUser,
-          // }}
-        />
-      )}
-      {/* Add Pagination if needed */}
+      {!loading && !error && <Table columns={columns} data={users} />}
     </div>
   );
 }

@@ -1,5 +1,4 @@
-// src/components/ui/TextArea.jsx
-"use client"; // If using event handlers like onChange directly
+"use client";
 import React from "react";
 
 const TextArea = React.forwardRef(

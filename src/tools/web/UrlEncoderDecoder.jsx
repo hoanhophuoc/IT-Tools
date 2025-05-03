@@ -1,4 +1,3 @@
-// src/tools/web/UrlEncoderDecoder.jsx
 "use client";
 
 import { useState, useEffect } from "react";

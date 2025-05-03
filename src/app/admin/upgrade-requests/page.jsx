@@ -1,7 +1,6 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import Table from "@/components/ui/Table";
-import Button from "@/components/ui/Button"; // Use button for actions if preferred
 import Spinner from "@/components/ui/Spinner";
 import { apiAdminGetPendingRequests, apiAdminProcessRequest } from "@/lib/api";
 import { useAuth } from "@/hooks/useAuth";
@@ -10,7 +9,7 @@ export default function AdminUpgradeRequestsPage() {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [processingId, setProcessingId] = useState(null); // Track which request is being processed
+  const [processingId, setProcessingId] = useState(null);
   const { isAuthenticated } = useAuth();
 
   const fetchRequests = useCallback(async () => {
@@ -18,7 +17,6 @@ export default function AdminUpgradeRequestsPage() {
     setLoading(true);
     setError(null);
     try {
-      // Backend returns UpgradeRequestDto: { requestId, userId, username, status, requestedAt, ... }
       const data = await apiAdminGetPendingRequests();
       setRequests(data);
     } catch (err) {
@@ -33,18 +31,17 @@ export default function AdminUpgradeRequestsPage() {
   }, [fetchRequests]);
 
   const handleProcessRequest = async (requestId, newStatus) => {
-    if (processingId) return; // Prevent multiple clicks
+    if (processingId) return;
     setProcessingId(requestId);
     setError(null);
 
     try {
       await apiAdminProcessRequest(requestId, { newStatus });
-      // Refresh the list after processing
       fetchRequests();
     } catch (err) {
       console.error(`Failed to ${newStatus} request:`, err);
       setError(err.message || `Failed to ${newStatus} request.`);
-      alert(`Error: ${err.message}`); // Simple feedback
+      alert(`Error: ${err.message}`);
     } finally {
       setProcessingId(null);
     }
@@ -59,7 +56,6 @@ export default function AdminUpgradeRequestsPage() {
       label: "Requested At",
       render: (row) => new Date(row.requestedAt).toLocaleString(),
     },
-    // Status column might not be needed if only showing pending
   ];
 
   if (!isAuthenticated) {

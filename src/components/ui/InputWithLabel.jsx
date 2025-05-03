@@ -1,5 +1,4 @@
-// src/components/ui/InputWithLabel.jsx
-// Simple wrapper for Input with optional inline label
+import React from "react";
 import Input from "./Input";
 
 export default function InputWithLabel({

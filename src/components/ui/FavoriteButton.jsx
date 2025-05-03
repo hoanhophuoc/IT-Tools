@@ -1,25 +1,22 @@
-// src/components/ui/FavoriteButton.jsx
 "use client";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { FiHeart } from "react-icons/fi"; // Or FaHeart from react-icons/fa
+import { FiHeart } from "react-icons/fi";
 
 export default function FavoriteButton({ toolId, onToggle, size = 18 }) {
   const { isAuthenticated, addFavorite, removeFavorite, favoriteToolIds } =
     useAuth();
   const [isProcessing, setIsProcessing] = useState(false);
 
-  // Use state derived from context for real-time updates
   const isCurrentlyFavorite = favoriteToolIds.has(toolId);
 
-  // Don't render if user is not logged in
   if (!isAuthenticated) {
     return null;
   }
 
   const handleClick = async (e) => {
-    e.preventDefault(); // Prevent link navigation if button is inside a Link
-    e.stopPropagation(); // Prevent event bubbling up
+    e.preventDefault();
+    e.stopPropagation();
 
     if (isProcessing) return;
     setIsProcessing(true);
@@ -32,9 +29,8 @@ export default function FavoriteButton({ toolId, onToggle, size = 18 }) {
     }
 
     if (success && onToggle) {
-      onToggle(!isCurrentlyFavorite); // Notify parent if needed
+      onToggle(!isCurrentlyFavorite);
     }
-    // Add error handling feedback if needed
     if (!success) {
       alert(`Failed to ${isCurrentlyFavorite ? "remove" : "add"} favorite.`);
     }

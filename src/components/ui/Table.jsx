@@ -1,26 +1,21 @@
-"use client"; // Assume actions might need client-side logic
+"use client";
 import React from "react";
-import { FiEdit, FiTrash2 } from "react-icons/fi"; // Example icons
-import { LiaStarSolid } from "react-icons/lia"; // For premium status
+import { FiEdit, FiTrash2 } from "react-icons/fi";
+import { LiaStarSolid } from "react-icons/lia";
 
-// data: array of objects
-// columns: array of { key: string, label: string, render?: (row) => ReactNode }
-// actions?: { edit?: (row) => void, delete?: (row) => void }
 const Table = ({ data = [], columns = [], actions }) => {
   const renderCellContent = (row, column) => {
     const value = row[column.key];
 
-    // Custom render function provided
     if (column.render) {
       return column.render(row);
     }
 
-    // Specific key handling
     if (column.key === "isPremium") {
       return (
         <LiaStarSolid
           className="text-xl"
-          color={value ? "#f2b530" : "gray"} // Use yellow for premium
+          color={value ? "#f2b530" : "gray"}
           title={value ? "Premium" : "Free"}
         />
       );
@@ -35,15 +30,14 @@ const Table = ({ data = [], columns = [], actions }) => {
       );
     }
 
-    // Default rendering
     if (typeof value === "boolean") {
       return value ? "Yes" : "No";
     }
     if (value instanceof Date) {
-      return value.toLocaleDateString(); // Or format as needed
+      return value.toLocaleDateString();
     }
 
-    return value ?? "-"; // Display '-' for null/undefined
+    return value ?? "-";
   };
 
   return (
@@ -115,22 +109,22 @@ const Table = ({ data = [], columns = [], actions }) => {
                           <FiTrash2 size={16} />
                         </button>
                       )}
-                      {actions.approve && ( // Example for upgrade requests
+                      {actions.approve && (
                         <button
                           onClick={() => actions.approve(row)}
                           className="text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-300"
                           title="Approve"
                         >
-                          Approve {/* Or use an icon */}
+                          Approve
                         </button>
                       )}
-                      {actions.reject && ( // Example for upgrade requests
+                      {actions.reject && (
                         <button
                           onClick={() => actions.reject(row)}
                           className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
                           title="Reject"
                         >
-                          Reject {/* Or use an icon */}
+                          Reject
                         </button>
                       )}
                     </div>

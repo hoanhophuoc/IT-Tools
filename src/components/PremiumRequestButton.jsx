@@ -1,9 +1,9 @@
 "use client";
 import { useState } from "react";
-import Modal from "@/components/ui/Modal"; // Your Modal component
-import Button from "@/components/ui/Button"; // Your Button component
+import Modal from "@/components/ui/Modal";
+import Button from "@/components/ui/Button";
 import { apiRequestPremium } from "@/lib/api";
-import { useAuth } from "@/hooks/useAuth"; // To check if already premium/admin
+import { useAuth } from "@/hooks/useAuth";
 import Spinner from "@/components/ui/Spinner";
 import { FiStar } from "react-icons/fi";
 
@@ -14,7 +14,6 @@ export default function PremiumRequestButton() {
   const [success, setSuccess] = useState(false);
   const { user } = useAuth();
 
-  // Don't show button if user is already premium or admin
   if (user?.role === "Premium" || user?.role === "Admin") {
     return null;
   }
@@ -22,7 +21,7 @@ export default function PremiumRequestButton() {
   const handleOpenModal = () => {
     setIsModalOpen(true);
     setError(null);
-    setSuccess(false); // Reset state when opening
+    setSuccess(false);
   };
 
   const handleCloseModal = () => setIsModalOpen(false);
@@ -34,8 +33,7 @@ export default function PremiumRequestButton() {
     try {
       await apiRequestPremium({ userId: user.userId });
       setSuccess(true);
-      // Keep modal open to show success message, close after a delay?
-      setTimeout(() => setIsModalOpen(false), 3000); // Close after 3s
+      setTimeout(() => setIsModalOpen(false), 3000);
     } catch (err) {
       console.error("Premium request failed:", err);
       setError(err.message || "Failed to submit request. Please try again.");

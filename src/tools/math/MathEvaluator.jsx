@@ -1,4 +1,3 @@
-// src/tools/math/MathEvaluator.jsx
 "use client";
 
 import { useState, useMemo } from "react";

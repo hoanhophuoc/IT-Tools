@@ -21,7 +21,6 @@ export default function LoginForm() {
       if (!success) {
         setError("Invalid username or password.");
       }
-      // On success, the AuthContext handles redirection
     } catch (err) {
       setError(err.message || "An unexpected error occurred during login.");
     } finally {
@@ -58,7 +57,7 @@ export default function LoginForm() {
       />
       <div className="text-right text-sm">
         <Link
-          href="/auth/forgot-password" // Link to the new forgot password page
+          href="/auth/forgot-password"
           className="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
         >
           Forgot Password?

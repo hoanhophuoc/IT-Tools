@@ -1,4 +1,3 @@
-// src/tools/data/IbanValidatorParser.jsx
 "use client";
 
 import { useState, useMemo } from "react";

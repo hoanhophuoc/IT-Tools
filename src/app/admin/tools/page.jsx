@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 import Table from "@/components/ui/Table";
 import Button from "@/components/ui/Button";
 import Modal from "@/components/ui/Modal";
-import ToolForm from "@/components/admin/ToolForm"; // Import the new form
+import ToolForm from "@/components/admin/ToolForm";
 import Spinner from "@/components/ui/Spinner";
 import {
   apiAdminGetAllTools,
@@ -19,8 +19,8 @@ export default function AdminToolsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingTool, setEditingTool] = useState(null); // null for Add, tool object for Edit
-  const [isSaving, setIsSaving] = useState(false); // Loading state for save/update
+  const [editingTool, setEditingTool] = useState(null);
+  const [isSaving, setIsSaving] = useState(false);
   const { isAuthenticated } = useAuth();
 
   const fetchTools = useCallback(async () => {
@@ -28,9 +28,8 @@ export default function AdminToolsPage() {
     setLoading(true);
     setError(null);
     try {
-      // Use AdminToolDto which includes isEnabled
       const data = await apiAdminGetAllTools();
-      setTools(data || []); // Ensure it's an array
+      setTools(data || []);
     } catch (err) {
       setError(err.message || "Failed to load tools.");
     } finally {
@@ -55,10 +54,9 @@ export default function AdminToolsPage() {
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setEditingTool(null);
-    setError(null); // Clear errors when closing modal
+    setError(null);
   };
 
-  // Called by ToolForm on successful save
   const handleSaveTool = async (formData) => {
     setIsSaving(true);
     setError(null);
@@ -69,7 +67,7 @@ export default function AdminToolsPage() {
         await apiAdminCreateTool(formData);
       }
       handleCloseModal();
-      fetchTools(); // Refresh the list
+      fetchTools();
     } catch (err) {
       console.error("Failed to save tool:", err);
       setError(`Save failed: ${err.message}`);
@@ -84,30 +82,25 @@ export default function AdminToolsPage() {
         `Are you sure you want to delete the tool "${tool.name}"? This action cannot be undone.`,
       )
     ) {
-      // Optionally set a specific loading state for delete
       setError(null);
       try {
         await apiAdminDeleteTool(tool.toolId);
-        fetchTools(); // Refresh list
-        // Optionally show a success notification/toast
+        fetchTools();
       } catch (err) {
         console.error("Failed to delete tool:", err);
         setError(err.message || "Failed to delete tool.");
-        alert(`Error deleting tool: ${err.message}`); // Simple feedback
-      } finally {
-        // Clear specific loading state if used
+        alert(`Error deleting tool: ${err.message}`);
       }
     }
   };
 
-  // Define columns for the tools table
   const columns = [
     { key: "toolId", label: "ID" },
     { key: "name", label: "Name" },
     { key: "categoryName", label: "Category" },
-    { key: "componentUrl", label: "Component URL" }, // Updated field name
-    { key: "isPremium", label: "Premium" }, // Rendered by Table component
-    { key: "isEnabled", label: "Status" }, // Rendered by Table component
+    { key: "componentUrl", label: "Component URL" },
+    { key: "isPremium", label: "Premium" },
+    { key: "isEnabled", label: "Status" },
     {
       key: "createdAt",
       label: "Registered At",
@@ -133,7 +126,6 @@ export default function AdminToolsPage() {
           <Spinner size="lg" />
         </div>
       )}
-      {/* Display global errors for the page */}
       {error && !isModalOpen && (
         <div className="mb-4 rounded border border-red-300 bg-red-50 p-3 text-red-700">
           {error}
@@ -150,25 +142,22 @@ export default function AdminToolsPage() {
           }}
         />
       )}
-      {/* Add Pagination if needed */}
 
-      {/* Add/Edit Modal */}
       <Modal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         title={editingTool ? "Edit Tool" : "Add New Tool"}
         size="lg"
       >
-        {/* Display save errors within the modal */}
         {error && isModalOpen && (
           <p className="mb-3 text-sm text-red-600">{error}</p>
         )}
         <ToolForm
-          key={editingTool ? editingTool.toolId : "add"} // Add key to force re-render/reset form state
+          key={editingTool ? editingTool.toolId : "add"}
           initialData={editingTool}
           onSave={handleSaveTool}
           onCancel={handleCloseModal}
-          isLoading={isSaving} // Pass saving state to form
+          isLoading={isSaving}
         />
       </Modal>
     </div>

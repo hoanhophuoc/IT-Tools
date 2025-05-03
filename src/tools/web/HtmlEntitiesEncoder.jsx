@@ -1,4 +1,3 @@
-// src/tools/web/HtmlEntitiesEncoder.jsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -18,7 +17,6 @@ const escapeHtmlEntities = (str) => {
 const unescapeHtmlEntities = (str) => {
   if (!str) return "";
   if (typeof window === "undefined" || typeof document === "undefined") {
-    console.warn("Cannot unescape HTML entities on the server.");
     return str;
   }
   try {
@@ -26,7 +24,6 @@ const unescapeHtmlEntities = (str) => {
     txt.innerHTML = str;
     return txt.value;
   } catch (e) {
-    console.error("Error unescaping HTML:", e);
     return str;
   }
 };

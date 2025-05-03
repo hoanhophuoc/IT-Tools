@@ -1,12 +1,12 @@
-// src/tools/images/QrCodeGenerator.jsx
 "use client";
 
 import { useState, useCallback, useRef } from "react";
 import { QRCodeCanvas } from "qrcode.react";
-import Input from "@/components/ui/Input";
 import TextArea from "@/components/ui/TextArea";
 import Button from "@/components/ui/Button";
 import { FiDownload } from "react-icons/fi";
+import { downloadCanvasAsPng } from "@/lib/utils";
+import ColorInput from "@/components/ui/ColorInput";
 
 const errorCorrectionOptions = [
   { value: "L", label: "Low" },
@@ -31,47 +31,13 @@ export default function QrCodeGenerator() {
     setError("");
   };
 
-  const handleColorChange = (setter) => (e) => {
-    let value = e.target.value;
-    if (e.target.type === "text") {
-      if (!value.startsWith("#")) {
-        value = "#" + value;
-      }
-      value = "#" + value.substring(1).replace(/[^0-9a-fA-F]/g, "");
-      value = value.substring(0, 7);
-    }
-    setter(value);
-    setError("");
-  };
-  const handleFgChange = handleColorChange(setFgColor);
-  const handleBgChange = handleColorChange(setBgColor);
-
   const handleErrorLevelChange = (e) => {
     setErrorLevel(e.target.value);
     setError("");
   };
 
   const handleDownload = useCallback(() => {
-    const canvas = qrCodeCanvasRef.current?.querySelector("canvas");
-    const link = downloadLinkRef.current;
-
-    if (canvas && link) {
-      try {
-        const pngUrl = canvas
-          .toDataURL("image/png")
-          .replace("image/png", "image/octet-stream");
-        link.href = pngUrl;
-        link.click();
-      } catch (err) {
-        console.error("Failed to create data URL from canvas:", err);
-        setError("Could not prepare QR code for download.");
-        alert("Error: Could not prepare QR code for download.");
-      }
-    } else {
-      console.error("Canvas or download link ref not found.");
-      setError("Download failed: QR code element not ready.");
-      alert("Error: Download failed.");
-    }
+    downloadCanvasAsPng(qrCodeCanvasRef, downloadLinkRef, "qr-code.png");
   }, []);
 
   const hasValidText = text.trim().length > 0;
@@ -89,60 +55,18 @@ export default function QrCodeGenerator() {
             rows={4}
           />
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div>
-              <label
-                htmlFor="fgColor"
-                className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
-              >
-                Foreground color:
-              </label>
-              <div className="flex items-center gap-2">
-                <input
-                  type="color"
-                  id="fgColorPicker"
-                  aria-label="Foreground color picker"
-                  value={fgColor}
-                  onChange={handleFgChange}
-                  className="h-10 w-10 shrink-0 cursor-pointer rounded border border-gray-300 dark:border-gray-600"
-                />
-                <Input
-                  id="fgColor"
-                  name="fgColor"
-                  value={fgColor}
-                  onChange={handleFgChange}
-                  placeholder="#000000"
-                  maxLength={7}
-                  className="font-mono"
-                />
-              </div>
-            </div>
-            <div>
-              <label
-                htmlFor="bgColor"
-                className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
-              >
-                Background color:
-              </label>
-              <div className="flex items-center gap-2">
-                <input
-                  type="color"
-                  id="bgColorPicker"
-                  aria-label="Background color picker"
-                  value={bgColor}
-                  onChange={handleBgChange}
-                  className="h-10 w-10 shrink-0 cursor-pointer rounded border border-gray-300 dark:border-gray-600"
-                />
-                <Input
-                  id="bgColor"
-                  name="bgColor"
-                  value={bgColor}
-                  onChange={handleBgChange}
-                  placeholder="#FFFFFF"
-                  maxLength={7}
-                  className="font-mono"
-                />
-              </div>
-            </div>
+            <ColorInput
+              label="Foreground color:"
+              id="fgColor"
+              value={fgColor}
+              onChange={setFgColor}
+            />
+            <ColorInput
+              label="Background color:"
+              id="bgColor"
+              value={bgColor}
+              onChange={setBgColor}
+            />
           </div>
           <div>
             <label

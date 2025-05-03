@@ -1,8 +1,7 @@
-// src/tools/math/EtaCalculator.jsx
 "use client";
 
 import { useState, useMemo } from "react";
-import { addMilliseconds, format } from "date-fns";
+import { format } from "date-fns";
 import { formatMsDuration } from "@/lib/dateUtils";
 import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
@@ -163,7 +162,6 @@ export default function EtaCalculator() {
             min="1"
             value={unitPerTimeSpan}
             onChange={handleNumberChange(setUnitPerTimeSpan)}
-            containerClassName="flex-shrink md:w-auto"
           />
           <span className="flex-shrink-0 px-1 text-gray-600 md:pb-2 dark:text-gray-400">
             in
@@ -175,7 +173,6 @@ export default function EtaCalculator() {
             min="1"
             value={timeSpanValue}
             onChange={handleNumberChange(setTimeSpanValue)}
-            containerClassName="flex-shrink md:w-auto"
           />
           <Select
             id="timeSpanUnit"

@@ -1,4 +1,3 @@
-// src/tools/network/Ipv4AddressConverter.jsx
 "use client";
 
 import { useState, useMemo } from "react";
@@ -87,11 +86,6 @@ export default function Ipv4AddressConverter() {
             placeholder="N/A"
           />
         </div>
-      )}
-      {inputError && rawIpAddress.trim() && (
-        <p className="mt-2 text-sm text-red-600 dark:text-red-400">
-          {inputError}
-        </p>
       )}
     </div>
   );

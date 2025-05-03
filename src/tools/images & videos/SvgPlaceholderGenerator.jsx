@@ -1,4 +1,3 @@
-// src/tools/images/SvgPlaceholderGenerator.jsx
 "use client";
 
 import { useState, useMemo, useCallback, useRef } from "react";
@@ -6,9 +5,10 @@ import Input from "@/components/ui/Input";
 import TextArea from "@/components/ui/TextArea";
 import Button from "@/components/ui/Button";
 import CopyToClipboardButton from "@/components/ui/CopyToClipboardButton";
-import { FiDownload, FiCopy } from "react-icons/fi";
+import { FiDownload } from "react-icons/fi";
 import Switch from "@/components/ui/Switch";
 import { utf8ToBase64 } from "@/lib/utils";
+import ColorInput from "@/components/ui/ColorInput";
 
 export default function SvgPlaceholderGenerator() {
   const [width, setWidth] = useState(600);
@@ -25,19 +25,6 @@ export default function SvgPlaceholderGenerator() {
     const value = parseInt(e.target.value, 10);
     setter(isNaN(value) || value < 1 ? 1 : value);
   };
-  const handleColorChange = (setter) => (e) => {
-    let value = e.target.value;
-    if (e.target.type === "text") {
-      if (!value.startsWith("#")) {
-        value = "#" + value;
-      }
-      value = "#" + value.substring(1).replace(/[^0-9a-fA-F]/g, "");
-      value = value.substring(0, 7);
-    }
-    setter(value);
-  };
-  const handleBgChange = handleColorChange(setBgColor);
-  const handleFgChange = handleColorChange(setFgColor);
 
   const svgString = useMemo(() => {
     const w = width || 1;
@@ -82,31 +69,12 @@ export default function SvgPlaceholderGenerator() {
           onChange={handleNumberChange(setWidth)}
           min="1"
         />
-        <div>
-          <label
-            htmlFor="bgColor"
-            className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
-          >
-            Background:
-          </label>
-          <div className="flex items-center gap-2">
-            <input
-              type="color"
-              id="bgColorPicker"
-              value={bgColor}
-              onChange={handleBgChange}
-              className="h-10 w-10 ..."
-            />
-            <Input
-              id="bgColor"
-              value={bgColor}
-              onChange={handleBgChange}
-              maxLength={7}
-              className="font-mono"
-            />
-          </div>
-        </div>
-
+        <ColorInput
+          label="Background:"
+          id="bgColor"
+          value={bgColor}
+          onChange={setBgColor}
+        />
         <Input
           label="Height (px):"
           type="number"
@@ -115,31 +83,12 @@ export default function SvgPlaceholderGenerator() {
           onChange={handleNumberChange(setHeight)}
           min="1"
         />
-        <div>
-          <label
-            htmlFor="fgColor"
-            className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
-          >
-            Text Color:
-          </label>
-          <div className="flex items-center gap-2">
-            <input
-              type="color"
-              id="fgColorPicker"
-              value={fgColor}
-              onChange={handleFgChange}
-              className="h-10 w-10 ..."
-            />
-            <Input
-              id="fgColor"
-              value={fgColor}
-              onChange={handleFgChange}
-              maxLength={7}
-              className="font-mono"
-            />
-          </div>
-        </div>
-
+        <ColorInput
+          label="Text Color:"
+          id="fgColor"
+          value={fgColor}
+          onChange={setFgColor}
+        />
         <Input
           label="Font Size (px):"
           type="number"
@@ -183,14 +132,6 @@ export default function SvgPlaceholderGenerator() {
               rows={6}
               className="bg-gray-100 pr-10 font-mono dark:bg-gray-700"
             />
-            <div className="absolute top-2 right-2">
-              <CopyToClipboardButton
-                textToCopy={svgString}
-                size="sm"
-                variant="secondary"
-                title="Copy SVG Code"
-              />
-            </div>
           </div>
         </div>
 
@@ -209,14 +150,6 @@ export default function SvgPlaceholderGenerator() {
               rows={4}
               className="bg-gray-100 pr-10 font-mono break-all dark:bg-gray-700"
             />
-            <div className="absolute top-2 right-2">
-              <CopyToClipboardButton
-                textToCopy={base64Svg}
-                size="sm"
-                variant="secondary"
-                title="Copy Base64"
-              />
-            </div>
           </div>
         </div>
       </div>
