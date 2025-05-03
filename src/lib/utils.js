@@ -80,3 +80,56 @@ export const utf8ToBase64 = (str) => {
     }
   }
 };
+
+/**
+ * Standardized color input handler for hex color fields (for use with text or color input).
+ * Ensures value is always in #RRGGBB format and only valid hex digits.
+ * @param {function} setter State setter function (e.g., setFgColor)
+ * @returns {function} Event handler for onChange
+ */
+export function handleHexColorChange(setter) {
+  return (e) => {
+    let value = e.target.value;
+    if (e.target.type === "text") {
+      if (!value.startsWith("#")) {
+        value = "#" + value;
+      }
+      value = "#" + value.substring(1).replace(/[^0-9a-fA-F]/g, "");
+      value = value.substring(0, 7);
+    }
+    setter(value);
+  };
+}
+
+/**
+ * Download the content of a canvas as a PNG file via a hidden link.
+ * @param {HTMLDivElement|HTMLCanvasElement} canvasRef Ref to a div containing a <canvas> or the canvas itself
+ * @param {HTMLAnchorElement} linkRef Ref to a hidden <a> element
+ * @param {string} filename Name for the downloaded file
+ * @returns {boolean} True if download started, false otherwise
+ */
+export function downloadCanvasAsPng(
+  canvasRef,
+  linkRef,
+  filename = "download.png",
+) {
+  const canvas = canvasRef?.current?.querySelector
+    ? canvasRef.current.querySelector("canvas")
+    : canvasRef?.current || canvasRef;
+  const link = linkRef?.current || linkRef;
+  if (canvas && link) {
+    try {
+      const pngUrl = canvas
+        .toDataURL("image/png")
+        .replace("image/png", "image/octet-stream");
+      link.href = pngUrl;
+      link.download = filename;
+      link.click();
+      return true;
+    } catch (err) {
+      console.error("Failed to create data URL from canvas:", err);
+      return false;
+    }
+  }
+  return false;
+}

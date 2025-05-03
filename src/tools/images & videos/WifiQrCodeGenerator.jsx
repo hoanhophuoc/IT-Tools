@@ -1,17 +1,14 @@
 // src/tools/images/WifiQrCodeGenerator.jsx
-"use client"; // Required for state, refs, effects, event handlers
+"use client";
 
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
-import { QRCodeCanvas } from "qrcode.react"; // Import the primary component
+import { QRCodeCanvas } from "qrcode.react";
 import Input from "@/components/ui/Input";
-// Removed TextArea import as SSID uses Input now
-// import TextArea from '@/components/ui/TextArea';
 import Button from "@/components/ui/Button";
 import { FiDownload, FiEye, FiEyeOff } from "react-icons/fi";
-import Spinner from "@/components/ui/Spinner"; // Assuming Spinner component exists
+import Spinner from "@/components/ui/Spinner";
 
-// --- Constants (defined within the component file) ---
-const WIFI_ENCRYPTION_TYPES = ["nopass", "WEP", "WPA", "WPA2-EAP"]; // WPA covers WPA/WPA2 Personal
+const WIFI_ENCRYPTION_TYPES = ["nopass", "WEP", "WPA", "WPA2-EAP"];
 const EAP_METHODS = [
   "PWD",
   "LEAP",
@@ -21,22 +18,17 @@ const EAP_METHODS = [
   "SIM",
   "AKA",
   "AKA'",
-  // Add others if commonly needed
 ];
 const EAP_PHASE2_METHODS = ["None", "MSCHAPV2", "GTC", "PAP", "MSCHAP"];
 const ERROR_CORRECTION_LEVELS = [
-  // Use object for label/value separation
   { value: "L", label: "Low" },
   { value: "M", label: "Medium" },
   { value: "Q", label: "Quartile" },
   { value: "H", label: "High" },
 ];
-// -----------------------------------------------------
 
-// --- Helper Functions (defined within the component file) ---
 function escapeWifiValue(str) {
   if (!str) return "";
-  // Escape backslash, semicolon, comma, double quote, colon
   return str.replace(/([\\;,":])/g, "\\$1");
 }
 
@@ -50,7 +42,7 @@ function getWifiQrCodeText(options) {
     identity,
     phase2Method,
   } = options;
-  if (!ssid) return null; // SSID is mandatory
+  if (!ssid) return null;
 
   const escapedSSID = escapeWifiValue(ssid);
   const hidden = isHidden ? "H:true;" : "";
@@ -59,63 +51,55 @@ function getWifiQrCodeText(options) {
     case "nopass":
       return `WIFI:S:${escapedSSID};T:nopass;${hidden};`;
     case "WEP":
-      if (!password) return null; // Password required
+      if (!password) return null;
       return `WIFI:S:${escapedSSID};T:WEP;P:${escapeWifiValue(password)};${hidden};`;
-    case "WPA": // Covers WPA and WPA2 Personal
-      if (!password) return null; // Password required
+    case "WPA":
+      if (!password) return null;
       return `WIFI:S:${escapedSSID};T:WPA;P:${escapeWifiValue(password)};${hidden};`;
     case "WPA2-EAP":
-      // Basic validation: EAP Method and Identity are usually needed
       if (!eapMethod || !identity) return null;
       const eapStr = `E:${eapMethod};`;
       const identityStr = `I:${escapeWifiValue(identity)};`;
       const phase2Str =
         phase2Method && phase2Method !== "None" ? `PH2:${phase2Method};` : "";
-      const passwordStr = password ? `P:${escapeWifiValue(password)};` : ""; // Password might be optional
+      const passwordStr = password ? `P:${escapeWifiValue(password)};` : "";
 
       return `WIFI:S:${escapedSSID};T:WPA2-EAP;${eapStr}${identityStr}${phase2Str}${passwordStr}${hidden};`;
     default:
       console.warn("Unknown encryption type:", encryption);
-      return null; // Invalid encryption type
+      return null;
   }
 }
-// ---------------------------------------------------------
 
 export default function WifiQrCodeGenerator() {
-  // --- State Variables ---
-  const [ssid, setSsid] = useState(""); // Input for Network Name
+  const [ssid, setSsid] = useState("");
   const [isHidden, setIsHidden] = useState(false);
-  const [encryption, setEncryption] = useState("WPA"); // Default encryption
+  const [encryption, setEncryption] = useState("WPA");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  // EAP State
-  const [eapMethod, setEapMethod] = useState(EAP_METHODS[0]); // Default EAP
+  const [eapMethod, setEapMethod] = useState(EAP_METHODS[0]);
   const [identity, setIdentity] = useState("");
-  const [phase2Method, setPhase2Method] = useState(EAP_PHASE2_METHODS[0]); // Default Phase 2
-  // QR Code Specific State
+  const [phase2Method, setPhase2Method] = useState(EAP_PHASE2_METHODS[0]);
   const [fgColor, setFgColor] = useState("#000000");
   const [bgColor, setBgColor] = useState("#ffffff");
-  const [errorLevel, setErrorLevel] = useState("M"); // Default error correction ('M')
-  const [qrSize, setQrSize] = useState(200); // Display size
-  const [error, setError] = useState(""); // Error message state
+  const [errorLevel, setErrorLevel] = useState("M");
+  const [qrSize, setQrSize] = useState(200);
+  const [error, setError] = useState("");
 
-  // Refs
   const qrCodeCanvasRef = useRef(null);
   const downloadLinkRef = useRef(null);
 
-  // --- Derived State ---
   const showEapFields = useMemo(() => encryption === "WPA2-EAP", [encryption]);
   const showPasswordField = useMemo(
     () => encryption !== "nopass",
     [encryption],
   );
 
-  // --- Generate QR Code Text (Memoized) ---
   const qrCodeText = useMemo(() => {
-    setError(""); // Clear previous errors when inputs change
+    setError("");
     try {
       return getWifiQrCodeText({
-        ssid: ssid.trim(), // Trim SSID before generating
+        ssid: ssid.trim(),
         password: showPasswordField ? password : "",
         encryption,
         isHidden,
@@ -139,7 +123,6 @@ export default function WifiQrCodeGenerator() {
     showPasswordField,
   ]);
 
-  // --- Input Handlers ---
   const handleColorChange = (setter) => (e) => {
     let value = e.target.value;
     if (e.target.type === "text") {
@@ -157,12 +140,10 @@ export default function WifiQrCodeGenerator() {
     setErrorLevel(e.target.value);
   };
 
-  // --- Download Handler ---
   const handleDownload = useCallback(() => {
     const canvas = qrCodeCanvasRef.current?.querySelector("canvas");
     const link = downloadLinkRef.current;
     if (canvas && link && qrCodeText) {
-      // Check qrCodeText is valid
       try {
         const pngUrl = canvas
           .toDataURL("image/png")
@@ -182,9 +163,8 @@ export default function WifiQrCodeGenerator() {
       setError("Download failed: QR code element not ready.");
       alert("Error: Download failed.");
     }
-  }, [qrCodeText]); // Depend on qrCodeText
+  }, [qrCodeText]);
 
-  // Determine if QR code can be generated based on valid SSID and generated text
   const canGenerateQr = useMemo(
     () => ssid.trim().length > 0 && qrCodeText !== null,
     [ssid, qrCodeText],
@@ -193,9 +173,7 @@ export default function WifiQrCodeGenerator() {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 gap-6 md:gap-8 lg:grid-cols-3">
-        {/* Input Options Column */}
         <div className="space-y-4 lg:col-span-2">
-          {/* Encryption Method */}
           <div>
             <label
               htmlFor="encryption"
@@ -216,7 +194,6 @@ export default function WifiQrCodeGenerator() {
             </select>
           </div>
 
-          {/* SSID and Hidden Checkbox */}
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
             <div className="flex-grow">
               <Input
@@ -245,7 +222,6 @@ export default function WifiQrCodeGenerator() {
             </div>
           </div>
 
-          {/* Password (conditional) */}
           {showPasswordField && (
             <div className="relative">
               <Input
@@ -268,7 +244,6 @@ export default function WifiQrCodeGenerator() {
             </div>
           )}
 
-          {/* WPA2-EAP Specific Fields */}
           {showEapFields && (
             <div className="mt-4 space-y-4 rounded border border-gray-300 p-4 dark:border-gray-600">
               <h4 className="text-md font-medium text-gray-800 dark:text-gray-200">
@@ -327,7 +302,6 @@ export default function WifiQrCodeGenerator() {
             </div>
           )}
 
-          {/* Color Pickers */}
           <div className="grid grid-cols-1 gap-4 pt-2 sm:grid-cols-2">
             <div>
               <label
@@ -384,29 +358,24 @@ export default function WifiQrCodeGenerator() {
               </div>
             </div>
           </div>
-          {/* Error Display */}
           {error && (
             <p className="text-sm text-red-500 dark:text-red-400">{error}</p>
           )}
         </div>
 
-        {/* QR Code Output Column */}
         <div className="flex flex-col items-center justify-start gap-4 lg:col-span-1">
           <div
             ref={qrCodeCanvasRef}
             className="inline-block rounded-md border border-gray-300 bg-white p-2 dark:border-gray-600"
           >
-            {" "}
-            {/* Container with white BG */}
-            {/* Render QR code only if text is valid AND qrCodeText generated */}
             {canGenerateQr ? (
               <QRCodeCanvas
-                value={qrCodeText} // Use the generated WIFI string
+                value={qrCodeText}
                 size={qrSize}
                 fgColor={fgColor}
                 bgColor={bgColor}
-                level={errorLevel} // Use state value
-                includeMargin={true} // Add margin for better scanning
+                level={errorLevel}
+                includeMargin={true}
               />
             ) : (
               <div
@@ -419,7 +388,6 @@ export default function WifiQrCodeGenerator() {
               </div>
             )}
           </div>
-          {/* Hidden link for download */}
           <a
             ref={downloadLinkRef}
             download="wifi-qr-code.png"

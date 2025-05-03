@@ -1,12 +1,10 @@
 // src/tools/web/HtmlEntitiesEncoder.jsx
-"use client"; // Needs state and browser DOM manipulation for unescape
+"use client";
 
 import { useState, useEffect } from "react";
 import TextArea from "@/components/ui/TextArea";
-import CopyToClipboardButton from "@/components/ui/CopyToClipboardButton"; // Import reusable button
+import CopyToClipboardButton from "@/components/ui/CopyToClipboardButton";
 
-// --- Helper Functions ---
-// Escape basic HTML entities
 const escapeHtmlEntities = (str) => {
   if (!str) return "";
   return str
@@ -17,13 +15,11 @@ const escapeHtmlEntities = (str) => {
     .replace(/'/g, "&#39;");
 };
 
-// Unescape HTML entities using DOM manipulation (safer for broader range)
 const unescapeHtmlEntities = (str) => {
   if (!str) return "";
-  // Check if running in a browser environment
   if (typeof window === "undefined" || typeof document === "undefined") {
     console.warn("Cannot unescape HTML entities on the server.");
-    return str; // Return original string if not in browser
+    return str;
   }
   try {
     const txt = document.createElement("textarea");
@@ -31,23 +27,18 @@ const unescapeHtmlEntities = (str) => {
     return txt.value;
   } catch (e) {
     console.error("Error unescaping HTML:", e);
-    return str; // Return original on error
+    return str;
   }
 };
-// ----------------------
 
 export default function HtmlEntitiesEncoder() {
-  // State for Escape section
   const [escapeInput, setEscapeInput] = useState("<title>IT Tool</title>");
-  // Calculate output directly - useMemo might be overkill here unless input is huge
   const escapeOutput = escapeHtmlEntities(escapeInput);
 
-  // State for Unescape section
   const [unescapeInput, setUnescapeInput] = useState("<title>IT Tool</title>");
-  const [unescapeOutput, setUnescapeOutput] = useState(""); // Calculate initially/on change
+  const [unescapeOutput, setUnescapeOutput] = useState("");
   const [unescapeError, setUnescapeError] = useState("");
 
-  // Calculate unescaped output when input changes or on mount
   useEffect(() => {
     setUnescapeError("");
     try {
@@ -56,11 +47,10 @@ export default function HtmlEntitiesEncoder() {
       setUnescapeError("Failed to unescape string.");
       setUnescapeOutput("");
     }
-  }, [unescapeInput]); // Re-run when unescapeInput changes
+  }, [unescapeInput]);
 
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-      {/* Escape Card */}
       <div className="space-y-4 rounded-md border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-slate-800">
         <h3 className="text-lg font-medium text-gray-900 dark:text-white">
           Escape HTML Entities
@@ -80,14 +70,13 @@ export default function HtmlEntitiesEncoder() {
           readOnly
           placeholder="Escaped string"
           rows={4}
-          className="bg-gray-100 font-mono dark:bg-gray-700" // Monospace font often good for code/entities
+          className="bg-gray-100 font-mono dark:bg-gray-700"
         />
         <div className="flex justify-center pt-2">
           <CopyToClipboardButton textToCopy={escapeOutput} />
         </div>
       </div>
 
-      {/* Unescape Card */}
       <div className="space-y-4 rounded-md border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-slate-800">
         <h3 className="text-lg font-medium text-gray-900 dark:text-white">
           Unescape HTML Entities
@@ -99,7 +88,7 @@ export default function HtmlEntitiesEncoder() {
           onChange={(e) => setUnescapeInput(e.target.value)}
           placeholder="Enter HTML entities (e.g., <div>)"
           rows={4}
-          error={unescapeError} // Show potential unescape errors
+          error={unescapeError}
         />
         <TextArea
           label="Your string unescaped:"

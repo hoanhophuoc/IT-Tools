@@ -1,15 +1,13 @@
 // src/tools/images/QrCodeGenerator.jsx
-"use client"; // Required for state, refs, effects, event handlers
+"use client";
 
 import { useState, useCallback, useRef } from "react";
-import { QRCodeCanvas } from "qrcode.react"; // Import the primary component
+import { QRCodeCanvas } from "qrcode.react";
 import Input from "@/components/ui/Input";
 import TextArea from "@/components/ui/TextArea";
 import Button from "@/components/ui/Button";
 import { FiDownload } from "react-icons/fi";
-// Spinner might not be needed as canvas rendering is usually fast
 
-// Define options with value and label
 const errorCorrectionOptions = [
   { value: "L", label: "Low" },
   { value: "M", label: "Medium" },
@@ -18,60 +16,52 @@ const errorCorrectionOptions = [
 ];
 
 export default function QrCodeGenerator() {
-  // --- State Variables ---
-  const [text, setText] = useState("https://it-tools.tech"); // Input text/URL
-  const [fgColor, setFgColor] = useState("#000000"); // Foreground color (QR modules)
-  const [bgColor, setBgColor] = useState("#ffffff"); // Background color
-  const [errorLevel, setErrorLevel] = useState("M"); // Error correction level (L, M, Q, H)
-  const [qrSize, setQrSize] = useState(200); // Size for display canvas
-  const [error, setError] = useState(""); // Error message state (e.g., text too long for level)
+  const [text, setText] = useState("https://it-tools.tech");
+  const [fgColor, setFgColor] = useState("#000000");
+  const [bgColor, setBgColor] = useState("#ffffff");
+  const [errorLevel, setErrorLevel] = useState("M");
+  const [qrSize, setQrSize] = useState(200);
+  const [error, setError] = useState("");
 
-  // Ref for accessing the canvas element for download
   const qrCodeCanvasRef = useRef(null);
-  // Ref for the hidden download link
   const downloadLinkRef = useRef(null);
 
-  // --- Input Handlers ---
   const handleTextChange = (e) => {
     setText(e.target.value);
-    setError(""); // Clear error when text changes
+    setError("");
   };
 
   const handleColorChange = (setter) => (e) => {
     let value = e.target.value;
-    // Basic validation/formatting for hex color input
     if (e.target.type === "text") {
       if (!value.startsWith("#")) {
         value = "#" + value;
       }
       value = "#" + value.substring(1).replace(/[^0-9a-fA-F]/g, "");
-      value = value.substring(0, 7); // Enforce #RRGGBB format
+      value = value.substring(0, 7);
     }
     setter(value);
-    setError(""); // Clear error when color changes
+    setError("");
   };
   const handleFgChange = handleColorChange(setFgColor);
   const handleBgChange = handleColorChange(setBgColor);
 
   const handleErrorLevelChange = (e) => {
     setErrorLevel(e.target.value);
-    setError(""); // Clear error
+    setError("");
   };
 
-  // --- Download Handler ---
   const handleDownload = useCallback(() => {
-    // Find the canvas element rendered by QRCodeCanvas within the ref div
     const canvas = qrCodeCanvasRef.current?.querySelector("canvas");
     const link = downloadLinkRef.current;
 
     if (canvas && link) {
       try {
-        // Get Data URL from the *current* canvas state
         const pngUrl = canvas
           .toDataURL("image/png")
-          .replace("image/png", "image/octet-stream"); // Force download
+          .replace("image/png", "image/octet-stream");
         link.href = pngUrl;
-        link.click(); // Simulate click on the hidden link
+        link.click();
       } catch (err) {
         console.error("Failed to create data URL from canvas:", err);
         setError("Could not prepare QR code for download.");
@@ -82,15 +72,13 @@ export default function QrCodeGenerator() {
       setError("Download failed: QR code element not ready.");
       alert("Error: Download failed.");
     }
-  }, []); // No dependencies needed as it reads current canvas state
+  }, []);
 
-  // Check if there's valid text to generate a QR code
   const hasValidText = text.trim().length > 0;
 
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 gap-6 md:gap-8 lg:grid-cols-3">
-        {/* Input Options Column */}
         <div className="space-y-4 lg:col-span-2">
           <TextArea
             label="Text or URL:"
@@ -98,10 +86,9 @@ export default function QrCodeGenerator() {
             value={text}
             onChange={handleTextChange}
             placeholder="Enter text or URL to encode..."
-            rows={4} // Adjusted rows
+            rows={4}
           />
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            {/* Foreground Color */}
             <div>
               <label
                 htmlFor="fgColor"
@@ -129,7 +116,6 @@ export default function QrCodeGenerator() {
                 />
               </div>
             </div>
-            {/* Background Color */}
             <div>
               <label
                 htmlFor="bgColor"
@@ -158,8 +144,6 @@ export default function QrCodeGenerator() {
               </div>
             </div>
           </div>
-
-          {/* Error Correction Level */}
           <div>
             <label
               htmlFor="errorLevel"
@@ -174,39 +158,29 @@ export default function QrCodeGenerator() {
               onChange={handleErrorLevelChange}
               className="block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-indigo-400"
             >
-              {/* Map over the options array */}
               {errorCorrectionOptions.map((option) => (
                 <option key={option.value} value={option.value}>
-                  {/* Display the label, use the value */}
                   {option.label} ({option.value})
                 </option>
               ))}
             </select>
           </div>
-          {/* Display potential errors */}
           {error && (
             <p className="text-sm text-red-500 dark:text-red-400">{error}</p>
           )}
         </div>
-
-        {/* QR Code Output Column */}
         <div className="flex flex-col items-center justify-start gap-4 lg:col-span-1">
-          {" "}
-          {/* Changed to lg:col-span-1 */}
           <div
-            ref={qrCodeCanvasRef} // Add ref to the container
-            className="inline-block rounded-md border border-gray-300 bg-white p-2 dark:border-gray-600" // Container with white BG for contrast
+            ref={qrCodeCanvasRef}
+            className="inline-block rounded-md border border-gray-300 bg-white p-2 dark:border-gray-600"
           >
-            {/* QRCodeCanvas handles rendering and updates */}
             {hasValidText ? (
               <QRCodeCanvas
-                value={text.trim()} // Pass trimmed text
-                size={qrSize} // Display size
+                value={text.trim()}
+                size={qrSize}
                 fgColor={fgColor}
                 bgColor={bgColor}
                 level={errorLevel}
-                // includeMargin={true} // Optional: Library adds margin
-                // imageSettings={{ ... }} // Optional: For logo overlay
               />
             ) : (
               <div
@@ -217,7 +191,6 @@ export default function QrCodeGenerator() {
               </div>
             )}
           </div>
-          {/* Hidden link for download */}
           <a
             ref={downloadLinkRef}
             download="qr-code.png"

@@ -13,7 +13,7 @@ export default function InfoRow({ label, value, placeholder = "N/A" }) {
     <div className="flex items-center gap-2 overflow-hidden rounded-md border border-gray-300 bg-gray-50 dark:border-gray-600 dark:bg-gray-700/50">
       {" "}
       {/* Use overflow-hidden to contain focus ring */}
-      <label className="flex-shrink-0 basis-[120px] border-r border-gray-300 px-3 py-2 text-sm font-medium text-gray-600 dark:border-gray-600 dark:text-gray-400">
+      <label className="flex-shrink-0 basis-[200px] border-r border-gray-300 px-3 py-2 text-sm font-medium text-gray-600 dark:border-gray-600 dark:text-gray-400">
         {label}
       </label>
       <span className="flex-grow truncate px-3 py-2 font-mono text-sm text-gray-900 dark:text-gray-100">

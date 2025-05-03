@@ -26,6 +26,8 @@ const Button = ({
       "bg-red-600 text-white hover:bg-red-700 focus:ring-red-500 disabled:bg-red-300",
     warning:
       "bg-yellow-500 text-white hover:bg-yellow-600 focus:ring-yellow-400 disabled:bg-yellow-300",
+    ghost:
+      "bg-transparent text-gray-600 hover:bg-gray-100 focus:ring-indigo-500 disabled:text-gray-300 dark:text-gray-400 dark:hover:bg-gray-700 dark:disabled:text-gray-500",
   };
 
   const disabledStyle =

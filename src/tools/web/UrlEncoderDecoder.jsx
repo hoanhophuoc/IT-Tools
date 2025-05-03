@@ -6,19 +6,14 @@ import TextArea from "@/components/ui/TextArea";
 import CopyToClipboardButton from "@/components/ui/CopyToClipboardButton";
 
 export default function UrlEncoderDecoder() {
-  // State for Encoder
   const [encodeInput, setEncodeInput] = useState("Hello world :)");
   const [encodeOutput, setEncodeOutput] = useState("");
   const [encodeError, setEncodeError] = useState("");
-  // No need for encodeCopied state here anymore, CopyToClipboardButton handles it
 
-  // State for Decoder
   const [decodeInput, setDecodeInput] = useState("Hello%20world%20%3A%29");
   const [decodeOutput, setDecodeOutput] = useState("");
   const [decodeError, setDecodeError] = useState("");
-  // No need for decodeCopied state here anymore
 
-  // --- Encoding Logic ---
   const handleEncodeInputChange = (e) => {
     const value = e.target.value;
     setEncodeInput(value);
@@ -32,7 +27,6 @@ export default function UrlEncoderDecoder() {
     }
   };
 
-  // --- Decoding Logic ---
   const handleDecodeInputChange = (e) => {
     const value = e.target.value;
     setDecodeInput(value);
@@ -46,26 +40,21 @@ export default function UrlEncoderDecoder() {
     }
   };
 
-  // --- Removed copyToClipboard function, logic is in CopyToClipboardButton ---
-
-  // --- Initial Calculation ---
-  // Use useEffect to calculate initial values AFTER component mounts
   useEffect(() => {
     try {
-      setEncodeOutput(encodeURIComponent("Hello world :)")); // Use initial state value
+      setEncodeOutput(encodeURIComponent("Hello world :)"));
     } catch {
       setEncodeOutput("");
     }
     try {
-      setDecodeOutput(decodeURIComponent("Hello%20world%20%3A%29")); // Use initial state value
+      setDecodeOutput(decodeURIComponent("Hello%20world%20%3A%29"));
     } catch {
       setDecodeOutput("");
     }
-  }, []); // Empty dependency array runs once on mount
+  }, []);
 
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-      {/* Encode Card */}
       <div className="space-y-4 rounded-md border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-slate-800">
         <h3 className="text-lg font-medium text-gray-900 dark:text-white">
           Encode
@@ -89,16 +78,13 @@ export default function UrlEncoderDecoder() {
           className="bg-gray-100 dark:bg-gray-700"
         />
         <div className="flex justify-center pt-2">
-          {/* *** Use CopyToClipboardButton *** */}
           <CopyToClipboardButton
             textToCopy={encodeOutput}
-            disabled={!encodeOutput || !!encodeError} // Disable if no output or error
+            disabled={!encodeOutput || !!encodeError}
           />
-          {/* ----------------------------- */}
         </div>
       </div>
 
-      {/* Decode Card */}
       <div className="space-y-4 rounded-md border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-slate-800">
         <h3 className="text-lg font-medium text-gray-900 dark:text-white">
           Decode
@@ -122,12 +108,10 @@ export default function UrlEncoderDecoder() {
           className="bg-gray-100 dark:bg-gray-700"
         />
         <div className="flex justify-center pt-2">
-          {/* *** Use CopyToClipboardButton *** */}
           <CopyToClipboardButton
             textToCopy={decodeOutput}
-            disabled={!decodeOutput || !!decodeError} // Disable if no output or error
+            disabled={!decodeOutput || !!decodeError}
           />
-          {/* ----------------------------- */}
         </div>
       </div>
     </div>
