@@ -4,7 +4,7 @@ import Input from "@/components/ui/Input";
 import TextArea from "@/components/ui/TextArea";
 
 export default function TextStatistics() {
-  const [input, setInput] = useState("");
+  const [input, setInput] = useState("Lorem ipsum dolor sit amet");
 
   const charCount = input.length;
   const wordCount = input.trim() === "" ? 0 : input.trim().split(/\s+/).length;

@@ -18,7 +18,7 @@ function obfuscate(str, keepFirst, keepLast, keepSpaces) {
 }
 
 export default function StringObfuscator() {
-  const [input, setInput] = useState("");
+  const [input, setInput] = useState("Lorem ipsum dolor sit amet");
   const [keepFirst, setKeepFirst] = useState(2);
   const [keepLast, setKeepLast] = useState(2);
   const [keepSpaces, setKeepSpaces] = useState(true);

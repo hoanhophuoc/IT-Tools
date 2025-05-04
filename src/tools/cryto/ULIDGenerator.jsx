@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Input from "@/components/ui/Input";
 import CopyToClipboardButton from "@/components/ui/CopyToClipboardButton";
+import Button from "@/components/ui/Button";
 
 export default function ULIDGenerator() {
   const [count, setCount] = useState(1);
@@ -41,28 +42,35 @@ export default function ULIDGenerator() {
     setUlids(list);
   };
 
-  const handleInputChange = (e) => {
-    let value = Number(e.target.value);
-    if (value > 50) value = 50;
-    if (value < 0) value = 0;
-    setCount(value);
-    handleGenerate(value);
-  };
-
   const getContentToCopy = () => {
-    return format === "json" ? JSON.stringify(ulids, null, 2) : ulids.join("\n");
+    return format === "json"
+      ? JSON.stringify(ulids, null, 2)
+      : ulids.join("\n");
   };
 
   return (
-    <div className="space-y-4 max-w-md">
+    <div className="max-w-md space-y-4">
       <div className="flex items-center gap-2">
         <Input
           type="number"
-          value={count}
+          value={count === 0 ? "" : count}
           min={0}
           max={50}
-          onChange={handleInputChange}
-          className="border px-2 py-1 rounded w-24"
+          label="Quantity"
+          onChange={(e) => {
+            const val = e.target.value;
+            if (val === "") {
+              setCount(0);
+              handleGenerate(0);
+            } else {
+              let value = Number(val);
+              if (value > 50) value = 50;
+              if (value < 0) value = 0;
+              setCount(value);
+              handleGenerate(value);
+            }
+          }}
+          className="w-24 rounded border px-2 py-1"
           placeholder="How many?"
         />
       </div>
@@ -92,18 +100,26 @@ export default function ULIDGenerator() {
 
       <textarea
         readOnly
-        value={format === "json" ? JSON.stringify(ulids, null, 2) : ulids.join("\n")}
-        className="w-full h-40 p-2 border rounded bg-gray-700 border-gray-600 focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none"
+        value={
+          format === "json" ? JSON.stringify(ulids, null, 2) : ulids.join("\n")
+        }
+        className="h-40 w-full rounded border border-gray-600 bg-gray-700 p-2 focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none"
         placeholder="Generated ULIDs will appear here..."
       />
 
-      <div className="flex items-center gap-2">
+      <div className="flex gap-2">
         <CopyToClipboardButton
           textToCopy={getContentToCopy()}
-          disabled={ulids.length === 0} 
-          buttonText="Copy ULIDs" 
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1 rounded"
+          disabled={ulids.length === 0}
+          buttonText="Copy"
+          className="bg-blue-600 text-white hover:bg-blue-700"
         />
+        <Button
+          className="bg-gray-600 text-white hover:bg-gray-700"
+          onClick={() => handleGenerate(count)}
+        >
+          Refresh
+        </Button>
       </div>
     </div>
   );
