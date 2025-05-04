@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import Input from "@/components/ui/Input";
+import InfoRow from "@/components/ui/InfoRow";
 
 export default function HashText() {
   const [error, setError] = useState("");
@@ -183,69 +184,15 @@ export default function HashText() {
         </select>
       </div>
 
-      <Input
-        label="MD5 Hash"
-        id="md5Result"
-        value={md5Result}
-        readOnly
-        placeholder="MD5 hash result"
-      />
+      <InfoRow label="MD5 Hash" value={md5Result} placeholder="MD5 hash result" />
+      <InfoRow label="SHA1 Hash" value={sha1Result} placeholder="SHA1 hash result" />
+      <InfoRow label="SHA256 Hash" value={sha256Result} placeholder="SHA256 hash result" />
+      <InfoRow label="SHA224 Hash" value={sha224Result} placeholder="SHA224 hash result" />
+      <InfoRow label="SHA512 Hash" value={sha512Result} placeholder="SHA512 hash result" />
+      <InfoRow label="SHA384 Hash" value={sha384Result} placeholder="SHA384 hash result" />
+      <InfoRow label="SHA3 Hash" value={sha3Result} placeholder="SHA3 hash result" />
+      <InfoRow label="RIPEMD160 Hash" value={ripemd160Result} placeholder="RIPEMD160 hash result" />
 
-      <Input
-        label="SHA1 Hash"
-        id="sha1Result"
-        value={sha1Result}
-        readOnly
-        placeholder="SHA1 hash result"
-      />
-
-      <Input
-        label="SHA256 Hash"
-        id="sha256Result"
-        value={sha256Result}
-        readOnly
-        placeholder="SHA256 hash result"
-      />
-
-      <Input
-        label="SHA224 Hash"
-        id="sha224Result"
-        value={sha224Result}
-        readOnly
-        placeholder="SHA224 hash result"
-      />
-
-      <Input
-        label="SHA512 Hash"
-        id="sha512Result"
-        value={sha512Result}
-        readOnly
-        placeholder="SHA512 hash result"
-      />
-
-      <Input
-        label="SHA384 Hash"
-        id="sha384Result"
-        value={sha384Result}
-        readOnly
-        placeholder="SHA384 hash result"
-      />
-
-      <Input
-        label="SHA3 Hash"
-        id="sha3Result"
-        value={sha3Result}
-        readOnly
-        placeholder="SHA3 hash result"
-      />
-
-      <Input
-        label="RIPEMD160 Hash"
-        id="ripemd160Result"
-        value={ripemd160Result}
-        readOnly
-        placeholder="RIPEMD160 hash result"
-      />
     </div>
   );
 }
