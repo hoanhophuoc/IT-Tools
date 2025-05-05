@@ -1,4 +1,3 @@
-// src/components/ui/InfoRow.jsx
 "use client";
 import CopyToClipboardButton from "@/components/ui/CopyToClipboardButton";
 
