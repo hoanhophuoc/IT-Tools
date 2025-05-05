@@ -1,8 +1,7 @@
-﻿// Example: Utils/StringUtils.cs (or placed elsewhere)
-using System.Text;
+﻿using System.Text;
 using System.Text.RegularExpressions;
 
-namespace IT_Tools.Utils; // Or your chosen namespace
+namespace IT_Tools.Utils;
 
 public static class StringUtils
 {

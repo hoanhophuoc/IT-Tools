@@ -13,7 +13,7 @@ public class ToolsController(ToolService toolService) : ControllerBase
     private int? GetCurrentUserId()
     {
         var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        return int.TryParse(userIdClaim, out var id) ? id : (int?)null;
+        return int.TryParse(userIdClaim, out var id) ? id : null;
     }
 
     /// <summary>
