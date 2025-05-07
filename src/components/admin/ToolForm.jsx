@@ -209,7 +209,7 @@ export default function ToolForm({ initialData, onSave, onCancel, isLoading }) {
       </div>
 
       <Input
-        label="Icon Filename (optional, e.g., icon.png)"
+        label="Icon Filename (optional, e.g., icon.svg)"
         id="icon"
         name="icon"
         value={formData.icon}

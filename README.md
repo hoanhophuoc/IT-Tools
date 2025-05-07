@@ -1,70 +1,49 @@
 ## Prerequisites
 
 - [Node.js](https://nodejs.org/) (v22.13.0 or later recommended)
-- [npm](https://www.npmjs.com/), [yarn](https://yarnpkg.com/), or [pnpm](https://pnpm.io/) package manager
-- A running instance of the [IT-Tools Backend API](#) (link to your backend repo/docs if available)
+- [npm](https://www.npmjs.com/)
 
 ## Getting Started
 
-1.  **Clone the repository:**
-
-    ```bash
-    git clone <your-frontend-repository-url>
-    cd <your-frontend-repository-directory>
-    ```
-
-2.  **Install Dependencies:**
+1.  **Install dependencies:**
 
     ```bash
     npm install
-    # or
-    yarn install
-    # or
-    pnpm install
     ```
 
-3.  **Configure Environment Variables:**
+2.  **Configure environment variables:**
 
-    - Create a file named `.env` in the project root.
+    - In the `.env` file in the project root.
     - Add the base URL of your running backend API:
       ```
       NEXT_PUBLIC_API_URL=http://localhost:5145/api
       ```
       _(Replace `http://localhost:5145` with the actual URL and port your backend is listening on)_
 
-4.  **Run the Development Server:**
+3.  **Run the development server:**
 
     ```bash
     npm run dev
-    # or
-    yarn dev
-    # or
-    pnpm dev
     ```
 
-5.  **Open the Application:** Open [http://localhost:3000](http://localhost:3000) (or the specified port) in your browser.
+4.  **Open the application:** Open [http://localhost:3000](http://localhost:3000) (or the specified port) in your browser.
 
 ## Adding New Tools (Hot Plugging)
 
-1.  **Create the Tool Component:**
-    - Create a new React component file (e.g., `MyNewLabelGenerator.jsx`) inside the `src/tools/` directory, preferably under a relevant category subfolder (e.g., `src/tools/generators/MyNewLabelGenerator.jsx`).
-    - The component should be a **default export**.
-    - Mark it with `"use client";` if it requires state, effects, or browser APIs.
-    - Implement the tool's UI and logic within this component.
-2.  **Add to Backend Database:**
-    - Use the Admin panel (or direct database access) to add a new entry to the `tool` table in your PostgreSQL database.
-    - Provide the necessary details:
-      - `name`: e.g., "New Label Generator"
-      - `description`: A brief description.
-      - `category_id`: The ID of the category it belongs to.
-      - `component_url`: **Crucially**, set this to the _exact relative path_ from `src/` where you saved the component file (e.g., `tools/generators/MyNewLabelGenerator.jsx`).
-      - `slug`: A unique, URL-friendly slug (e.g., `new-label-generator`). The backend should ideally generate this from the name.
-      - `icon`: The filename of the icon (e.g., `label-icon.png`) located in `public/images/icons/`.
-      - `isPremium`, `isEnabled`: Set as needed.
-3.  **Restart/Refresh (Usually Not Needed):**
-    - **No frontend rebuild/restart is required.**
-    - The next time the Home page or Sidebar fetches data from the backend (`apiGetCategorizedTools`), the new tool will be included in the list.
-    - Navigating to `/tools/new-label-generator` (using the slug) will trigger the dynamic tool page (`[toolSlug]/page.jsx`), which will fetch the tool's details (including the `component_url`) and dynamically import (`@/tools/generators/MyNewLabelGenerator`) and render your new component.
+1.  **Create the tool component:**
+    - Create a new React component file (e.g., `MyNewLabelGenerator.jsx`) in an appropriate subdirectory (e.g., `src/tools/generators/MyNewLabelGenerator.jsx`).
+    - The component must be a **default export**.
+    - Add `"use client";` if the component needs to use state, effects, or browser APIs.
+    - Implement the UI and logic for the tool within this component.
+2.  **Add to the backend database:**
+    - Use the admin interface to add a new record to the `tool` table in the PostgreSQL database.
+    - Provide the necessary information:
+      - `Tool Name`: e.g., "New Label Generator"
+      - `Description`: A brief description.
+      - `Component Url`: **Important**, set this value to the _exact path_ from `src/` where you saved the component file (e.g., `tools/generators/MyNewLabelGenerator.jsx`).
+      - `Category`: Choose one of the existing categories (e.g., `Converter`).
+      - `Icon Filename`: The name of the icon file (e.g., `label-icon.svg`) located in `public/images/icons/`.
+      - `Premium Tool?`, `Enabled?`: Set as needed.
 
 ## Available Scripts
 
