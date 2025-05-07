@@ -67,7 +67,7 @@ public class AuthController(AuthService authService) : ControllerBase
         }
         var result = await authService.ChangePasswordAsync(changePasswordDto);
         return !result
-            ? Unauthorized(new { message = "Invalid old password or user not found." })
+            ? Unauthorized(new { message = "Invalid old password." })
             : Ok(new { message = "Password changed successfully." });
     }
 
