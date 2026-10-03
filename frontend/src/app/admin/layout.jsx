@@ -1,26 +1,13 @@
 "use client";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, redirect } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
 import { FiSettings, FiUsers, FiCheckSquare } from "react-icons/fi";
 import Spinner from "@/components/ui/Spinner";
 
 export default function AdminLayout({ children }) {
   const pathname = usePathname();
   const { user, isAuthenticated, loading: authLoading } = useAuth();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (!authLoading) {
-      if (!isAuthenticated) {
-        router.replace("/auth/login?redirect=/admin");
-      } else if (user?.role !== "Admin") {
-        router.replace("/?error=unauthorized");
-      }
-    }
-  }, [isAuthenticated, user, authLoading, router]);
 
   if (authLoading) {
     return (
@@ -30,9 +17,14 @@ export default function AdminLayout({ children }) {
     );
   }
 
-  if (!isAuthenticated || user?.role !== "Admin") {
-    return null;
+  if (!isAuthenticated) {
+    redirect("/auth/login?redirect=/admin");
   }
+
+  if (user?.role !== "Admin") {
+    redirect("/?error=unauthorized");
+  }
+
 
   const tabs = [
     { key: "tools", label: "Tools", href: "/admin/tools", icon: FiSettings },

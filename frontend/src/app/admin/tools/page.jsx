@@ -138,6 +138,7 @@ export default function AdminToolsPage() {
       let successCount = 0;
       const errors = [];
       const createdNames = [];
+      const validTools = [];
 
       for (const raw of items) {
         const tool = normalizeTool(raw);
@@ -153,15 +154,20 @@ export default function AdminToolsPage() {
           );
           continue;
         }
-
-        try {
-          await apiAdminCreateTool(tool);
-          successCount++;
-          createdNames.push(tool.name);
-        } catch (apiErr) {
-          errors.push(`Tool '${tool.name}': ${apiErr.message}`);
-        }
+        validTools.push(tool);
       }
+
+      await Promise.all(
+        validTools.map(async (tool) => {
+          try {
+            await apiAdminCreateTool(tool);
+            successCount++;
+            createdNames.push(tool.name);
+          } catch (apiErr) {
+            errors.push(`Tool '${tool.name}': ${apiErr.message}`);
+          }
+        }),
+      );
 
       if (successCount > 0) {
         await fetchTools();
