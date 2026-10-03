@@ -1,0 +1,9 @@
+{
+  "name": "JWT Parser",
+  "description": "Decode and inspect JSON Web Tokens (Header, Payload/Claims, Signature) and verify token expiration.",
+  "categoryName": "Crypto",
+  "componentUrl": "tools/cryto/JwtParser.jsx",
+  "icon": "jwt-parser.svg",
+  "isPremium": false,
+  "isEnabled": true
+}

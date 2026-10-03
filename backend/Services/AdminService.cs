@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using IT_Tools.Data;
 using IT_Tools.Dtos.Admin;
@@ -83,22 +83,36 @@ public class AdminService(PostgreSQLContext context, IMapper mapper)
     /// </summary>
     public async Task<bool> CreateToolAsync(CreateToolDto createDto)
     {
+        var trimmedCatName = createDto.CategoryName?.Trim() ?? string.Empty;
+        if (string.IsNullOrWhiteSpace(trimmedCatName))
+        {
+            return false;
+        }
+
         var category = await context.Categories
-                                .AsNoTracking()
-                                .FirstOrDefaultAsync(c => c.Name == createDto.CategoryName);
+                                .FirstOrDefaultAsync(c => EF.Functions.ILike(c.Name, trimmedCatName));
 
         if (category == null)
         {
-            Console.WriteLine($"Error: Category '{createDto.CategoryName}' not found.");
-            return false;
+            category = new Category { Name = trimmedCatName };
+            await context.Categories.AddAsync(category);
+            await context.SaveChangesAsync();
         }
 
         // Generate Slug from Name
         string generatedSlug = StringUtils.Slugify(createDto.Name);
 
+        var existingTool = await context.Tools.FirstOrDefaultAsync(t => t.Slug == generatedSlug || t.Name.ToLower() == createDto.Name.ToLower());
+        if (existingTool != null)
+        {
+            Console.WriteLine($"Warning: Tool '{createDto.Name}' already exists.");
+            return false;
+        }
+
         var newTool = mapper.Map<Tool>(createDto);
         newTool.Slug = generatedSlug;
         newTool.CategoryId = category.CategoryId;
+        newTool.CreatedAt = DateTime.UtcNow;
 
         await context.Tools.AddAsync(newTool);
         await context.SaveChangesAsync();

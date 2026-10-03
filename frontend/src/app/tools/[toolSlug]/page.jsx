@@ -72,18 +72,15 @@ export default function ToolPage() {
           return;
         }
 
-        const componentPath = getComponentPath(details.componentUrl);
-        if (!componentPath) {
-          throw new Error(
-            `Invalid component path configured: ${details.componentUrl}`,
-          );
-        }
+        const relativePath = details.componentUrl
+          .replace(/^tools\//, "")
+          .replace(/\.jsx?$/, "");
 
         const DynamicTool = dynamic(
           () =>
-            import(componentPath).catch((err) => {
+            import(`@/tools/${relativePath}`).catch((err) => {
               console.error(
-                `Failed to import component at ${componentPath} (URL: ${details.componentUrl}):`,
+                `Failed to import component at @/tools/${relativePath} (URL: ${details.componentUrl}):`,
                 err,
               );
               throw new Error(

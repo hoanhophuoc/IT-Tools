@@ -6,6 +6,8 @@ using Microsoft.IdentityModel.Tokens;
 using System.Reflection;
 using System.Text;
 
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration; // Lấy configuration
 

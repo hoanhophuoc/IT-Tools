@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import Table from "@/components/ui/Table";
 import Button from "@/components/ui/Button";
 import Modal from "@/components/ui/Modal";
@@ -18,9 +18,12 @@ export default function AdminToolsPage() {
   const [tools, setTools] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [importStatus, setImportStatus] = useState(null);
+  const [isImporting, setIsImporting] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTool, setEditingTool] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
+  const fileInputRef = useRef(null);
   const { isAuthenticated } = useAuth();
 
   const fetchTools = useCallback(async () => {
@@ -94,6 +97,105 @@ export default function AdminToolsPage() {
     }
   };
 
+  const normalizeTool = (raw) => ({
+    name: (raw.name || raw.Name || "").trim(),
+    description: (raw.description || raw.Description || "").trim(),
+    categoryName: (
+      raw.categoryName ||
+      raw.CategoryName ||
+      raw.category ||
+      raw.Category ||
+      ""
+    ).trim(),
+    componentUrl: (raw.componentUrl || raw.ComponentUrl || "").trim(),
+    icon: (raw.icon || raw.Icon || "").trim(),
+    isPremium: Boolean(raw.isPremium ?? raw.IsPremium ?? false),
+    isEnabled: Boolean(raw.isEnabled ?? raw.IsEnabled ?? true),
+  });
+
+  const handleImportJson = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsImporting(true);
+    setImportStatus(null);
+    setError(null);
+
+    try {
+      const text = await file.text();
+      let parsed;
+      try {
+        parsed = JSON.parse(text);
+      } catch (jsonErr) {
+        throw new Error("Invalid JSON file format: " + jsonErr.message);
+      }
+
+      const items = Array.isArray(parsed) ? parsed : [parsed];
+      if (items.length === 0) {
+        throw new Error("JSON file does not contain any tool definitions.");
+      }
+
+      let successCount = 0;
+      const errors = [];
+      const createdNames = [];
+
+      for (const raw of items) {
+        const tool = normalizeTool(raw);
+        if (!tool.name || !tool.componentUrl || !tool.categoryName) {
+          errors.push(
+            `Tool '${tool.name || "Unnamed"}': missing name, componentUrl, or categoryName.`,
+          );
+          continue;
+        }
+        if (!tool.componentUrl.startsWith("tools/")) {
+          errors.push(
+            `Tool '${tool.name}': componentUrl must start with 'tools/'.`,
+          );
+          continue;
+        }
+
+        try {
+          await apiAdminCreateTool(tool);
+          successCount++;
+          createdNames.push(tool.name);
+        } catch (apiErr) {
+          errors.push(`Tool '${tool.name}': ${apiErr.message}`);
+        }
+      }
+
+      if (successCount > 0) {
+        await fetchTools();
+      }
+
+      if (errors.length === 0) {
+        setImportStatus({
+          type: "success",
+          message: `Successfully imported ${successCount} tool(s): ${createdNames.join(", ")}`,
+        });
+      } else if (successCount > 0) {
+        setImportStatus({
+          type: "warning",
+          message: `Imported ${successCount} tool(s) (${createdNames.join(", ")}). Issues: ${errors.join("; ")}`,
+        });
+      } else {
+        setImportStatus({
+          type: "error",
+          message: `Failed to import: ${errors.join("; ")}`,
+        });
+      }
+    } catch (err) {
+      setImportStatus({
+        type: "error",
+        message: err.message || "Failed to import JSON file.",
+      });
+    } finally {
+      setIsImporting(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  };
+
   const columns = [
     { key: "toolId", label: "ID" },
     { key: "name", label: "Name" },
@@ -114,12 +216,49 @@ export default function AdminToolsPage() {
 
   return (
     <div>
-      <h2 className="mb-4 text-xl font-semibold">Tool Management</h2>
-      <div className="mb-4 flex justify-end">
-        <Button onClick={handleOpenAddModal} variant="primary">
-          Add New Tool
-        </Button>
+      <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <h2 className="text-xl font-semibold">Tool Management</h2>
+        <div className="flex items-center gap-3">
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleImportJson}
+            accept=".json,application/json"
+            className="hidden"
+          />
+          <Button
+            onClick={() => fileInputRef.current?.click()}
+            variant="secondary"
+            isLoading={isImporting}
+            disabled={isImporting}
+          >
+            📥 Import JSON
+          </Button>
+          <Button onClick={handleOpenAddModal} variant="primary">
+            + Add New Tool
+          </Button>
+        </div>
       </div>
+
+      {importStatus && (
+        <div
+          className={`mb-4 flex items-center justify-between rounded p-3 text-sm ${
+            importStatus.type === "success"
+              ? "border border-green-300 bg-green-50 text-green-800 dark:border-green-800 dark:bg-green-950 dark:text-green-300"
+              : importStatus.type === "warning"
+                ? "border border-yellow-300 bg-yellow-50 text-yellow-800 dark:border-yellow-800 dark:bg-yellow-950 dark:text-yellow-300"
+                : "border border-red-300 bg-red-50 text-red-800 dark:border-red-800 dark:bg-red-950 dark:text-red-300"
+          }`}
+        >
+          <span>{importStatus.message}</span>
+          <button
+            onClick={() => setImportStatus(null)}
+            className="ml-4 font-bold hover:opacity-75"
+          >
+            ×
+          </button>
+        </div>
+      )}
 
       {loading && (
         <div className="flex justify-center p-4">

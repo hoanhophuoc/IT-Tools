@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import Spinner from "@/components/ui/Spinner";
@@ -18,6 +18,7 @@ export default function ToolForm({ initialData, onSave, onCancel, isLoading }) {
   const [categories, setCategories] = useState([]);
   const [loadingCategories, setLoadingCategories] = useState(true);
   const [errors, setErrors] = useState({});
+  const jsonFileInputRef = useRef(null);
 
   const fetchCategories = useCallback(async () => {
     setLoadingCategories(true);
@@ -129,6 +130,61 @@ export default function ToolForm({ initialData, onSave, onCancel, isLoading }) {
     return Object.keys(newErrors).length === 0;
   };
 
+  const handleJsonPrefill = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const text = await file.text();
+      let parsed;
+      try {
+        parsed = JSON.parse(text);
+      } catch (err) {
+        throw new Error("Invalid JSON: " + err.message);
+      }
+
+      const item = Array.isArray(parsed) ? parsed[0] : parsed;
+      if (!item || typeof item !== "object") {
+        throw new Error("JSON must contain an object or array of objects.");
+      }
+
+      const loadedCategory =
+        item.categoryName ||
+        item.CategoryName ||
+        item.category ||
+        item.Category ||
+        "";
+
+      setFormData((prev) => ({
+        ...prev,
+        name: (item.name || item.Name || prev.name || "").trim(),
+        description: (
+          item.description ||
+          item.Description ||
+          prev.description ||
+          ""
+        ).trim(),
+        categoryName: loadedCategory || prev.categoryName,
+        componentUrl: (
+          item.componentUrl ||
+          item.ComponentUrl ||
+          prev.componentUrl ||
+          ""
+        ).trim(),
+        icon: (item.icon || item.Icon || prev.icon || "").trim(),
+        isPremium: Boolean(item.isPremium ?? item.IsPremium ?? prev.isPremium),
+        isEnabled: Boolean(item.isEnabled ?? item.IsEnabled ?? prev.isEnabled),
+      }));
+      setErrors({});
+    } catch (err) {
+      alert("Error reading JSON file: " + err.message);
+    } finally {
+      if (jsonFileInputRef.current) {
+        jsonFileInputRef.current.value = "";
+      }
+    }
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (validateForm()) {
@@ -141,6 +197,35 @@ export default function ToolForm({ initialData, onSave, onCancel, isLoading }) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {errors.form && <p className="text-sm text-red-600">{errors.form}</p>}
+
+      {!initialData && (
+        <div className="flex items-center justify-between rounded-lg border border-indigo-100 bg-indigo-50/60 p-3 dark:border-indigo-900/50 dark:bg-indigo-950/40">
+          <div>
+            <p className="text-xs font-medium text-indigo-900 dark:text-indigo-200">
+              Quick Fill from Tool JSON
+            </p>
+            <p className="text-[11px] text-gray-500 dark:text-gray-400">
+              Upload a .json file to auto-populate form fields
+            </p>
+          </div>
+          <input
+            type="file"
+            ref={jsonFileInputRef}
+            onChange={handleJsonPrefill}
+            accept=".json,application/json"
+            className="hidden"
+          />
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
+            onClick={() => jsonFileInputRef.current?.click()}
+          >
+            📁 Load JSON File
+          </Button>
+        </div>
+      )}
+
       <Input
         label="Tool Name"
         id="name"

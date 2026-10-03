@@ -29,8 +29,6 @@ docker compose up --build -d
 | :--- | :--- | :--- |
 | `admin` | `AdminPassword123!` | `Admin` |
 
-*(Note: Your personal registered account `phuochoan` has also been promoted to `Admin`)*
-
 To stop all containers:
 ```bash
 docker compose down
@@ -191,24 +189,57 @@ npm --prefix frontend run dev
 
 ---
 
-## Hot-Plugging New Tools
+## Hot-Plugging New Tools (Cấp độ 1: Hot Plug & Instant Recognition)
 
-IT-Tools supports dynamically registering new tools via React components and database metadata:
+IT-Tools is designed to satisfy **Level 1 Hot-Plugging**:
+> **Cấp độ 1:** Không cần biên dịch lại mã nguồn của hệ thống đang vận hành, công cụ mới sẽ được gắn nóng vào hệ thống (hot plug), hệ thống tự nhận dạng các thay đổi này ngay lập tức.
 
-1. **Create the React Component:**
-   - Add your tool component in `frontend/src/tools/<category>/MyNewTool.jsx`.
-   - Ensure the component is a default export and includes `"use client";` if client-side state is required.
+### How it works:
+1. **Component Architecture:**
+   - Tools are implemented as modular React components in `frontend/src/tools/<category>/<ToolName>.jsx`.
+   - Next.js dynamic routing (`src/app/tools/[toolSlug]/page.jsx`) dynamically resolves tool components on-demand at runtime (`import("@/tools/" + path)`).
+   - Icons are placed in `frontend/public/images/icons/<icon-name>.svg`.
 
-2. **Register the Tool in the Backend Database:**
-   - Use the Admin panel (`/admin/tools`) or insert directly into the `tool` table:
-     - `name`: Human-readable tool name (e.g. `UUID Generator`)
-     - `slug`: URL slug (e.g. `uuid-generator`)
-     - `description`: Short description of what the tool does
-     - `category_id`: Category foreign key
-     - `component_url`: Relative path from `src/` (e.g. `tools/generators/UuidGenerator.jsx`)
-     - `icon`: Icon filename located in `frontend/public/images/icons/`
-     - `is_enabled`: `true`
-     - `is_premium`: `false` (or `true` for premium users)
+2. **Zero-Recompilation Tool Registration:**
+   - When a tool is added to the system via the **Admin Portal** or **JSON Import**, it is immediately registered in the PostgreSQL database.
+   - The frontend automatically recognizes the change:
+     - The Sidebar navigation and Home page catalog query `GET /api/tools` on render and display the newly added tool immediately.
+     - Navigating to `/tools/<slug>` dynamically mounts the tool's component.
+     - Disabling or deleting a tool in the Admin panel takes effect immediately across all users without restarting containers or rebuilding any code.
+
+### Importing Tools via JSON (Admin Feature):
+Admins can batch-register or single-register tools using JSON files:
+1. Log in with an Admin account (default: `admin` / `AdminPassword123!`).
+2. Go to **Admin** -> **Tools** (`http://localhost:3000/admin/tools`).
+3. Click the **"📥 Import JSON"** button to upload a single tool or an array of tools.
+4. Alternatively, click **"+ Add New Tool"** and click **"📁 Load JSON File"** to pre-fill the form fields for manual review before saving.
+
+#### Ready-to-Test Sample JSON Files:
+Sample files are provided in the [`samples/`](file:///home/phuochoan/Downloads/IT-Tools/samples) directory:
+- [`samples/uuid-generator.json`](file:///home/phuochoan/Downloads/IT-Tools/samples/uuid-generator.json) — **UUID Generator** (Development)
+- [`samples/base64-string-converter.json`](file:///home/phuochoan/Downloads/IT-Tools/samples/base64-string-converter.json) — **Base64 String Converter** (Converter)
+- [`samples/jwt-parser.json`](file:///home/phuochoan/Downloads/IT-Tools/samples/jwt-parser.json) — **JWT Parser** (Crypto)
+- [`samples/all-new-tools.json`](file:///home/phuochoan/Downloads/IT-Tools/samples/all-new-tools.json) — Batch import for all 3 tools in one click.
+
+#### JSON Schema Format:
+```json
+{
+  "name": "UUID Generator",
+  "description": "Generate UUIDs / GUIDs version 1 and 4 in uppercase, lowercase, with or without hyphens.",
+  "categoryName": "Development",
+  "componentUrl": "tools/development/UuidGenerator.jsx",
+  "icon": "uuid-generator.svg",
+  "isPremium": false,
+  "isEnabled": true
+}
+```
+Or as an array for batch import:
+```json
+[
+  { "name": "Tool A", ... },
+  { "name": "Tool B", ... }
+]
+```
 
 ---
 

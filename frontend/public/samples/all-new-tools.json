@@ -1,0 +1,29 @@
+[
+  {
+    "name": "UUID Generator",
+    "description": "Generate UUIDs / GUIDs version 1 and 4 in uppercase, lowercase, with or without hyphens.",
+    "categoryName": "Development",
+    "componentUrl": "tools/development/UuidGenerator.jsx",
+    "icon": "uuid-generator.svg",
+    "isPremium": false,
+    "isEnabled": true
+  },
+  {
+    "name": "Base64 String Converter",
+    "description": "Encode and decode strings to and from Base64 representation with live real-time conversion.",
+    "categoryName": "Converter",
+    "componentUrl": "tools/converter/Base64StringConverter.jsx",
+    "icon": "base64-converter.svg",
+    "isPremium": false,
+    "isEnabled": true
+  },
+  {
+    "name": "JWT Parser",
+    "description": "Decode and inspect JSON Web Tokens (Header, Payload/Claims, Signature) and verify token expiration.",
+    "categoryName": "Crypto",
+    "componentUrl": "tools/cryto/JwtParser.jsx",
+    "icon": "jwt-parser.svg",
+    "isPremium": false,
+    "isEnabled": true
+  }
+]
