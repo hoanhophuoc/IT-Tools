@@ -15,7 +15,6 @@ public class AdminService(PostgreSQLContext context)
     /// Gets all tools (including disabled ones) for admin view.
     /// </summary>
     public async Task<IEnumerable<AdminToolDto>> GetAllToolsAsync() => await context.Tools
-            .Include(t => t.Category)
             .OrderBy(t => t.Name)
             .Select(t => new AdminToolDto
             {
@@ -51,7 +50,6 @@ public class AdminService(PostgreSQLContext context)
     /// Gets all pending upgrade requests.
     /// </summary>
     public async Task<IEnumerable<UpgradeRequestDto>> GetPendingUpgradeRequestsAsync() => await context.UpgradeRequests
-            .Include(ur => ur.User)
             .Where(ur => ur.Status == "Pending")
             .OrderBy(ur => ur.RequestedAt)
             .Select(ur => new UpgradeRequestDto
@@ -129,10 +127,8 @@ public class AdminService(PostgreSQLContext context)
         // Generate Slug from Name
         string generatedSlug = StringUtils.Slugify(createDto.Name);
 
-        var existingTool = await context.Tools.FirstOrDefaultAsync(t => t.Slug == generatedSlug || t.Name.ToLower() == createDto.Name.ToLower());
-        if (existingTool != null)
+        if (await context.Tools.AnyAsync(t => t.Slug == generatedSlug || t.Name.ToLower() == createDto.Name.ToLower()))
         {
-            Console.WriteLine($"Warning: Tool '{createDto.Name}' already exists.");
             return false;
         }
 

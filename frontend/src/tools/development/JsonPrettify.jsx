@@ -9,12 +9,9 @@ function sortObject(obj) {
   if (Array.isArray(obj)) {
     return obj.map(sortObject);
   } else if (obj && typeof obj === "object" && obj.constructor === Object) {
-    return Object.keys(obj)
-      .sort()
-      .reduce((acc, key) => {
-        acc[key] = sortObject(obj[key]);
-        return acc;
-      }, {});
+    return Object.fromEntries(
+      Object.keys(obj).sort().map((key) => [key, sortObject(obj[key])])
+    );
   }
   return obj;
 }

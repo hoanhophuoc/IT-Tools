@@ -15,11 +15,6 @@ public class UserController(PostgreSQLContext context) : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> CreateUpgradeRequest([FromBody] CreateUpgradeRequestDto createDto)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
         var requestExists = await context.UpgradeRequests.AnyAsync(c => c.UserId == createDto.UserId && c.Status == "Pending");
         if (requestExists)
         {

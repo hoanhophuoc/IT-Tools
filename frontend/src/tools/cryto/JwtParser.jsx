@@ -86,7 +86,7 @@ export default function JwtParser() {
               <span className="font-semibold text-red-600 dark:text-red-400">
                 HEADER: Algorithm & Token Type
               </span>
-              <CopyToClipboardButton text={JSON.stringify(parsed.header, null, 2)} />
+              <CopyToClipboardButton textToCopy={JSON.stringify(parsed.header, null, 2)} />
             </div>
             <pre className="overflow-x-auto rounded bg-white p-3 font-mono text-xs text-gray-800 shadow-sm dark:bg-gray-900 dark:text-gray-200">
               {JSON.stringify(parsed.header, null, 2)}
@@ -112,7 +112,7 @@ export default function JwtParser() {
                   </span>
                 )}
               </div>
-              <CopyToClipboardButton text={JSON.stringify(parsed.payload, null, 2)} />
+              <CopyToClipboardButton textToCopy={JSON.stringify(parsed.payload, null, 2)} />
             </div>
 
             {parsed.expDateStr && (

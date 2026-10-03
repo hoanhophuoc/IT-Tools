@@ -6,6 +6,7 @@ import { FiCopy, FiCheck } from "react-icons/fi";
 
 export default function CopyToClipboardButton({
   textToCopy,
+  text,
   buttonText = "Copy",
   copiedText = "Copied!",
   size = "sm",
@@ -14,6 +15,7 @@ export default function CopyToClipboardButton({
   disabled = false,
   ...props
 }) {
+  const contentToCopy = textToCopy ?? text;
   const [isCopied, setIsCopied] = useState(false);
 
   const handleCopy = useCallback(async () => {
@@ -23,10 +25,10 @@ export default function CopyToClipboardButton({
       );
       return;
     }
-    if (!textToCopy) return;
+    if (!contentToCopy) return;
 
     try {
-      await navigator.clipboard.writeText(textToCopy);
+      await navigator.clipboard.writeText(contentToCopy);
       setIsCopied(true);
       setTimeout(() => setIsCopied(false), 2000);
     } catch (err) {
@@ -34,12 +36,12 @@ export default function CopyToClipboardButton({
       alert("Failed to copy text to clipboard.");
       setIsCopied(false);
     }
-  }, [textToCopy]);
+  }, [contentToCopy]);
 
   return (
     <Button
       onClick={handleCopy}
-      disabled={disabled || !textToCopy || isCopied}
+      disabled={disabled || !contentToCopy || isCopied}
       variant={variant}
       size={size}
       className={`min-w-[80px] ${className}`}

@@ -104,7 +104,7 @@ export default function Base64StringConverter() {
             </label>
             <div className="flex items-center gap-2">
               <span className="text-xs text-gray-500">{output.length} chars</span>
-              <CopyToClipboardButton text={output} />
+              <CopyToClipboardButton textToCopy={output} />
             </div>
           </div>
           {error ? (

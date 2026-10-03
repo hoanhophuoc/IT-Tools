@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import TextArea from "@/components/ui/TextArea";
 import CopyToClipboardButton from "@/components/ui/CopyToClipboardButton";
 
@@ -18,10 +18,7 @@ function slugify(text) {
 
 export default function SlugifyString() {
   const [inputString, setInputString] = useState("");
-
-  const generatedSlug = useMemo(() => {
-    return slugify(inputString);
-  }, [inputString]);
+  const generatedSlug = slugify(inputString);
 
   return (
     <div className="space-y-6">

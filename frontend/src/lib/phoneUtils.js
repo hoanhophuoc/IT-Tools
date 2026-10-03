@@ -29,10 +29,9 @@ export function getDefaultCountryCode() {
     return defaultCode;
   }
   try {
-    const locale = window.navigator.language;
-    const countryCode = locale.split("-")[1]?.toUpperCase();
-    if (countryCode && getCountries().includes(countryCode)) {
-      return countryCode;
+    const region = new Intl.Locale(window.navigator.language).region;
+    if (region && getCountries().includes(region)) {
+      return region;
     }
   } catch (e) {}
   return defaultCode;

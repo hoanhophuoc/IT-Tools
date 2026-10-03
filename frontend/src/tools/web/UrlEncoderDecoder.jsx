@@ -1,30 +1,32 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import TextArea from "@/components/ui/TextArea";
 import CopyToClipboardButton from "@/components/ui/CopyToClipboardButton";
+
+function safeTransform(value, fn, errorMessage) {
+  if (!value) return { output: "", error: "" };
+  try {
+    return { output: fn(value), error: "" };
+  } catch {
+    return { output: "", error: errorMessage };
+  }
+}
 
 export default function UrlEncoderDecoder() {
   const [encodeInput, setEncodeInput] = useState("Hello world :)");
   const [decodeInput, setDecodeInput] = useState("Hello%20world%20%3A%29");
 
-  const { encodeOutput, encodeError } = useMemo(() => {
-    if (!encodeInput) return { encodeOutput: "", encodeError: "" };
-    try {
-      return { encodeOutput: encodeURIComponent(encodeInput), encodeError: "" };
-    } catch {
-      return { encodeOutput: "", encodeError: "Failed to encode this string." };
-    }
-  }, [encodeInput]);
-
-  const { decodeOutput, decodeError } = useMemo(() => {
-    if (!decodeInput) return { decodeOutput: "", decodeError: "" };
-    try {
-      return { decodeOutput: decodeURIComponent(decodeInput), decodeError: "" };
-    } catch {
-      return { decodeOutput: "", decodeError: "Invalid URI sequence." };
-    }
-  }, [decodeInput]);
+  const { output: encodeOutput, error: encodeError } = safeTransform(
+    encodeInput,
+    encodeURIComponent,
+    "Failed to encode this string.",
+  );
+  const { output: decodeOutput, error: decodeError } = safeTransform(
+    decodeInput,
+    decodeURIComponent,
+    "Invalid URI sequence.",
+  );
 
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">

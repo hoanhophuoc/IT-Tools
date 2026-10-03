@@ -62,7 +62,6 @@ public class ToolService(PostgreSQLContext context)
     {
         var toolEntity = await context.Tools
             .AsNoTracking()
-            .Include(t => t.Category)
             .FirstOrDefaultAsync(t => t.Slug == slug && t.IsEnabled);
 
         if (toolEntity == null) return null;

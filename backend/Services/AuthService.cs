@@ -33,7 +33,7 @@ public class AuthService(PostgreSQLContext context, JwtTokenService jwtTokenServ
     {
         var user = await context.Users.FirstOrDefaultAsync(u => u.Username == loginDto.Username);
 
-        if (user == null || !VerifyPasswordSafely(loginDto.Password, user.Password))
+        if (user == null || !BCryptNet.Verify(loginDto.Password, user.Password))
         {
             return null;
         }
@@ -58,7 +58,7 @@ public class AuthService(PostgreSQLContext context, JwtTokenService jwtTokenServ
             return false;
         }
 
-        if (!VerifyPasswordSafely(changePasswordDto.OldPassword, user.Password))
+        if (!BCryptNet.Verify(changePasswordDto.OldPassword, user.Password))
         {
             return false;
         }
@@ -83,18 +83,5 @@ public class AuthService(PostgreSQLContext context, JwtTokenService jwtTokenServ
         await context.SaveChangesAsync();
 
         return true;
-    }
-
-    private static bool VerifyPasswordSafely(string providedPassword, string passwordHash)
-    {
-        try
-        {
-            return BCryptNet.Verify(providedPassword, passwordHash);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error verifying password: {ex.Message}");
-            return false;
-        }
     }
 }
