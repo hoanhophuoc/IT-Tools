@@ -1,8 +1,33 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import TextArea from "@/components/ui/TextArea";
 import CopyToClipboardButton from "@/components/ui/CopyToClipboardButton";
+
+const HTML_ENTITIES = {
+  "&amp;": "&",
+  "&lt;": "<",
+  "&gt;": ">",
+  "&quot;": '"',
+  "&#39;": "'",
+  "&apos;": "'",
+  "&nbsp;": " ",
+  "&copy;": "©",
+  "&reg;": "®",
+  "&trade;": "™",
+  "&cent;": "¢",
+  "&pound;": "£",
+  "&yen;": "¥",
+  "&euro;": "€",
+  "&sect;": "§",
+  "&deg;": "°",
+  "&plusmn;": "±",
+  "&times;": "×",
+  "&divide;": "÷",
+  "&micro;": "µ",
+  "&para;": "¶",
+  "&middot;": "·",
+};
 
 const escapeHtmlEntities = (str) => {
   if (!str) return "";
@@ -16,35 +41,26 @@ const escapeHtmlEntities = (str) => {
 
 const unescapeHtmlEntities = (str) => {
   if (!str) return "";
-  if (typeof window === "undefined" || typeof document === "undefined") {
-    return str;
-  }
-  try {
-    const txt = document.createElement("textarea");
-    txt.innerHTML = str;
-    return txt.value;
-  } catch (e) {
-    return str;
-  }
+  return str.replace(/&(?:[a-zA-Z]+|#\d+|#[xX][0-9a-fA-F]+);/g, (match) => {
+    if (HTML_ENTITIES[match]) return HTML_ENTITIES[match];
+    if (match.startsWith("&#x") || match.startsWith("&#X")) {
+      const code = Number.parseInt(match.slice(3, -1), 16);
+      return Number.isFinite(code) && code <= 0x10ffff ? String.fromCodePoint(code) : match;
+    }
+    if (match.startsWith("&#")) {
+      const code = Number.parseInt(match.slice(2, -1), 10);
+      return Number.isFinite(code) && code <= 0x10ffff ? String.fromCodePoint(code) : match;
+    }
+    return match;
+  });
 };
 
 export default function HtmlEntitiesEncoder() {
   const [escapeInput, setEscapeInput] = useState("<title>IT Tool</title>");
   const escapeOutput = escapeHtmlEntities(escapeInput);
 
-  const [unescapeInput, setUnescapeInput] = useState("<title>IT Tool</title>");
-  const [unescapeOutput, setUnescapeOutput] = useState("");
-  const [unescapeError, setUnescapeError] = useState("");
-
-  useEffect(() => {
-    setUnescapeError("");
-    try {
-      setUnescapeOutput(unescapeHtmlEntities(unescapeInput));
-    } catch (e) {
-      setUnescapeError("Failed to unescape string.");
-      setUnescapeOutput("");
-    }
-  }, [unescapeInput]);
+  const [unescapeInput, setUnescapeInput] = useState("&lt;title&gt;IT Tool&lt;/title&gt;");
+  const unescapeOutput = unescapeHtmlEntities(unescapeInput);
 
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
@@ -83,9 +99,8 @@ export default function HtmlEntitiesEncoder() {
           id="unescapeInput"
           value={unescapeInput}
           onChange={(e) => setUnescapeInput(e.target.value)}
-          placeholder="Enter HTML entities (e.g., <div>)"
+          placeholder="Enter HTML entities (e.g., &lt;div&gt;)"
           rows={4}
-          error={unescapeError}
         />
         <TextArea
           label="Your string unescaped:"
@@ -99,7 +114,7 @@ export default function HtmlEntitiesEncoder() {
         <div className="flex justify-center pt-2">
           <CopyToClipboardButton
             textToCopy={unescapeOutput}
-            disabled={!!unescapeError}
+            disabled={!unescapeOutput}
           />
         </div>
       </div>

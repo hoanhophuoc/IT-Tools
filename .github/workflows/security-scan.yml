@@ -111,7 +111,8 @@ jobs:
             /d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
             /d:sonar.scanner.skipJreProvisioning=true \
             /d:sonar.scanner.scanAll=true \
-            /d:sonar.exclusions="**/bin/**,**/obj/**,**/node_modules/**,**/.next/**,**/*.spec.js,**/*.test.js"
+            /d:sonar.exclusions="**/bin/**,**/obj/**,**/node_modules/**,**/.next/**,**/*.spec.js,**/*.test.js" \
+            /d:sonar.coverage.exclusions="**"
 
           dotnet build backend/IT-Tools.sln --configuration Release
 

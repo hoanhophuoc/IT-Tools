@@ -97,5 +97,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapGet("/healthz", () => Results.Ok("OK"));
 
 await app.RunAsync();

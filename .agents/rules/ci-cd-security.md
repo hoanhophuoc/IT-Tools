@@ -15,7 +15,14 @@
 - **SARIF Upload Matching**: Always ensure `github/codeql-action/upload-sarif`'s `sarif_file` parameter matches the exact output path specified in `trivy-action` relative to the workspace root (e.g., `trivy-frontend-results.sarif`, not `<subfolder>/trivy-frontend-results.sarif`).
 
 ## Action Versions & Deprecation Policy
-- Avoid downgrading GitHub Actions to older versions to bypass deprecation warnings; use the latest supported action versions (e.g. `actions/setup-java@v6`, `github/codeql-action/upload-sarif@v4`, `actions/checkout@v4`).
+- **Default to Latest Action Versions**: When authoring or updating GitHub Actions workflows, always use the latest major releases rather than legacy defaults:
+  - Checkout: `actions/checkout@v7`
+  - Node.js setup: `actions/setup-node@v7`
+  - .NET setup: `actions/setup-dotnet@v6`
+  - Java setup: `actions/setup-java@v6`
+  - Gitleaks: `gitleaks/gitleaks-action@v3`
+  - CodeQL: `github/codeql-action/*@v4`
+- **CodeQL with .NET 10**: For C# projects targeting `net10.0`, always run `actions/setup-dotnet@v6` with `dotnet-version: '10.0.x'` prior to `github/codeql-action/init@v4` so compilation and reference extraction succeed.
 
 ## SonarCloud / SonarQube SAST Guardrails
 - **Action Dependency Pinning (`githubactions:S7637`)**: Third-party GitHub Actions (e.g., `gitleaks-action`, `trivy-action`, `react-doctor`) must be pinned by full commit SHA with a version comment:

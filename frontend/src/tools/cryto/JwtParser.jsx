@@ -6,9 +6,7 @@ import Button from "@/components/ui/Button";
 import { base64ToUtf8 } from "@/lib/utils";
 
 export default function JwtParser() {
-  const [token, setToken] = useState(
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMiwiZXhwIjoxODAwMDAwMDAwfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
-  );
+  const [token, setToken] = useState("");
 
   const parsed = useMemo(() => {
     if (!token.trim()) return null;
