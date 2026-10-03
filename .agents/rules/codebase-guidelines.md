@@ -15,7 +15,8 @@
 - **Fast Refresh & Component File Exports (`react-doctor/only-export-components`)**: Files ending in `.jsx` / `.tsx` that export React components must NOT export non-component objects (such as `createContext()` instances, enums, or utilities). Separate contexts into sibling non-component files (`src/contexts/authContext.js`) and re-import them into provider components.
 - **Standard Number APIs (`javascript:S7773`)**: Always use `Number.isNaN`, `Number.isFinite`, `Number.parseInt`, and `Number.parseFloat` instead of global equivalents.
 - **Safe Randomness & Identifiers (`javascript:S2245`)**: Use `React.useId()` for DOM element ID generation in UI components, and `crypto.getRandomValues(...)` for numeric random generation instead of `Math.random()`.
-- **Backtracking-Safe Regular Expressions (`javascript:S8786`)**: Avoid regex patterns with nested quantifiers or overlapping optional groups. For trimming, prefer separate single-anchor replacements (`.replace(/^-+/, "").replace(/-+$/, "")`) or bounded quantifiers (`/={1,2}$/`).
+- **Backtracking-Safe Regular Expressions (`javascript:S8786`)**: Avoid regex patterns with nested quantifiers or overlapping optional groups. After collapsing multi-character sequences (e.g. `.replace(/[\s-]+/g, "-")`), trim leading and trailing boundaries using non-quantified patterns (`.replace(/^-/, "").replace(/-$/, "")`) instead of `+` quantifiers to eliminate super-linear regex backtracking.
+- **Safe HTML Entity Decoding (`js/xss-through-dom`)**: Never use dummy DOM elements with `.innerHTML = str` for HTML entity unescaping, as CodeQL flags any assignment to `innerHTML` from dynamic input as a DOM XSS vulnerability. Use a static dictionary lookup combined with `String.fromCodePoint(Number.parseInt(...))` for decimal and hexadecimal numeric entities.
 - **Accessible Form Controls (`javascript:S6853`, `javascript:S6848`)**:
   - Always link `<label>` elements to form controls using `htmlFor` matching the control's `id`.
   - Use semantic `<button type="button">` elements instead of non-semantic clickable elements (`<span onClick=...>`).
@@ -31,3 +32,4 @@
 - **Asynchronous Host Startup (`csharpsquid:S6966`)**: Use `await app.RunAsync()` instead of synchronous `app.Run()`.
 - **DTO Under-posting Protection (`csharpsquid:S6964`)**: Value type input properties on API request DTOs should include the C# `required` modifier and `[JsonRequired]` attribute.
 - **PostgreSQL Case-Insensitive Matching (`external_roslyn:CA1862`)**: Use `EF.Functions.ILike(t.Name, name)` rather than `.ToLower() == .ToLower()` for EF Core database queries.
+- **Dedicated Health Check Endpoint**: Map a lightweight `app.MapGet("/healthz", () => Results.Ok("OK"))` endpoint in `Program.cs` to support container orchestrator and Dockerfile health probes without database overhead.
