@@ -15,7 +15,7 @@ CREATE TABLE "tool" (
   "is_premium" bool NOT NULL DEFAULT false,
   "component_url" VARCHAR(100) NOT NULL UNIQUE, -- Đường dẫn đến component ReactJS
   "icon" VARCHAR(100) NOT NULL,
-  "created_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+  "created_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   "slug" VARCHAR(100) NOT NULL UNIQUE -- Đường dẫn thân thiện với SEO
 );
 COMMENT ON TABLE "tool" IS 'Bảng lưu trữ thông tin về các công cụ IT';
@@ -47,7 +47,7 @@ COMMENT ON COLUMN "user"."created_at" IS 'Thời gian tạo tài khoản ngườ
 CREATE TABLE "favorite_tool" (
   "favorite_id" serial PRIMARY KEY,
   "user_id" integer NOT NULL,
-  "tool_id" integer NOT NULL,
+  "tool_id" integer NOT NULL
 );
 COMMENT ON TABLE "favorite_tool" IS 'Bảng lưu trữ các công cụ yêu thích của người dùng';
 COMMENT ON COLUMN "favorite_tool"."favorite_id" IS 'ID định danh duy nhất cho mỗi mục yêu thích';

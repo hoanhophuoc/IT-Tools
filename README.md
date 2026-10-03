@@ -2,7 +2,36 @@
 
 A monolithic full-stack application providing a comprehensive collection of handy tools designed for developers and IT professionals.
 
-This repository unites the **Next.js frontend** and the **ASP.NET Core backend** in a single monolithic repository.
+This repository unites the **Next.js frontend** and the **ASP.NET Core backend** in a single monolithic repository with full **Docker Compose** support.
+
+---
+
+## Quick Start with Docker Compose (One-Command Launch)
+
+Run the entire stack (PostgreSQL database, backend API, and frontend) with a single command:
+
+```bash
+docker compose up --build -d
+```
+
+### Services & URLs
+
+| Service | Port | URL | Description |
+| :--- | :--- | :--- | :--- |
+| **Frontend** | `3000` | [http://localhost:3000](http://localhost:3000) | Next.js 16 Web Application |
+| **Backend API** | `5145` | [http://localhost:5145/api](http://localhost:5145/api) | ASP.NET Core 10 Web API |
+| **Swagger UI** | `5145` | [http://localhost:5145/swagger](http://localhost:5145/swagger) | Interactive API Documentation |
+| **Database** | `5432` | `localhost:5432` | PostgreSQL 17 (auto-initialized with schema) |
+
+To stop all containers:
+```bash
+docker compose down
+```
+
+To stop and remove data volumes:
+```bash
+docker compose down -v
+```
 
 ---
 
@@ -10,7 +39,7 @@ This repository unites the **Next.js frontend** and the **ASP.NET Core backend**
 
 ```text
 IT-Tools/
-├── backend/                  # ASP.NET Core Web API (.NET 9)
+├── backend/                  # ASP.NET Core Web API (.NET 10)
 │   ├── Controllers/          # API Controllers (Auth, Tools, Admin, Favorites, User)
 │   ├── Data/                 # EF Core DbContext & Database Configurations
 │   ├── Dtos/                 # Request/Response Data Transfer Objects
@@ -19,10 +48,12 @@ IT-Tools/
 │   ├── Properties/           # Launch settings & environment profiles
 │   ├── Services/             # Business Logic & Services
 │   ├── Utils/                # Utilities & helpers
+│   ├── Dockerfile            # Multi-stage Docker build (.NET 10 SDK & Runtime)
 │   ├── appsettings.json      # Base application configuration
 │   ├── appsettings.Development.json # Development configuration & connection string
-│   ├── IT-Tools.csproj       # .NET 9 Project file
-│   └── IT-Tools.sln          # Solution file
+│   ├── IT-Tools.csproj       # .NET 10 Project file
+│   ├── IT-Tools.sln          # Solution file
+│   └── IT-Tools.sql          # PostgreSQL schema script (auto-mounted in Docker)
 │
 ├── frontend/                 # Next.js 16 (React 19, Tailwind CSS 4)
 │   ├── public/               # Static assets & icons
@@ -33,9 +64,11 @@ IT-Tools/
 │   │   ├── hooks/            # Custom React hooks
 │   │   ├── lib/              # API client and utility libraries
 │   │   └── tools/            # Modular developer tools (hot-pluggable)
+│   ├── Dockerfile            # Multi-stage Docker build (Node 22 Alpine)
 │   ├── package.json          # Node dependencies & scripts
 │   └── .env.example          # Environment variables template
 │
+├── docker-compose.yml        # Orchestrates db, backend, and frontend
 ├── .gitignore                # Unified gitignore for .NET and Node.js
 └── README.md                 # Project documentation
 ```
@@ -47,20 +80,19 @@ IT-Tools/
 | Layer | Technologies |
 | :--- | :--- |
 | **Frontend** | [Next.js 16](https://nextjs.org/) (App Router, Turbopack), [React 19](https://react.dev/), [Tailwind CSS 4](https://tailwindcss.com/), [date-fns](https://date-fns.org/), [mathjs](https://mathjs.org/) |
-| **Backend** | [ASP.NET Core 9](https://dotnet.microsoft.com/), [Entity Framework Core 9](https://learn.microsoft.com/ef/core/), [PostgreSQL](https://www.postgresql.org/) ([Npgsql](https://www.npgsql.org/efcore/)), [AutoMapper 16](https://automapper.org/), [BCrypt.Net-Next](https://github.com/BcryptNet/bcrypt.net) |
+| **Backend** | [ASP.NET Core 10](https://dotnet.microsoft.com/), [Entity Framework Core 10](https://learn.microsoft.com/ef/core/), [PostgreSQL 17](https://www.postgresql.org/) ([Npgsql](https://www.npgsql.org/efcore/)), [AutoMapper 16](https://automapper.org/), [BCrypt.Net-Next](https://github.com/BcryptNet/bcrypt.net) |
 | **Auth** | JWT (JSON Web Tokens) with role-based access control (`User`, `Premium`, `Admin`) |
+| **DevOps** | [Docker](https://www.docker.com/) & [Docker Compose](https://docs.docker.com/compose/) |
 
 ---
 
-## Prerequisites
+## Local Development (Without Docker)
 
-- [.NET SDK 9.0](https://dotnet.microsoft.com/download)
+### Prerequisites
+
+- [.NET SDK 10.0](https://dotnet.microsoft.com/download)
 - [Node.js](https://nodejs.org/) (v20.x or later) & [npm](https://www.npmjs.com/)
 - [PostgreSQL](https://www.postgresql.org/) (local or cloud-hosted instance)
-
----
-
-## Getting Started
 
 ### 1. Backend Setup
 
@@ -89,7 +121,7 @@ IT-Tools/
    ```
 
 3. **Initialize Database (Optional / Schema Setup):**
-   If creating the database tables from scratch, run the SQL script `backend/IT-Tools.sql` or apply migrations:
+   Execute `backend/IT-Tools.sql` or apply migrations:
    ```bash
    dotnet ef database update
    ```
@@ -191,8 +223,14 @@ IT-Tools supports dynamically registering new tools via React components and dat
 
 ## Scripts & Commands
 
+### Docker Compose
+- `docker compose up --build -d` - Build and start all services in the background
+- `docker compose logs -f` - Follow container logs
+- `docker compose ps` - Check running container statuses
+- `docker compose down` - Stop and remove all containers
+
 ### Backend (`backend/`)
-- `dotnet build` - Build the C# solution
+- `dotnet build` - Build the C# solution (.NET 10)
 - `dotnet run` - Start the API server
 - `dotnet watch run` - Start the API server with hot-reload
 
