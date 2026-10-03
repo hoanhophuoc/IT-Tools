@@ -1,5 +1,5 @@
 "use client";
-import { createContext, useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import {
   apiLogin,
@@ -8,8 +8,7 @@ import {
   apiAddFavorite,
   apiRemoveFavorite,
 } from "@/lib/api";
-
-export const AuthContext = createContext(null);
+import { AuthContext } from "./auth-context";
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -123,20 +122,34 @@ export const AuthProvider = ({ children }) => {
     [user, favoriteToolIds],
   );
 
-  const value = {
-    user,
-    isAuthenticated: !!user,
-    loading,
-    loadingFavorites,
-    favoriteToolIds,
-    addFavorite,
-    removeFavorite,
-    login,
-    logout,
-    register,
-    searchTerm,
-    setSearchTerm,
-  };
+  const value = useMemo(
+    () => ({
+      user,
+      isAuthenticated: !!user,
+      loading,
+      loadingFavorites,
+      favoriteToolIds,
+      addFavorite,
+      removeFavorite,
+      login,
+      logout,
+      register,
+      searchTerm,
+      setSearchTerm,
+    }),
+    [
+      user,
+      loading,
+      loadingFavorites,
+      favoriteToolIds,
+      addFavorite,
+      removeFavorite,
+      login,
+      logout,
+      register,
+      searchTerm,
+    ],
+  );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useMemo } from "react";
 import InfoRow from "@/components/ui/InfoRow";
 import TextArea from "@/components/ui/TextArea";
 
@@ -11,17 +11,13 @@ const exampleJson = `{
 
 export default function JsonMinify() {
   const [input, setInput] = useState(exampleJson);
-  const [minified, setMinified] = useState("");
-  const [error, setError] = useState("");
 
-  useEffect(() => {
+  const { minified, error } = useMemo(() => {
     try {
       const obj = JSON.parse(input);
-      setMinified(JSON.stringify(obj));
-      setError("");
-    } catch (err) {
-      setMinified("");
-      setError("Invalid JSON format");
+      return { minified: JSON.stringify(obj), error: "" };
+    } catch {
+      return { minified: "", error: "Invalid JSON format" };
     }
   }, [input]);
 

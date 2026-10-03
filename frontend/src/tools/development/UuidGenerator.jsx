@@ -123,9 +123,9 @@ export default function UuidGenerator() {
         </div>
 
         <div className="space-y-2">
-          {uuids.map((id, index) => (
+          {uuids.map((id) => (
             <div
-              key={index}
+              key={id}
               className="flex items-center justify-between rounded bg-white p-2.5 font-mono text-sm shadow-sm dark:bg-gray-900"
             >
               <span className="truncate select-all text-gray-800 dark:text-gray-200">

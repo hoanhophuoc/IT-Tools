@@ -13,12 +13,12 @@ export default function Switch({ id, checked, onChange, label, ...props }) {
 
   return (
     <div
-      className={`flex items-center ${props.disabled ? "cursor-not-allowed opacity-60" : "cursor-pointer"}`}
-      onClick={handleToggle}
+      className={`flex items-center ${props.disabled ? "cursor-not-allowed opacity-60" : ""}`}
     >
       <button
         type="button"
         id={switchId}
+        onClick={handleToggle}
         disabled={props.disabled}
         className={`${
           checked ? "bg-indigo-600" : "bg-gray-300 dark:bg-gray-600"

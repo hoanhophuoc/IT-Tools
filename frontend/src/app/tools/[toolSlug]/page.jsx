@@ -33,6 +33,8 @@ export default function ToolPage() {
   const toolSlug = params.toolSlug || null;
 
   useEffect(() => {
+    let cancelled = false;
+
     if (!toolSlug) {
       setError("Tool identifier missing.");
       setLoading(false);
@@ -50,6 +52,7 @@ export default function ToolPage() {
     const fetchAndLoadTool = async () => {
       try {
         const details = await apiGetToolDetails(toolSlug);
+        if (cancelled) return;
         if (!details || !details.componentUrl) {
           throw new Error("Tool details not found or invalid configuration.");
         }
@@ -89,8 +92,10 @@ export default function ToolPage() {
             }),
           { suspense: true, ssr: false },
         );
+        if (cancelled) return;
         setToolComponent(() => DynamicTool);
       } catch (err) {
+        if (cancelled) return;
         console.error(`Error loading tool with slug "${toolSlug}":`, err);
         if (
           err.message &&
@@ -108,11 +113,17 @@ export default function ToolPage() {
           setError(`Failed to load tool: ${err.message}`);
         }
       } finally {
-        setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     };
 
     fetchAndLoadTool();
+
+    return () => {
+      cancelled = true;
+    };
   }, [toolSlug, user, isAuthenticated, authLoading]);
 
   if (loading || authLoading) {

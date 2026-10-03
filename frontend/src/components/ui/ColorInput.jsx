@@ -25,6 +25,7 @@ export default function ColorInput({
         <input
           type="color"
           id={id + "Picker"}
+          aria-label={label ? `${label} color picker` : "Color picker"}
           value={value}
           onChange={handleChange}
           className="h-10 w-10 shrink-0 cursor-pointer rounded border border-gray-300 dark:border-gray-600"

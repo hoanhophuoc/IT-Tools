@@ -13,10 +13,12 @@ import {
   FiShield,
 } from "react-icons/fi";
 
+const DEFAULT_CATEGORIES = [];
+
 export default function Header({
   isSidebarOpen,
   toggleSidebar,
-  categories = [],
+  categories = DEFAULT_CATEGORIES,
 }) {
   const { user, isAuthenticated, logout, loading, searchTerm, setSearchTerm } =
     useAuth();

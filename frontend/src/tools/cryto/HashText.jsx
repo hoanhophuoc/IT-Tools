@@ -7,32 +7,14 @@ export default function HashText() {
   const [error, setError] = useState("");
   const [hashText, setHashText] = useState("");
 
-  const [md5Func, setMd5Func] = useState(null);
   const [md5Result, setMd5Result] = useState("");
-
-  const [sha1Func, setSha1Func] = useState(null);
   const [sha1Result, setSha1Result] = useState("");
-
-  const [sha256Func, setSha256Func] = useState(null);
   const [sha256Result, setSha256Result] = useState("");
-
-  const [sha224Func, setSha224Func] = useState(null);
   const [sha224Result, setSha224Result] = useState("");
-
-  const [sha512Func, setSha512Func] = useState(null);
   const [sha512Result, setSha512Result] = useState("");
-
-  const [sha384Func, setSha384Func] = useState(null);
   const [sha384Result, setSha384Result] = useState("");
-
-  const [sha3Func, setSha3Func] = useState(null);
   const [sha3Result, setSha3Result] = useState("");
-
-  const [ripemd160Func, setRipemd160Func] = useState(null);
   const [ripemd160Result, setRipemd160Result] = useState("");
-
-  const [base64Func, setBase64Func] = useState(null);
-  const [base64urlFunc, setBase64urlFunc] = useState(null);
 
   const [encodingType, setEncodingType] = useState("base16");
 
@@ -63,20 +45,7 @@ export default function HashText() {
         await loadScript(
           "https://cdn.jsdelivr.net/npm/crypto-js@4.2.0/crypto-js.min.js",
         );
-        if (window.CryptoJS) {
-          console.log(window.CryptoJS);
-          setMd5Func(() => window.CryptoJS.MD5);
-          setSha1Func(() => window.CryptoJS.SHA1);
-          setSha224Func(() => window.CryptoJS.SHA224);
-          setSha256Func(() => window.CryptoJS.SHA256);
-          setSha512Func(() => window.CryptoJS.SHA512);
-          setSha384Func(() => window.CryptoJS.SHA384);
-          setSha3Func(() => window.CryptoJS.SHA3);
-          setRipemd160Func(() => window.CryptoJS.RIPEMD160);
-
-          setBase64Func(() => window.CryptoJS.enc.Base64);
-          setBase64urlFunc(() => window.CryptoJS.enc.Base64url);
-        } else {
+        if (!window.CryptoJS) {
           throw new Error("CryptoJS is not available.");
         }
       } catch (e) {
@@ -101,6 +70,9 @@ export default function HashText() {
   const handleHashChange = (text, encodingType) => {
     setHashText(text);
 
+    const crypto = typeof window !== "undefined" ? window.CryptoJS : null;
+    if (!crypto) return;
+
     try {
       let encoder;
       switch (encodingType) {
@@ -111,24 +83,23 @@ export default function HashText() {
           encoder = (digest) => digest.toString();
           break;
         case "base64":
-          encoder = (digest) => base64Func.stringify(digest);
+          encoder = (digest) => crypto.enc.Base64.stringify(digest);
           break;
         case "base64url":
-          encoder = (digest) => base64urlFunc.stringify(digest);
+          encoder = (digest) => crypto.enc.Base64url.stringify(digest);
           break;
         default:
           encoder = (digest) => digest.toString();
       }
-      console.log(console.log("Hashing with encoding type:", encodingType));
 
-      setMd5Result(encoder(md5Func(text)));
-      setSha1Result(encoder(sha1Func(text)));
-      setSha224Result(encoder(sha224Func(text)));
-      setSha256Result(encoder(sha256Func(text)));
-      setSha512Result(encoder(sha512Func(text)));
-      setSha384Result(encoder(sha384Func(text)));
-      setSha3Result(encoder(sha3Func(text)));
-      setRipemd160Result(encoder(ripemd160Func(text)));
+      setMd5Result(encoder(crypto.MD5(text)));
+      setSha1Result(encoder(crypto.SHA1(text)));
+      setSha224Result(encoder(crypto.SHA224(text)));
+      setSha256Result(encoder(crypto.SHA256(text)));
+      setSha512Result(encoder(crypto.SHA512(text)));
+      setSha384Result(encoder(crypto.SHA384(text)));
+      setSha3Result(encoder(crypto.SHA3(text)));
+      setRipemd160Result(encoder(crypto.RIPEMD160(text)));
     } catch (e) {
       console.error("Error while hashing:", e.message);
       setError("Failed to compute hash.");

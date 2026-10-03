@@ -14,12 +14,13 @@ const isValidMacFormat = (mac) => {
 
 const formatVendorInfo = (infoString) => {
   if (!infoString || typeof infoString !== "string") {
-    return ["Unknown vendor for this address"];
+    return [{ id: "unknown", text: "Unknown vendor for this address" }];
   }
   return infoString
     .split("\n")
     .map((line) => line.trim())
-    .filter(Boolean);
+    .filter(Boolean)
+    .map((text, i) => ({ id: `${i}-${text}`, text }));
 };
 
 export default function MacAddressLookup() {
@@ -48,7 +49,7 @@ export default function MacAddressLookup() {
   }, [macAddress]);
 
   const vendorInfoString = useMemo(
-    () => vendorInfo?.join("\n") || "",
+    () => vendorInfo?.map((item) => item.text).join("\n") || "",
     [vendorInfo],
   );
 
@@ -77,12 +78,12 @@ export default function MacAddressLookup() {
       </div>
       <div className="min-h-[80px] rounded-md border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-slate-800">
         {macAddress.trim() && !inputError && vendorInfo ? (
-          vendorInfo.map((line, index) => (
+          vendorInfo.map((item) => (
             <div
-              key={index}
+              key={item.id}
               className="text-sm text-gray-800 dark:text-gray-200"
             >
-              {line}
+              {item.text}
             </div>
           ))
         ) : (

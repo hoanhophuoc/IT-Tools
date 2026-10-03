@@ -8,7 +8,7 @@ function getRandomPort() {
 }
 
 export default function RandomPortGenerator() {
-  const [port, setPort] = useState(getRandomPort());
+  const [port, setPort] = useState(getRandomPort);
 
   const handleRefresh = () => {
     setPort(getRandomPort());

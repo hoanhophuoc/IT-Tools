@@ -74,7 +74,10 @@ export default function JwtParser() {
     <div className="space-y-6">
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+          <label
+            htmlFor="jwt-token"
+            className="text-sm font-medium text-gray-700 dark:text-gray-300"
+          >
             Encoded JWT Token
           </label>
           <Button variant="secondary" onClick={() => setToken("")}>
@@ -82,6 +85,7 @@ export default function JwtParser() {
           </Button>
         </div>
         <textarea
+          id="jwt-token"
           value={token}
           onChange={(e) => setToken(e.target.value)}
           rows={4}

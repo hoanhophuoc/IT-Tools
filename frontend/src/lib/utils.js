@@ -1,4 +1,18 @@
-export const formatDate = (dateInput, options = {}) => {
+const DEFAULT_DATE_FORMAT_OPTIONS = {
+  year: "numeric",
+  month: "short",
+  day: "numeric",
+  hour: "numeric",
+  minute: "2-digit",
+  hour12: true,
+};
+
+const defaultDateFormatter = new Intl.DateTimeFormat(
+  "en-US",
+  DEFAULT_DATE_FORMAT_OPTIONS,
+);
+
+export const formatDate = (dateInput) => {
   if (!dateInput) return "";
   try {
     const date = new Date(dateInput);
@@ -6,16 +20,7 @@ export const formatDate = (dateInput, options = {}) => {
       return "Invalid Date";
     }
 
-    const defaultOptions = {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "numeric",
-      minute: "2-digit",
-      hour12: true,
-      ...options,
-    };
-    return new Intl.DateTimeFormat("en-US", defaultOptions).format(date);
+    return defaultDateFormatter.format(date);
   } catch (error) {
     console.error("Error formatting date:", error);
     return "Invalid Date";

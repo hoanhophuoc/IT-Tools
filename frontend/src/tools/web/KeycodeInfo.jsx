@@ -71,9 +71,9 @@ export default function KeycodeInfo() {
             Waiting for key press...
           </p>
         )}
-        {fields.map((field, i) => (
+        {fields.map((field) => (
           <InfoRow
-            key={i}
+            key={field.label}
             label={field.label + " :"}
             value={field.value}
             placeholder={field.placeholder}

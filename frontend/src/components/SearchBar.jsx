@@ -6,45 +6,57 @@ import Image from "next/image";
 import { FiSearch, FiX, FiTool, FiStar, FiArrowRight } from "react-icons/fi";
 import { apiGetCategorizedTools } from "@/lib/api";
 
+const DEFAULT_CATEGORIES = [];
+
 export default function SearchBar({
   searchTerm,
   setSearchTerm,
   placeholder = "Search tools...",
-  categories = [],
+  categories = DEFAULT_CATEGORIES,
 }) {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
-  const [toolsList, setToolsList] = useState([]);
+  const [fetchedTools, setFetchedTools] = useState([]);
   const containerRef = useRef(null);
   const inputRef = useRef(null);
 
-  // Flatten tools from categories prop or fallback to API fetch
-  useEffect(() => {
-    if (Array.isArray(categories) && categories.length > 0) {
-      const flattened = categories.flatMap((cat) =>
-        (cat.tools || []).map((t) => ({
-          ...t,
-          categoryName: cat.name,
-        })),
-      );
-      setToolsList(flattened);
-    } else {
-      apiGetCategorizedTools()
-        .then((data) => {
-          if (Array.isArray(data)) {
-            const flattened = data.flatMap((cat) =>
-              (cat.tools || []).map((t) => ({
-                ...t,
-                categoryName: cat.name,
-              })),
-            );
-            setToolsList(flattened);
-          }
-        })
-        .catch((err) => console.error("Failed to fetch tools for search:", err));
-    }
+  // Derive tools directly from categories prop when available
+  const propTools = useMemo(() => {
+    if (!Array.isArray(categories) || categories.length === 0) return null;
+    return categories.flatMap((cat) =>
+      (cat.tools || []).map((t) => ({
+        ...t,
+        categoryName: cat.name,
+      })),
+    );
   }, [categories]);
+
+  // Fallback to API fetch only when categories prop is not provided or empty
+  useEffect(() => {
+    if (propTools) return;
+    let cancelled = false;
+    apiGetCategorizedTools()
+      .then((data) => {
+        if (cancelled) return;
+        if (Array.isArray(data)) {
+          const flattened = data.flatMap((cat) =>
+            (cat.tools || []).map((t) => ({
+              ...t,
+              categoryName: cat.name,
+            })),
+          );
+          setFetchedTools(flattened);
+        }
+      })
+      .catch((err) => console.error("Failed to fetch tools for search:", err));
+
+    return () => {
+      cancelled = true;
+    };
+  }, [propTools]);
+
+  const toolsList = propTools || fetchedTools;
 
   // Compute suggestions based on query
   const suggestions = useMemo(() => {

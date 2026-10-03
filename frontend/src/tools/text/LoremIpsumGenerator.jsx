@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Input from "@/components/ui/Input";
 import TextArea from "@/components/ui/TextArea";
 import CopyToClipboardButton from "@/components/ui/CopyToClipboardButton";
@@ -63,23 +63,21 @@ export default function LoremIpsumGenerator() {
   const [asHtml, setAsHtml] = useState(false);
   const [output, setOutput] = useState("");
 
-  const generate = () => {
+  const generate = useCallback(() => {
     setOutput(
       generateLoremIpsum({
         paragraphs,
         sentencesPerParagraph: sentences,
         wordsPerSentence: words,
         startWithLorem,
-        asHtml
-      })
+        asHtml,
+      }),
     );
-  };
-
+  }, [paragraphs, sentences, words, startWithLorem, asHtml]);
 
   useEffect(() => {
     generate();
-
-  }, [paragraphs, sentences, words, startWithLorem, asHtml]);
+  }, [generate]);
 
   return (
     <div className="space-y-4">

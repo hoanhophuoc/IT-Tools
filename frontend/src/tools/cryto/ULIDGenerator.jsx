@@ -98,7 +98,15 @@ export default function ULIDGenerator() {
         </label>
       </div>
 
+      <label
+        htmlFor="generated-ulids"
+        className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+      >
+        Generated ULIDs
+      </label>
       <textarea
+        id="generated-ulids"
+        aria-label="Generated ULIDs"
         readOnly
         value={
           format === "json" ? JSON.stringify(ulids, null, 2) : ulids.join("\n")

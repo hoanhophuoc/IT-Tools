@@ -71,7 +71,6 @@ function convertAllBases(input, inputBase) {
 export default function IntegerBaseConverter() {
   const [input, setInput] = useState("");
   const [base, setBase] = useState(10);
-  const [error, setError] = useState("");
 
   const baseObj = BASES.find((b) => b.value === Number(base));
   const isValid = baseObj?.regex.test(input);
@@ -85,7 +84,6 @@ export default function IntegerBaseConverter() {
         value={input}
         onChange={(e) => {
           setInput(e.target.value.trim());
-          setError("");
         }}
         placeholder="Enter number"
         error={input && !isValid ? `Invalid number for base ${base}` : ""}

@@ -30,8 +30,6 @@ export default function EtaCalculator() {
     1000 * 60 * 60,
   );
 
-  const [error, setError] = useState("");
-
   const handleNumberChange =
     (setter, allowZero = false) =>
     (e) => {
@@ -39,19 +37,15 @@ export default function EtaCalculator() {
       setter(
         isNaN(value) || (!allowZero && value < 1) ? (allowZero ? 0 : 1) : value,
       );
-      setError("");
     };
   const handleTimeSpanUnitChange = (e) => {
     setTimeSpanUnitMultiplier(parseInt(e.target.value, 10) || 1);
-    setError("");
   };
   const handleDateTimeChange = (e) => {
     setStartDateString(e.target.value);
-    setError("");
   };
 
   const { totalDurationMs, endDate, calculationError } = useMemo(() => {
-    setError("");
     const uc = unitCount || 0;
     const upms = unitPerTimeSpan || 0;
     const tsms = timeSpanValue * timeSpanUnitMultiplier || 0;

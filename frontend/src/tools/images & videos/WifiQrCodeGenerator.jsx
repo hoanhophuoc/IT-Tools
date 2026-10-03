@@ -118,7 +118,7 @@ export default function WifiQrCodeGenerator() {
 
   const handleDownload = useCallback(() => {
     downloadCanvasAsPng(qrCodeCanvasRef, downloadLinkRef, "wifi-qr-code.png");
-  }, [qrCodeText]);
+  }, []);
 
   const canGenerateQr = useMemo(
     () => ssid.trim().length > 0 && qrCodeText !== null,

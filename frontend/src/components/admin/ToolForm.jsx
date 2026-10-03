@@ -5,132 +5,48 @@ import Button from "@/components/ui/Button";
 import Spinner from "@/components/ui/Spinner";
 import { apiAdminGetCategories } from "@/lib/api";
 
-export default function ToolForm({ initialData, onSave, onCancel, isLoading }) {
-  const [formData, setFormData] = useState({
-    name: "",
-    description: "",
-    categoryName: "",
-    componentUrl: "",
-    icon: "",
-    isPremium: false,
-    isEnabled: true,
-  });
-  const [categories, setCategories] = useState([]);
-  const [loadingCategories, setLoadingCategories] = useState(true);
-  const [errors, setErrors] = useState({});
-  const jsonFileInputRef = useRef(null);
+function validateToolForm(formData) {
+  const newErrors = {};
+  const name = formData.name.trim();
+  const description = formData.description.trim();
+  const componentUrl = formData.componentUrl.trim();
+  const icon = formData.icon.trim();
+  const categoryName = formData.categoryName;
 
-  const fetchCategories = useCallback(async () => {
-    setLoadingCategories(true);
-    try {
-      const cats = await apiAdminGetCategories();
-      setCategories(cats || []);
-      if (!initialData && cats && cats.length > 0) {
-        setFormData((prev) => ({ ...prev, categoryName: cats[0].name }));
-      }
-    } catch (error) {
-      console.error("Failed to load categories:", error);
-      setErrors((prev) => ({
-        ...prev,
-        category: "Failed to load categories.",
-      }));
-    } finally {
-      setLoadingCategories(false);
-    }
-  }, [initialData]);
+  if (!name) {
+    newErrors.name = "Tool name is required.";
+  } else if (name.length > 50) {
+    newErrors.name = "Tool name cannot exceed 50 characters.";
+  }
 
-  useEffect(() => {
-    fetchCategories();
-  }, [fetchCategories]);
+  if (!description) {
+    newErrors.description = "Tool description is required.";
+  }
+  if (!categoryName) {
+    newErrors.categoryName = "Category is required.";
+  }
 
-  useEffect(() => {
-    if (initialData) {
-      const initialCategory = categories.find(
-        (c) => c.categoryId === initialData.categoryId,
-      );
-      setFormData({
-        name: initialData.name || "",
-        description: initialData.description || "",
-        categoryName:
-          initialCategory?.name ||
-          (categories.length > 0 ? categories[0].name : ""),
-        componentUrl: initialData.componentUrl || "",
-        icon: initialData.icon || "",
-        isPremium: initialData.isPremium || false,
-        isEnabled:
-          initialData.isEnabled === undefined ? true : initialData.isEnabled,
-      });
-    } else {
-      setFormData({
-        name: "",
-        description: "",
-        categoryName: categories.length > 0 ? categories[0].name : "",
-        componentUrl: "",
-        icon: "",
-        isPremium: false,
-        isEnabled: true,
-      });
-    }
-  }, [initialData, categories]);
+  if (!componentUrl) {
+    newErrors.componentUrl = "Component URL is required.";
+  } else if (!componentUrl.startsWith("tools/")) {
+    newErrors.componentUrl = "URL must start with 'tools/'.";
+  } else if (componentUrl.length > 100) {
+    newErrors.componentUrl = "Component URL cannot exceed 100 characters.";
+  }
 
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }));
-    if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: null }));
-    }
-  };
+  if (!icon) {
+    newErrors.icon = "Icon filename is required.";
+  } else if (icon.length > 100) {
+    newErrors.icon = "Icon filename cannot exceed 100 characters.";
+  }
 
-  const handleCategoryChange = (e) => {
-    setFormData((prev) => ({ ...prev, categoryName: e.target.value }));
-    if (errors.categoryName) {
-      setErrors((prev) => ({ ...prev, categoryName: null }));
-    }
-  };
+  return newErrors;
+}
 
-  const validateForm = () => {
-    const newErrors = {};
-    const name = formData.name.trim();
-    const description = formData.description.trim();
-    const componentUrl = formData.componentUrl.trim();
-    const icon = formData.icon.trim();
-    const categoryName = formData.categoryName;
+function JsonPrefillBanner({ onPrefill }) {
+  const fileInputRef = useRef(null);
 
-    if (!name) {
-      newErrors.name = "Tool name is required.";
-    } else if (name.length > 50) {
-      newErrors.name = "Tool name cannot exceed 50 characters.";
-    }
-
-    if (!description) {
-      newErrors.description = "Tool description is required.";
-    }
-    if (!categoryName) {
-      newErrors.categoryName = "Category is required.";
-    }
-
-    if (!componentUrl) {
-      newErrors.componentUrl = "Component URL is required.";
-    } else if (!componentUrl.startsWith("tools/")) {
-      newErrors.componentUrl = "URL must start with 'tools/'.";
-    } else if (componentUrl.length > 100) {
-      newErrors.componentUrl = "Component URL cannot exceed 100 characters.";
-    }
-
-    if (!icon) {
-      newErrors.icon = "Icon filename is required.";
-    } else if (icon.length > 100) {
-      newErrors.icon = "Icon filename cannot exceed 100 characters.";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleJsonPrefill = async (e) => {
+  const handleFileChange = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -148,49 +64,178 @@ export default function ToolForm({ initialData, onSave, onCancel, isLoading }) {
         throw new Error("JSON must contain an object or array of objects.");
       }
 
-      const loadedCategory =
-        item.categoryName ||
-        item.CategoryName ||
-        item.category ||
-        item.Category ||
-        "";
-
-      setFormData((prev) => ({
-        ...prev,
-        name: (item.name || item.Name || prev.name || "").trim(),
-        description: (
-          item.description ||
-          item.Description ||
-          prev.description ||
-          ""
-        ).trim(),
-        categoryName: loadedCategory || prev.categoryName,
-        componentUrl: (
-          item.componentUrl ||
-          item.ComponentUrl ||
-          prev.componentUrl ||
-          ""
-        ).trim(),
-        icon: (item.icon || item.Icon || prev.icon || "").trim(),
-        isPremium: Boolean(item.isPremium ?? item.IsPremium ?? prev.isPremium),
-        isEnabled: Boolean(item.isEnabled ?? item.IsEnabled ?? prev.isEnabled),
-      }));
-      setErrors({});
+      onPrefill(item);
     } catch (err) {
       alert("Error reading JSON file: " + err.message);
     } finally {
-      if (jsonFileInputRef.current) {
-        jsonFileInputRef.current.value = "";
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
       }
     }
   };
 
+  return (
+    <div className="flex items-center justify-between rounded-lg border border-indigo-100 bg-indigo-50/60 p-3 dark:border-indigo-900/50 dark:bg-indigo-950/40">
+      <div>
+        <p className="text-xs font-medium text-indigo-900 dark:text-indigo-200">
+          Quick Fill from Tool JSON
+        </p>
+        <p className="text-[11px] text-gray-500 dark:text-gray-400">
+          Upload a .json file to auto-populate form fields
+        </p>
+      </div>
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleFileChange}
+        accept=".json,application/json"
+        className="hidden"
+      />
+      <Button
+        type="button"
+        variant="secondary"
+        size="sm"
+        onClick={() => fileInputRef.current?.click()}
+      >
+        📁 Load JSON File
+      </Button>
+    </div>
+  );
+}
+
+function CategorySelectField({
+  categories,
+  value,
+  onChange,
+  loading,
+  error,
+}) {
+  return (
+    <div>
+      <label
+        htmlFor="categoryName"
+        className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+      >
+        Category
+      </label>
+      {loading ? (
+        <Spinner size="sm" />
+      ) : (
+        <select
+          id="categoryName"
+          name="categoryName"
+          value={value}
+          onChange={onChange}
+          required
+          className={`mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-indigo-400 ${error ? "border-red-500" : ""}`}
+        >
+          <option value="" disabled>
+            -- Select Category --
+          </option>
+          {categories.map((cat) => (
+            <option key={cat.categoryId} value={cat.name}>
+              {cat.name}
+            </option>
+          ))}
+        </select>
+      )}
+      {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
+    </div>
+  );
+}
+
+export default function ToolForm({ initialData, onSave, onCancel, isLoading }) {
+  const [formData, setFormData] = useState(() => ({
+    name: initialData?.name || "",
+    description: initialData?.description || "",
+    categoryName: initialData?.categoryName || "",
+    componentUrl: initialData?.componentUrl || "",
+    icon: initialData?.icon || "",
+    isPremium: Boolean(initialData?.isPremium),
+    isEnabled: initialData?.isEnabled ?? true,
+  }));
+  const [categories, setCategories] = useState([]);
+  const [loadingCategories, setLoadingCategories] = useState(true);
+  const [errors, setErrors] = useState({});
+
+  const fetchCategories = useCallback(async () => {
+    setLoadingCategories(true);
+    try {
+      const cats = await apiAdminGetCategories();
+      const list = cats || [];
+      setCategories(list);
+      setFormData((prev) => {
+        if (!prev.categoryName && list.length > 0) {
+          const match = initialData?.categoryId
+            ? list.find((c) => c.categoryId === initialData.categoryId)
+            : null;
+          return { ...prev, categoryName: match?.name || list[0].name };
+        }
+        return prev;
+      });
+    } catch (error) {
+      console.error("Failed to load categories:", error);
+      setErrors((prev) => ({
+        ...prev,
+        categoryName: "Failed to load categories.",
+      }));
+    } finally {
+      setLoadingCategories(false);
+    }
+  }, [initialData]);
+
+  useEffect(() => {
+    fetchCategories();
+  }, [fetchCategories]);
+
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: null }));
+    }
+  };
+
+  const handleJsonPrefill = (item) => {
+    const loadedCategory =
+      item.categoryName ||
+      item.CategoryName ||
+      item.category ||
+      item.Category ||
+      "";
+
+    setFormData((prev) => ({
+      ...prev,
+      name: (item.name || item.Name || prev.name || "").trim(),
+      description: (
+        item.description ||
+        item.Description ||
+        prev.description ||
+        ""
+      ).trim(),
+      categoryName: loadedCategory || prev.categoryName,
+      componentUrl: (
+        item.componentUrl ||
+        item.ComponentUrl ||
+        prev.componentUrl ||
+        ""
+      ).trim(),
+      icon: (item.icon || item.Icon || prev.icon || "").trim(),
+      isPremium: Boolean(item.isPremium ?? item.IsPremium ?? prev.isPremium),
+      isEnabled: Boolean(item.isEnabled ?? item.IsEnabled ?? prev.isEnabled),
+    }));
+    setErrors({});
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (validateForm()) {
+    const validationErrors = validateToolForm(formData);
+    setErrors(validationErrors);
+    if (Object.keys(validationErrors).length === 0) {
       onSave(formData);
-    } else {
-      console.log("Form validation failed:", errors);
     }
   };
 
@@ -198,33 +243,7 @@ export default function ToolForm({ initialData, onSave, onCancel, isLoading }) {
     <form onSubmit={handleSubmit} className="space-y-4">
       {errors.form && <p className="text-sm text-red-600">{errors.form}</p>}
 
-      {!initialData && (
-        <div className="flex items-center justify-between rounded-lg border border-indigo-100 bg-indigo-50/60 p-3 dark:border-indigo-900/50 dark:bg-indigo-950/40">
-          <div>
-            <p className="text-xs font-medium text-indigo-900 dark:text-indigo-200">
-              Quick Fill from Tool JSON
-            </p>
-            <p className="text-[11px] text-gray-500 dark:text-gray-400">
-              Upload a .json file to auto-populate form fields
-            </p>
-          </div>
-          <input
-            type="file"
-            ref={jsonFileInputRef}
-            onChange={handleJsonPrefill}
-            accept=".json,application/json"
-            className="hidden"
-          />
-          <Button
-            type="button"
-            variant="secondary"
-            size="sm"
-            onClick={() => jsonFileInputRef.current?.click()}
-          >
-            📁 Load JSON File
-          </Button>
-        </div>
-      )}
+      {!initialData && <JsonPrefillBanner onPrefill={handleJsonPrefill} />}
 
       <Input
         label="Tool Name"
@@ -257,41 +276,14 @@ export default function ToolForm({ initialData, onSave, onCancel, isLoading }) {
         placeholder="tools/category/ComponentName.jsx"
         maxLength={100}
       />
-      <div>
-        <label
-          htmlFor="categoryId"
-          className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
-        >
-          Category
-        </label>
-        {loadingCategories ? (
-          <Spinner size="sm" />
-        ) : (
-          <select
-            id="categoryName"
-            name="categoryName"
-            value={formData.categoryName}
-            onChange={handleCategoryChange}
-            required
-            className={`mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-indigo-400 ${errors.categoryName ? "border-red-500" : ""}`}
-          >
-            <option value="" disabled>
-              -- Select Category --
-            </option>
-            {categories.map((cat) => (
-              <option key={cat.categoryId} value={cat.name}>
-                {cat.name}
-              </option>
-            ))}
-          </select>
-        )}
-        {errors.categoryName && (
-          <p className="mt-1 text-xs text-red-600">{errors.categoryName}</p>
-        )}
-        {errors.category && (
-          <p className="mt-1 text-xs text-red-600">{errors.category}</p>
-        )}
-      </div>
+
+      <CategorySelectField
+        categories={categories}
+        value={formData.categoryName}
+        onChange={handleChange}
+        loading={loadingCategories}
+        error={errors.categoryName}
+      />
 
       <Input
         label="Icon Filename (optional, e.g., icon.svg)"

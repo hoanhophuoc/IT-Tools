@@ -21,21 +21,23 @@ export default function FavoriteButton({ toolId, onToggle, size = 18 }) {
     if (isProcessing) return;
     setIsProcessing(true);
 
-    let success = false;
-    if (isCurrentlyFavorite) {
-      success = await removeFavorite(toolId);
-    } else {
-      success = await addFavorite(toolId);
-    }
+    try {
+      let success = false;
+      if (isCurrentlyFavorite) {
+        success = await removeFavorite(toolId);
+      } else {
+        success = await addFavorite(toolId);
+      }
 
-    if (success && onToggle) {
-      onToggle(!isCurrentlyFavorite);
+      if (success && onToggle) {
+        onToggle(!isCurrentlyFavorite);
+      }
+      if (!success) {
+        alert(`Failed to ${isCurrentlyFavorite ? "remove" : "add"} favorite.`);
+      }
+    } finally {
+      setIsProcessing(false);
     }
-    if (!success) {
-      alert(`Failed to ${isCurrentlyFavorite ? "remove" : "add"} favorite.`);
-    }
-
-    setIsProcessing(false);
   };
 
   return (

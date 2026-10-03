@@ -5,6 +5,58 @@ import { apiGetCategorizedTools } from "@/lib/api";
 import { useAuth } from "@/hooks/useAuth";
 import Spinner from "@/components/ui/Spinner";
 
+function flattenTools(categories) {
+  return categories.flatMap((category) => category.tools || []);
+}
+
+function filterTools(tools, searchTerm) {
+  if (!searchTerm) return tools;
+  const lowerCaseSearch = searchTerm.toLowerCase();
+  return tools.filter(
+    (tool) =>
+      tool.name.toLowerCase().includes(lowerCaseSearch) ||
+      Boolean(tool.description && tool.description.toLowerCase().includes(lowerCaseSearch)),
+  );
+}
+
+function FavoriteToolsSection({ tools }) {
+  if (tools.length === 0) return null;
+  return (
+    <section>
+      <h2 className="mb-4 text-xl font-semibold text-gray-700 dark:text-gray-300">
+        Your favorite tools ❤️
+      </h2>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+        {tools.map((tool) => (
+          <ToolCard key={tool.toolId} tool={tool} />
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function AllToolsSection({ premiumTools, freeTools, hasFavorites }) {
+  if (premiumTools.length === 0 && freeTools.length === 0) return null;
+  return (
+    <section>
+      {hasFavorites && (
+        <hr className="my-8 border-gray-300 dark:border-gray-600" />
+      )}
+      <h2 className="mb-4 text-xl font-semibold text-gray-700 dark:text-gray-300">
+        All the tools
+      </h2>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+        {premiumTools.map((tool) => (
+          <ToolCard key={tool.toolId} tool={tool} />
+        ))}
+        {freeTools.map((tool) => (
+          <ToolCard key={tool.toolId} tool={tool} />
+        ))}
+      </div>
+    </section>
+  );
+}
+
 export default function RootHomePage() {
   const [categorizedTools, setCategorizedTools] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -16,7 +68,6 @@ export default function RootHomePage() {
     loading: authLoading,
     searchTerm,
   } = useAuth();
-  console.log("Home Page rendering with searchTerm:", searchTerm);
 
   const fetchInitialData = useCallback(async () => {
     setLoading(true);
@@ -38,22 +89,14 @@ export default function RootHomePage() {
   }, [fetchInitialData]);
 
   const allTools = useMemo(
-    () => categorizedTools.flatMap((category) => category.tools || []),
+    () => flattenTools(categorizedTools),
     [categorizedTools],
   );
 
-  const filteredTools = useMemo(() => {
-    if (!searchTerm) {
-      return allTools;
-    }
-    const lowerCaseSearch = searchTerm.toLowerCase();
-    return allTools.filter(
-      (tool) =>
-        tool.name.toLowerCase().includes(lowerCaseSearch) ||
-        (tool.description &&
-          tool.description.toLowerCase().includes(lowerCaseSearch)),
-    );
-  }, [allTools, searchTerm]);
+  const filteredTools = useMemo(
+    () => filterTools(allTools, searchTerm),
+    [allTools, searchTerm],
+  );
 
   const favoriteToolsList = useMemo(
     () =>
@@ -69,8 +112,16 @@ export default function RootHomePage() {
     () => filteredTools.filter((tool) => !favoriteToolIds.has(tool.toolId)),
     [filteredTools, favoriteToolIds],
   );
-  const premiumTools = nonFavoriteTools.filter((tool) => tool.isPremium);
-  const freeTools = nonFavoriteTools.filter((tool) => !tool.isPremium);
+
+  const premiumTools = useMemo(
+    () => nonFavoriteTools.filter((tool) => tool.isPremium),
+    [nonFavoriteTools],
+  );
+
+  const freeTools = useMemo(
+    () => nonFavoriteTools.filter((tool) => !tool.isPremium),
+    [nonFavoriteTools],
+  );
 
   if (loading || authLoading) {
     return (
@@ -80,7 +131,8 @@ export default function RootHomePage() {
     );
   }
 
-  const noResultsFound = !error && searchTerm && filteredTools.length === 0;
+  const hasFavorites = isAuthenticated && favoriteToolsList.length > 0;
+  const noResultsFound = !error && Boolean(searchTerm) && filteredTools.length === 0;
   const noToolsAvailable = !error && !searchTerm && allTools.length === 0;
 
   return (
@@ -93,38 +145,17 @@ export default function RootHomePage() {
       {noResultsFound && (
         <p className="...">No tools found matching "{searchTerm}".</p>
       )}
-      {isAuthenticated && favoriteToolsList.length > 0 && !noResultsFound && (
-        <section>
-          <h2 className="mb-4 text-xl font-semibold text-gray-700 dark:text-gray-300">
-            Your favorite tools ❤️
-          </h2>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-            {favoriteToolsList.map((tool) => (
-              <ToolCard key={tool.toolId} tool={tool} />
-            ))}
-          </div>
-        </section>
+      {!noResultsFound && (
+        <>
+          {hasFavorites && <FavoriteToolsSection tools={favoriteToolsList} />}
+          <AllToolsSection
+            premiumTools={premiumTools}
+            freeTools={freeTools}
+            hasFavorites={hasFavorites}
+          />
+        </>
       )}
-      {(premiumTools.length > 0 || freeTools.length > 0) && !noResultsFound && (
-        <section>
-          {isAuthenticated && favoriteToolsList.length > 0 && (
-            <hr className="my-8 border-gray-300 dark:border-gray-600" />
-          )}
-
-          <h2 className="mb-4 text-xl font-semibold text-gray-700 dark:text-gray-300">
-            All the tools
-          </h2>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-            {premiumTools.map((tool) => (
-              <ToolCard key={tool.toolId} tool={tool} />
-            ))}
-            {freeTools.map((tool) => (
-              <ToolCard key={tool.toolId} tool={tool} />
-            ))}
-          </div>
-        </section>
-      )}
-      {!error && noToolsAvailable && allTools.length === 0 && !loading && (
+      {noToolsAvailable && (
         <p className="mt-10 text-center text-gray-500 dark:text-gray-400">
           No tools available at the moment. Check back later!
         </p>
