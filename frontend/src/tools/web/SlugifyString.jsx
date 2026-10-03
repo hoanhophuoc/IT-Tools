@@ -3,23 +3,25 @@
 import { useState, useMemo } from "react";
 import TextArea from "@/components/ui/TextArea";
 import CopyToClipboardButton from "@/components/ui/CopyToClipboardButton";
-import slugify from "slugify";
+
+function slugify(text) {
+  if (!text) return "";
+  return text
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/[\s-]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
 
 export default function SlugifyString() {
   const [inputString, setInputString] = useState("");
 
   const generatedSlug = useMemo(() => {
-    try {
-      return slugify(inputString);
-    } catch (error) {
-      console.error("Slugify error:", error);
-      return "Error generating slug";
-    }
+    return slugify(inputString);
   }, [inputString]);
-
-  const handleInputChange = (e) => {
-    setInputString(e.target.value);
-  };
 
   return (
     <div className="space-y-6">
@@ -27,7 +29,7 @@ export default function SlugifyString() {
         label="Your string to slugify:"
         id="inputString"
         value={inputString}
-        onChange={handleInputChange}
+        onChange={(e) => setInputString(e.target.value)}
         placeholder="Put your string here (ex: My File Path!)"
         rows={5}
         autoFocus
@@ -44,7 +46,7 @@ export default function SlugifyString() {
       <div className="flex justify-center pt-2">
         <CopyToClipboardButton
           textToCopy={generatedSlug}
-          disabled={!generatedSlug || generatedSlug === "Error generating slug"}
+          disabled={!generatedSlug}
           buttonText="Copy Slug"
         />
       </div>

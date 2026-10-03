@@ -29,8 +29,10 @@ export default function SvgPlaceholderGenerator() {
   const svgString = useMemo(() => {
     const w = width || 1;
     const h = height || 1;
-    const text = customText.trim().length > 0 ? customText.trim() : `${w}x${h}`;
-    const escapedText = text.replace(/</g, "<").replace(/>/g, ">");
+    const escapedText = text
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
     const sizeAttrs = useExactSize ? ` width="${w}" height="${h}"` : "";
 
     return `

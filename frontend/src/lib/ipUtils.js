@@ -32,18 +32,6 @@ export function ipv4ToIpv6(ip, shortFormat = false) {
     return `0000:0000:0000:0000:0000:ffff:${hexPart1}:${hexPart2}`;
   }
 }
-export function convertBase(value, fromBase, toBase) {
-  if (value === null || value === undefined || value === "") return "";
-  try {
-    const decimalValue = parseInt(String(value), fromBase);
-    if (isNaN(decimalValue)) {
-      throw new Error("Input is not a valid number in the specified base.");
-    }
-    return decimalValue.toString(toBase);
-  } catch (e) {
-    return "Invalid input";
-  }
-}
 export function calculateCidrFromRange(startIp, endIp) {
   if (!isValidIpv4(startIp) || !isValidIpv4(endIp)) {
     return null;

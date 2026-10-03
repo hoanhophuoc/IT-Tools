@@ -1,9 +1,0 @@
-{
-  "name": "UUID Generator",
-  "description": "Generate UUIDs / GUIDs version 1 and 4 in uppercase, lowercase, with or without hyphens.",
-  "categoryName": "Development",
-  "componentUrl": "tools/development/UuidGenerator.jsx",
-  "icon": "uuid-generator.svg",
-  "isPremium": false,
-  "isEnabled": true
-}

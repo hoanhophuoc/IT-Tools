@@ -1,5 +1,3 @@
-using AutoMapper;
-using AutoMapper.QueryableExtensions;
 using IT_Tools.Data;
 using IT_Tools.Dtos.Admin;
 using IT_Tools.Dtos.Auth;
@@ -11,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace IT_Tools.Services;
 
-public class AdminService(PostgreSQLContext context, IMapper mapper)
+public class AdminService(PostgreSQLContext context)
 {
     /// <summary>
     /// Gets all tools (including disabled ones) for admin view.
@@ -19,7 +17,20 @@ public class AdminService(PostgreSQLContext context, IMapper mapper)
     public async Task<IEnumerable<AdminToolDto>> GetAllToolsAsync() => await context.Tools
             .Include(t => t.Category)
             .OrderBy(t => t.Name)
-            .ProjectTo<AdminToolDto>(mapper.ConfigurationProvider) // Use ProjectTo for efficiency
+            .Select(t => new AdminToolDto
+            {
+                ToolId = t.ToolId,
+                Name = t.Name,
+                Description = t.Description,
+                Slug = t.Slug,
+                Icon = t.Icon,
+                IsPremium = t.IsPremium,
+                CategoryId = t.CategoryId,
+                CategoryName = t.Category != null ? t.Category.Name : string.Empty,
+                ComponentUrl = t.ComponentUrl,
+                IsEnabled = t.IsEnabled,
+                CreatedAt = t.CreatedAt,
+            })
             .ToListAsync();
 
     /// <summary>
@@ -28,7 +39,11 @@ public class AdminService(PostgreSQLContext context, IMapper mapper)
     public async Task<IEnumerable<AdminCategoryDto>> GetCategoriesAsync() =>
         await context.Categories
             .OrderBy(t => t.Name)
-            .ProjectTo<AdminCategoryDto>(mapper.ConfigurationProvider)
+            .Select(c => new AdminCategoryDto
+            {
+                CategoryId = c.CategoryId,
+                Name = c.Name,
+            })
             .ToListAsync();
 
     // --- Upgrade Request Management 
@@ -39,7 +54,14 @@ public class AdminService(PostgreSQLContext context, IMapper mapper)
             .Include(ur => ur.User)
             .Where(ur => ur.Status == "Pending")
             .OrderBy(ur => ur.RequestedAt)
-            .ProjectTo<UpgradeRequestDto>(mapper.ConfigurationProvider)
+            .Select(ur => new UpgradeRequestDto
+            {
+                RequestId = ur.RequestId,
+                UserId = ur.UserId,
+                Username = ur.User != null ? ur.User.Username : "N/A",
+                Status = ur.Status,
+                RequestedAt = ur.RequestedAt,
+            })
             .ToListAsync();
 
     /// <summary>
@@ -71,12 +93,17 @@ public class AdminService(PostgreSQLContext context, IMapper mapper)
     }
 
     /// <summary>
-    /// Gets all tools (including disabled ones) for admin view.
+    /// Gets all users for admin view.
     /// </summary>
     public async Task<IEnumerable<AdminUserDto>> GetAllUsersAsync() => await context.Users
-            .ProjectTo<AdminUserDto>(mapper.ConfigurationProvider)
+            .Select(u => new AdminUserDto
+            {
+                UserId = u.UserId,
+                Username = u.Username,
+                Role = u.Role,
+                CreatedAt = u.CreatedAt,
+            })
             .ToListAsync();
-
 
     /// <summary>
     /// Creates a new tool.
@@ -109,10 +136,18 @@ public class AdminService(PostgreSQLContext context, IMapper mapper)
             return false;
         }
 
-        var newTool = mapper.Map<Tool>(createDto);
-        newTool.Slug = generatedSlug;
-        newTool.CategoryId = category.CategoryId;
-        newTool.CreatedAt = DateTime.UtcNow;
+        var newTool = new Tool
+        {
+            Name = createDto.Name,
+            Description = createDto.Description ?? string.Empty,
+            Icon = createDto.Icon ?? string.Empty,
+            ComponentUrl = createDto.ComponentUrl,
+            IsEnabled = createDto.IsEnabled,
+            IsPremium = createDto.IsPremium,
+            Slug = generatedSlug,
+            CategoryId = category.CategoryId,
+            CreatedAt = DateTime.UtcNow,
+        };
 
         await context.Tools.AddAsync(newTool);
         await context.SaveChangesAsync();
@@ -129,7 +164,12 @@ public class AdminService(PostgreSQLContext context, IMapper mapper)
             return false;
         }
 
-        mapper.Map(updateDto, tool);
+        tool.Name = updateDto.Name;
+        tool.Description = updateDto.Description ?? tool.Description;
+        tool.Icon = updateDto.Icon ?? tool.Icon;
+        tool.ComponentUrl = updateDto.ComponentUrl;
+        tool.IsEnabled = updateDto.IsEnabled;
+        tool.IsPremium = updateDto.IsPremium;
 
         var category = await context.Categories
                                     .AsNoTracking()

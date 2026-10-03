@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react";
 import Input from "@/components/ui/Input";
 import InfoRow from "@/components/ui/InfoRow";
-import { isValidIpv4, ipv4ToInt, ipv4ToIpv6, convertBase } from "@/lib/ipUtils";
+import { isValidIpv4, ipv4ToInt, ipv4ToIpv6 } from "@/lib/ipUtils";
 
 export default function Ipv4AddressConverter() {
   const [rawIpAddress, setRawIpAddress] = useState("192.168.1.1");
@@ -31,8 +31,8 @@ export default function Ipv4AddressConverter() {
 
       return {
         decimal: String(ipInt),
-        hexadecimal: convertBase(ipInt, 10, 16).toUpperCase(),
-        binary: convertBase(ipInt, 10, 2).padStart(32, "0"),
+        hexadecimal: ipInt.toString(16).toUpperCase(),
+        binary: ipInt.toString(2).padStart(32, "0"),
         ipv6: ipv4ToIpv6(ip),
         ipv6Short: ipv4ToIpv6(ip, true),
       };

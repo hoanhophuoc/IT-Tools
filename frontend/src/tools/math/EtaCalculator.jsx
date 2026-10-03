@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { format } from "date-fns";
-import { formatMsDuration } from "@/lib/dateUtils";
+import { formatMsDuration, formatDateDdMmYyyyHhMm } from "@/lib/dateUtils";
 import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
 
@@ -113,11 +112,7 @@ export default function EtaCalculator() {
 
   const formattedEndDate = useMemo(() => {
     if (calculationError || !endDate) return "N/A";
-    try {
-      return format(endDate, "dd/MM/yyyy HH:mm");
-    } catch {
-      return "Invalid Date";
-    }
+    return formatDateDdMmYyyyHhMm(endDate);
   }, [endDate, calculationError]);
 
   return (

@@ -3,56 +3,30 @@
 import { useState, useMemo } from "react";
 import Button from "@/components/ui/Button";
 import CopyToClipboardButton from "@/components/ui/CopyToClipboardButton";
-
-function utf8ToBase64(str, urlSafe = false) {
-  const bytes = new TextEncoder().encode(str);
-  let binary = "";
-  for (let i = 0; i < bytes.byteLength; i++) {
-    binary += String.fromCharCode(bytes[i]);
-  }
-  let b64 = btoa(binary);
-  if (urlSafe) {
-    b64 = b64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
-  }
-  return b64;
-}
-
-function base64ToUtf8(b64) {
-  let normalized = b64.replace(/-/g, "+").replace(/_/g, "/");
-  while (normalized.length % 4) {
-    normalized += "=";
-  }
-  const binary = atob(normalized);
-  const bytes = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i++) {
-    bytes[i] = binary.charCodeAt(i);
-  }
-  return new TextDecoder().decode(bytes);
-}
+import { utf8ToBase64, base64ToUtf8 } from "@/lib/utils";
 
 export default function Base64StringConverter() {
   const [input, setInput] = useState("Hello, IT-Tools!");
   const [mode, setMode] = useState("encode"); // encode | decode
   const [urlSafe, setUrlSafe] = useState(false);
-  const [error, setError] = useState("");
 
-  const output = useMemo(() => {
-    setError("");
-    if (!input) return "";
+  const { output, error } = useMemo(() => {
+    if (!input) return { output: "", error: "" };
 
     try {
       if (mode === "encode") {
-        return utf8ToBase64(input, urlSafe);
+        return { output: utf8ToBase64(input, urlSafe), error: "" };
       } else {
-        return base64ToUtf8(input);
+        return { output: base64ToUtf8(input), error: "" };
       }
     } catch (err) {
-      setError(
-        mode === "decode"
-          ? "Invalid Base64 input string."
-          : `Encoding error: ${err.message}`,
-      );
-      return "";
+      return {
+        output: "",
+        error:
+          mode === "decode"
+            ? "Invalid Base64 input string."
+            : `Encoding error: ${err.message}`,
+      };
     }
   }, [input, mode, urlSafe]);
 

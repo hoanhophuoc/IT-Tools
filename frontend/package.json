@@ -10,8 +10,6 @@
     "doctor": "npx react-doctor@latest"
   },
   "dependencies": {
-    "country-code-lookup": "^0.1.5",
-    "date-fns": "^4.4.0",
     "ibantools": "^4.5.4",
     "libphonenumber-js": "^1.13.14",
     "mathjs": "^15.2.0",
@@ -20,8 +18,7 @@
     "qrcode.react": "^4.2.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
-    "react-icons": "^5.7.0",
-    "slugify": "^1.6.9"
+    "react-icons": "^5.7.0"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.3.3",

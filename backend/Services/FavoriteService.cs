@@ -1,5 +1,3 @@
-﻿using AutoMapper;
-using AutoMapper.QueryableExtensions;
 using IT_Tools.Data;
 using IT_Tools.Dtos.Tools;
 using IT_Tools.Models;
@@ -7,17 +5,24 @@ using Microsoft.EntityFrameworkCore;
 
 namespace IT_Tools.Services;
 
-public class FavoriteService(PostgreSQLContext context, IMapper mapper)
+public class FavoriteService(PostgreSQLContext context)
 {
-
     /// <summary>
     /// Gets the favorite tools for a specific user.
     /// </summary>
     public async Task<IEnumerable<ToolSummaryDto>> GetUserFavoritesAsync(int userId) => await context.FavoriteTools
             .Where(ft => ft.UserId == userId && ft.Tool != null && ft.Tool.IsEnabled)
-            .OrderBy(ft => ft.Tool.Name)
-            .Select(ft => ft.Tool)
-            .ProjectTo<ToolSummaryDto>(mapper.ConfigurationProvider)
+            .OrderBy(ft => ft.Tool!.Name)
+            .Select(ft => new ToolSummaryDto
+            {
+                ToolId = ft.Tool!.ToolId,
+                Name = ft.Tool.Name,
+                Description = ft.Tool.Description,
+                Slug = ft.Tool.Slug,
+                Icon = ft.Tool.Icon,
+                IsPremium = ft.Tool.IsPremium,
+                IsFavorite = true,
+            })
             .ToListAsync();
 
     /// <summary>

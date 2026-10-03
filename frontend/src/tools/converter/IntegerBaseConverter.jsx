@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Input from "@/components/ui/Input";
 import InfoRow from "@/components/ui/InfoRow";
 
@@ -10,7 +10,6 @@ const BASES = [
   { label: "Hexadecimal (16)", value: 16, regex: /^[0-9a-fA-F]+$/ },
   { label: "Base64 (64)", value: 64, regex: /^[A-Za-z0-9+/=]+$/ },
 ];
-
 
 function base64ToDecimal(str) {
   try {
@@ -24,6 +23,7 @@ function base64ToDecimal(str) {
     return "";
   }
 }
+
 function decimalToBase64(numStr) {
   try {
     let n = BigInt(numStr);
@@ -40,9 +40,9 @@ function decimalToBase64(numStr) {
 }
 
 function convertAllBases(input, inputBase) {
-  let dec = "";
   if (!input) return { 2: "", 8: "", 10: "", 16: "", 64: "" };
 
+  let dec = "";
   if (inputBase === 64) {
     dec = base64ToDecimal(input);
     if (!dec) return { 2: "", 8: "", 10: "", 16: "", 64: "" };
@@ -75,7 +75,11 @@ export default function IntegerBaseConverter() {
   const baseObj = BASES.find((b) => b.value === Number(base));
   const isValid = baseObj?.regex.test(input);
 
-  const results = isValid ? convertAllBases(input, Number(base)) : { 2: "", 8: "", 10: "", 16: "", 64: "" };
+  const results = useMemo(() => {
+    return isValid
+      ? convertAllBases(input, Number(base))
+      : { 2: "", 8: "", 10: "", 16: "", 64: "" };
+  }, [input, base, isValid]);
 
   return (
     <div className="space-y-4">
@@ -96,10 +100,7 @@ export default function IntegerBaseConverter() {
         <select
           className="block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-indigo-400"
           value={base}
-          onChange={(e) => {
-            setBase(Number(e.target.value));
-            setError("");
-          }}
+          onChange={(e) => setBase(Number(e.target.value))}
         >
           {BASES.map((b) => (
             <option key={b.value} value={b.value}>

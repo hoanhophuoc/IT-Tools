@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using BCryptNet = BCrypt.Net.BCrypt;
 using IT_Tools.Data;
 using IT_Tools.Dtos.Auth;
 using IT_Tools.Models;
@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace IT_Tools.Services;
 
-public class AuthService(PostgreSQLContext context, IMapper mapper, PasswordHasherService passwordHasher, JwtTokenService jwtTokenService)
+public class AuthService(PostgreSQLContext context, JwtTokenService jwtTokenService)
 {
     public async Task<User?> RegisterAsync(RegisterRequestDto registerDto)
     {
@@ -15,9 +15,13 @@ public class AuthService(PostgreSQLContext context, IMapper mapper, PasswordHash
             return null;
         }
 
-        var newUser = mapper.Map<User>(registerDto);
-
-        newUser.Password = passwordHasher.HashPassword(registerDto.Password);
+        var newUser = new User
+        {
+            Username = registerDto.Username,
+            Password = BCryptNet.HashPassword(registerDto.Password),
+            Role = "User",
+            CreatedAt = DateTime.UtcNow,
+        };
 
         await context.Users.AddAsync(newUser);
         await context.SaveChangesAsync();
@@ -29,17 +33,20 @@ public class AuthService(PostgreSQLContext context, IMapper mapper, PasswordHash
     {
         var user = await context.Users.FirstOrDefaultAsync(u => u.Username == loginDto.Username);
 
-        if (user == null || !passwordHasher.VerifyPassword(loginDto.Password, user.Password))
+        if (user == null || !VerifyPasswordSafely(loginDto.Password, user.Password))
         {
             return null;
         }
 
         var token = jwtTokenService.GenerateToken(user);
 
-        var response = mapper.Map<LoginResponseDto>(user);
-        response.Token = token;
-
-        return response;
+        return new LoginResponseDto
+        {
+            UserId = user.UserId,
+            Username = user.Username,
+            Role = user.Role,
+            Token = token,
+        };
     }
 
     public async Task<bool> ChangePasswordAsync(ChangePasswordRequestDto changePasswordDto)
@@ -51,12 +58,12 @@ public class AuthService(PostgreSQLContext context, IMapper mapper, PasswordHash
             return false;
         }
 
-        if (!passwordHasher.VerifyPassword(changePasswordDto.OldPassword, user.Password))
+        if (!VerifyPasswordSafely(changePasswordDto.OldPassword, user.Password))
         {
             return false;
         }
 
-        user.Password = passwordHasher.HashPassword(changePasswordDto.NewPassword);
+        user.Password = BCryptNet.HashPassword(changePasswordDto.NewPassword);
         context.Users.Update(user);
         await context.SaveChangesAsync();
         return true;
@@ -71,10 +78,23 @@ public class AuthService(PostgreSQLContext context, IMapper mapper, PasswordHash
             return false;
         }
 
-        user.Password = passwordHasher.HashPassword(forgotPasswordDto.NewPassword);
+        user.Password = BCryptNet.HashPassword(forgotPasswordDto.NewPassword);
         context.Users.Update(user);
         await context.SaveChangesAsync();
 
         return true;
+    }
+
+    private static bool VerifyPasswordSafely(string providedPassword, string passwordHash)
+    {
+        try
+        {
+            return BCryptNet.Verify(providedPassword, passwordHash);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error verifying password: {ex.Message}");
+            return false;
+        }
     }
 }

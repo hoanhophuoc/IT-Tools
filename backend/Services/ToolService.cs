@@ -1,4 +1,3 @@
-﻿using AutoMapper;
 using IT_Tools.Data;
 using IT_Tools.Dtos.Categories;
 using IT_Tools.Dtos.Tools;
@@ -6,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace IT_Tools.Services;
 
-public class ToolService(PostgreSQLContext context, IMapper mapper)
+public class ToolService(PostgreSQLContext context)
 {
     /// <summary>
     /// Gets all enabled tools grouped by category, ordered appropriately.
@@ -29,18 +28,29 @@ public class ToolService(PostgreSQLContext context, IMapper mapper)
                 .ToHashSetAsync();
         }
 
-        var categoryDtos = mapper.Map<List<CategoryWithToolsDto>>(categories);
-
-        foreach (var categoryDto in categoryDtos)
-        {
-            foreach (var toolDto in categoryDto.Tools)
+        var categoryDtos = categories
+            .Select(c => new CategoryWithToolsDto
             {
-                toolDto.IsFavorite = favoriteToolIds?.Contains(toolDto.ToolId) ?? false;
-            }
-            categoryDto.Tools = [.. categoryDto.Tools.OrderBy(t => t.Name)];
-        }
+                CategoryId = c.CategoryId,
+                Name = c.Name,
+                Tools = c.Tools
+                    .Where(t => t.IsEnabled)
+                    .OrderBy(t => t.Name)
+                    .Select(t => new ToolSummaryDto
+                    {
+                        ToolId = t.ToolId,
+                        Name = t.Name,
+                        Description = t.Description,
+                        Slug = t.Slug,
+                        Icon = t.Icon,
+                        IsPremium = t.IsPremium,
+                        IsFavorite = favoriteToolIds?.Contains(t.ToolId) ?? false,
+                    })
+                    .ToList()
+            })
+            .Where(c => c.Tools.Count != 0);
 
-        return categoryDtos.Where(c => c.Tools.Any());
+        return categoryDtos;
     }
 
     /// <summary>
@@ -57,11 +67,19 @@ public class ToolService(PostgreSQLContext context, IMapper mapper)
 
         if (toolEntity == null) return null;
 
-        var toolDto = mapper.Map<ToolDetailsDto>(toolEntity);
-
-        toolDto.IsFavorite = userId.HasValue && await context.FavoriteTools
+        var isFavorite = userId.HasValue && await context.FavoriteTools
                 .AnyAsync(ft => ft.UserId == userId.Value && ft.ToolId == toolEntity.ToolId);
 
-        return toolDto;
+        return new ToolDetailsDto
+        {
+            ToolId = toolEntity.ToolId,
+            Name = toolEntity.Name,
+            Description = toolEntity.Description,
+            Slug = toolEntity.Slug,
+            Icon = toolEntity.Icon,
+            IsPremium = toolEntity.IsPremium,
+            ComponentUrl = toolEntity.ComponentUrl,
+            IsFavorite = isFavorite,
+        };
     }
 }

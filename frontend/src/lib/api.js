@@ -109,12 +109,6 @@ export const apiAdminUpdateTool = (id, toolData) =>
     body: JSON.stringify(toolData),
   });
 
-export const apiAdminUpdateToolStatus = (id, statusData) =>
-  fetchWithAuth(`/admin/tools/${id}/status`, {
-    method: "PUT",
-    body: JSON.stringify(statusData),
-  });
-
 export const apiAdminDeleteTool = (id) =>
   fetchWithAuth(`/admin/tools/${id}`, { method: "DELETE" });
 

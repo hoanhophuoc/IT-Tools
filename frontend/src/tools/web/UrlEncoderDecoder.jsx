@@ -1,56 +1,30 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useMemo } from "react";
 import TextArea from "@/components/ui/TextArea";
 import CopyToClipboardButton from "@/components/ui/CopyToClipboardButton";
 
 export default function UrlEncoderDecoder() {
   const [encodeInput, setEncodeInput] = useState("Hello world :)");
-  const [encodeOutput, setEncodeOutput] = useState("");
-  const [encodeError, setEncodeError] = useState("");
-
   const [decodeInput, setDecodeInput] = useState("Hello%20world%20%3A%29");
-  const [decodeOutput, setDecodeOutput] = useState("");
-  const [decodeError, setDecodeError] = useState("");
 
-  const handleEncodeInputChange = (e) => {
-    const value = e.target.value;
-    setEncodeInput(value);
-    setEncodeError("");
+  const { encodeOutput, encodeError } = useMemo(() => {
+    if (!encodeInput) return { encodeOutput: "", encodeError: "" };
     try {
-      setEncodeOutput(encodeURIComponent(value));
-    } catch (err) {
-      console.error("Encoding error:", err);
-      setEncodeError("Failed to encode this string.");
-      setEncodeOutput("");
-    }
-  };
-
-  const handleDecodeInputChange = (e) => {
-    const value = e.target.value;
-    setDecodeInput(value);
-    setDecodeError("");
-    try {
-      setDecodeOutput(decodeURIComponent(value));
-    } catch (err) {
-      console.error("Decoding error:", err);
-      setDecodeError("Invalid URI sequence.");
-      setDecodeOutput("");
-    }
-  };
-
-  useEffect(() => {
-    try {
-      setEncodeOutput(encodeURIComponent("Hello world :)"));
+      return { encodeOutput: encodeURIComponent(encodeInput), encodeError: "" };
     } catch {
-      setEncodeOutput("");
+      return { encodeOutput: "", encodeError: "Failed to encode this string." };
     }
+  }, [encodeInput]);
+
+  const { decodeOutput, decodeError } = useMemo(() => {
+    if (!decodeInput) return { decodeOutput: "", decodeError: "" };
     try {
-      setDecodeOutput(decodeURIComponent("Hello%20world%20%3A%29"));
+      return { decodeOutput: decodeURIComponent(decodeInput), decodeError: "" };
     } catch {
-      setDecodeOutput("");
+      return { decodeOutput: "", decodeError: "Invalid URI sequence." };
     }
-  }, []);
+  }, [decodeInput]);
 
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
@@ -62,7 +36,7 @@ export default function UrlEncoderDecoder() {
           label="Your string:"
           id="encodeInput"
           value={encodeInput}
-          onChange={handleEncodeInputChange}
+          onChange={(e) => setEncodeInput(e.target.value)}
           placeholder="The string to encode"
           rows={4}
           error={encodeError}
@@ -92,7 +66,7 @@ export default function UrlEncoderDecoder() {
           label="Your encoded string:"
           id="decodeInput"
           value={decodeInput}
-          onChange={handleDecodeInputChange}
+          onChange={(e) => setDecodeInput(e.target.value)}
           placeholder="The string to decode (e.g., Hello%20world)"
           rows={4}
           error={decodeError}

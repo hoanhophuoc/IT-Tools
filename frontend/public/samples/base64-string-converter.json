@@ -1,9 +1,0 @@
-{
-  "name": "Base64 String Converter",
-  "description": "Encode and decode strings to and from Base64 representation with live real-time conversion.",
-  "categoryName": "Converter",
-  "componentUrl": "tools/converter/Base64StringConverter.jsx",
-  "icon": "base64-converter.svg",
-  "isPremium": false,
-  "isEnabled": true
-}

@@ -27,26 +27,59 @@ export const formatDate = (dateInput) => {
   }
 };
 
-export const utf8ToBase64 = (str) => {
-  if (typeof window !== "undefined" && typeof window.btoa === "function") {
-    try {
-      return window.btoa(unescape(encodeURIComponent(str)));
-    } catch (e) {
-      console.error("Base64 encoding failed:", e);
-      try {
-        return window.btoa(str);
-      } catch {
-        return "";
-      }
+export const utf8ToBase64 = (str, urlSafe = false) => {
+  if (!str) return "";
+  try {
+    const bytes = new TextEncoder().encode(str);
+    let binary = "";
+    for (let i = 0; i < bytes.byteLength; i++) {
+      binary += String.fromCharCode(bytes[i]);
     }
-  } else {
-    try {
-      return Buffer.from(str, "utf-8").toString("base64");
-    } catch {
-      return "";
+    let b64 = btoa(binary);
+    if (urlSafe) {
+      b64 = b64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
     }
+    return b64;
+  } catch (e) {
+    console.error("Base64 encoding failed:", e);
+    return "";
   }
 };
+
+export const base64ToUtf8 = (b64) => {
+  if (!b64) return "";
+  let normalized = b64.replace(/-/g, "+").replace(/_/g, "/");
+  while (normalized.length % 4) {
+    normalized += "=";
+  }
+  const binary = atob(normalized);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+  return new TextDecoder().decode(bytes);
+};
+
+export function loadScript(src) {
+  return new Promise((resolve, reject) => {
+    if (typeof document === "undefined") {
+      reject(new Error("Document is undefined"));
+      return;
+    }
+    const existing = document.querySelector(`script[src="${src}"]`);
+    if (existing) {
+      resolve(src);
+      return;
+    }
+    const script = document.createElement("script");
+    script.src = src;
+    script.async = true;
+    script.setAttribute("data-dynamic-script", "true");
+    script.onload = () => resolve(src);
+    script.onerror = () => reject(new Error(`Failed to load script: ${src}`));
+    document.body.appendChild(script);
+  });
+}
 
 export function handleHexColorChange(setter) {
   return (e) => {

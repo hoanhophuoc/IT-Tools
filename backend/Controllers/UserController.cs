@@ -1,12 +1,14 @@
-﻿using IT_Tools.Dtos.User;
-using IT_Tools.Services;
+using IT_Tools.Data;
+using IT_Tools.Dtos.User;
+using IT_Tools.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace IT_Tools.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class UserController(UserService userService) : ControllerBase
+public class UserController(PostgreSQLContext context) : ControllerBase
 {
     [HttpPost("upgrade-requests")]
     [ProducesResponseType(StatusCodes.Status201Created)]
@@ -17,8 +19,20 @@ public class UserController(UserService userService) : ControllerBase
         {
             return BadRequest(ModelState);
         }
-        var success = await userService.CreateUpgradeRequestAsync(createDto);
 
-        return !success ? BadRequest(new { message = "Failed to create request. Request already existed, please wait for administrator decision." }) : Created();
+        var requestExists = await context.UpgradeRequests.AnyAsync(c => c.UserId == createDto.UserId && c.Status == "Pending");
+        if (requestExists)
+        {
+            return BadRequest(new { message = "Failed to create request. Request already existed, please wait for administrator decision." });
+        }
+
+        var newRequest = new UpgradeRequest
+        {
+            UserId = createDto.UserId,
+        };
+        await context.UpgradeRequests.AddAsync(newRequest);
+        await context.SaveChangesAsync();
+
+        return Created();
     }
 }

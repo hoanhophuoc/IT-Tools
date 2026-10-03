@@ -9,17 +9,6 @@ import Button from "@/components/ui/Button";
 import FavoriteButton from "@/components/ui/FavoriteButton";
 import { useAuth } from "@/hooks/useAuth";
 
-const getComponentPath = (componentUrl) => {
-  if (
-    !componentUrl ||
-    typeof componentUrl !== "string" ||
-    !componentUrl.startsWith("tools/")
-  ) {
-    return null;
-  }
-  return `@/${componentUrl.replace(/\.jsx?$/, "")}`;
-};
-
 export default function ToolPage() {
   const params = useParams();
   const router = useRouter();

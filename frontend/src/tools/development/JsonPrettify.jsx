@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useMemo } from "react";
 import TextArea from "@/components/ui/TextArea";
 import Input from "@/components/ui/Input";
 import CopyToClipboardButton from "@/components/ui/CopyToClipboardButton";
@@ -23,32 +23,22 @@ export default function JsonPrettify() {
   const [input, setInput] = useState('{"hello": "world", "foo": "bar"}');
   const [indent, setIndent] = useState(2);
   const [sort, setSort] = useState(false);
-  const [output, setOutput] = useState("");
-  const [error, setError] = useState("");
 
-  const prettify = (raw, indentSize, sortKeys) => {
+  const { output, error } = useMemo(() => {
+    if (!input || indent === 0 || indent === "") {
+      return { output: "", error: "" };
+    }
     try {
-      const obj = JSON.parse(raw);
+      const obj = JSON.parse(input);
       const pretty = JSON.stringify(
-        sortKeys ? sortObject(obj) : obj,
+        sort ? sortObject(obj) : obj,
         null,
-        indentSize,
+        indent,
       );
-      setOutput(pretty);
-      setError("");
-    } catch (e) {
-      setOutput("");
-      setError("Invalid JSON format");
+      return { output: pretty, error: "" };
+    } catch {
+      return { output: "", error: "Invalid JSON format" };
     }
-  };
-
-  useEffect(() => {
-    if (indent === 0 || indent === "") {
-      setOutput("");
-      setError("");
-      return;
-    }
-    prettify(input, indent, sort);
   }, [input, indent, sort]);
 
   return (

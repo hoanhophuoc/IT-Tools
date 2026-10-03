@@ -3,29 +3,7 @@
 import { useState, useMemo } from "react";
 import CopyToClipboardButton from "@/components/ui/CopyToClipboardButton";
 import Button from "@/components/ui/Button";
-
-function base64UrlDecode(str) {
-  let output = str.replace(/-/g, "+").replace(/_/g, "/");
-  switch (output.length % 4) {
-    case 0:
-      break;
-    case 2:
-      output += "==";
-      break;
-    case 3:
-      output += "=";
-      break;
-    default:
-      throw new Error("Illegal base64url string!");
-  }
-  return decodeURIComponent(
-    escape(
-      typeof atob === "function"
-        ? atob(output)
-        : Buffer.from(output, "base64").toString("binary"),
-    ),
-  );
-}
+import { base64ToUtf8 } from "@/lib/utils";
 
 export default function JwtParser() {
   const [token, setToken] = useState(
@@ -41,8 +19,8 @@ export default function JwtParser() {
     }
 
     try {
-      const headerStr = base64UrlDecode(parts[0]);
-      const payloadStr = base64UrlDecode(parts[1]);
+      const headerStr = base64ToUtf8(parts[0]);
+      const payloadStr = base64ToUtf8(parts[1]);
 
       const header = JSON.parse(headerStr);
       const payload = JSON.parse(payloadStr);

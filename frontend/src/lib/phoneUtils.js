@@ -1,5 +1,8 @@
 import { getCountries, getCountryCallingCode } from "libphonenumber-js/max";
-import lookup from "country-code-lookup";
+
+const regionNames = typeof Intl !== "undefined" && Intl.DisplayNames
+  ? new Intl.DisplayNames(["en"], { type: "region" })
+  : null;
 
 export function formatPhoneNumberType(type) {
   if (!type) return undefined;
@@ -39,16 +42,18 @@ export function getCountryOptions() {
   const countries = getCountries();
   const options = countries
     .map((code) => {
-      const countryInfo = lookup.byIso(code);
-      const defaultLabel = code;
-      let displayLabel = defaultLabel;
+      let displayLabel = code;
+      try {
+        if (regionNames) {
+          displayLabel = regionNames.of(code) || code;
+        }
+      } catch (e) {}
+
       let callingCode = "";
       try {
         callingCode = getCountryCallingCode(code);
       } catch (e) {}
-      if (countryInfo?.country) {
-        displayLabel = countryInfo.country;
-      }
+
       const finalLabel = callingCode
         ? `${displayLabel} (+${callingCode})`
         : displayLabel;

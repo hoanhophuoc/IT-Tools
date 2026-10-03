@@ -37,32 +37,32 @@ const ResultRow = ({ label, oldValue, newValue }) => (
 export default function Ipv4RangeExpander() {
   const [startIp, setStartIp] = useState("192.168.1.11");
   const [endIp, setEndIp] = useState("192.168.6.251");
-  const [startIpError, setStartIpError] = useState("");
-  const [endIpError, setEndIpError] = useState("");
-  const [calculationError, setCalculationError] = useState("");
 
-  const { result, isValidInput } = useMemo(() => {
-    const isStartValid = isValidIpv4(startIp);
-    const isEndValid = isValidIpv4(endIp);
-    let calcError = "";
+  const isStartValid = isValidIpv4(startIp);
+  const isEndValid = isValidIpv4(endIp);
 
-    setStartIpError(startIp && !isStartValid ? "Invalid IPv4 format" : "");
-    setEndIpError(endIp && !isEndValid ? "Invalid IPv4 format" : "");
+  const startIpError = startIp && !isStartValid ? "Invalid IPv4 format" : "";
+  const endIpError = endIp && !isEndValid ? "Invalid IPv4 format" : "";
 
+  const { result, calculationError, isValidInput } = useMemo(() => {
     if (isStartValid && isEndValid) {
       const calculationResult = calculateCidrFromRange(startIp, endIp);
       if (calculationResult === null) {
-        calcError = "End address cannot be lower than start address.";
-        setCalculationError(calcError);
-        return { result: null, isValidInput: false };
+        return {
+          result: null,
+          calculationError: "End address cannot be lower than start address.",
+          isValidInput: false,
+        };
       }
-      setCalculationError("");
-      return { result: calculationResult, isValidInput: true };
+      return {
+        result: calculationResult,
+        calculationError: "",
+        isValidInput: true,
+      };
     }
 
-    setCalculationError("");
-    return { result: null, isValidInput: false };
-  }, [startIp, endIp]);
+    return { result: null, calculationError: "", isValidInput: false };
+  }, [startIp, endIp, isStartValid, isEndValid]);
 
   const handleSwap = () => {
     setStartIp(endIp);
