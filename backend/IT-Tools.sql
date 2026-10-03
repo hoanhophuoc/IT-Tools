@@ -137,3 +137,11 @@ ON CONFLICT ("slug") DO NOTHING;
 
 -- Reset sequence for tool
 SELECT setval(pg_get_serial_sequence('tool', 'tool_id'), COALESCE(MAX(tool_id), 1)) FROM "tool";
+
+-- Seed default admin account (username: admin, password: AdminPassword123!)
+INSERT INTO "user" ("username", "password", "role") VALUES
+('admin', '$2a$11$lQjDMLdJOdMmDbrVtrEAUuJD8KNns9sE1Vy8GHy85FIPYVW1Wape2', 'Admin')
+ON CONFLICT ("username") DO NOTHING;
+
+-- Reset sequence for user
+SELECT setval(pg_get_serial_sequence('user', 'user_id'), COALESCE(MAX(user_id), 1)) FROM "user";

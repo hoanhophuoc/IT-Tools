@@ -23,6 +23,14 @@ docker compose up --build -d
 | **Swagger UI** | `5145` | [http://localhost:5145/swagger](http://localhost:5145/swagger) | Interactive API Documentation |
 | **Database** | `5432` | `localhost:5432` | PostgreSQL 17 (auto-initialized with schema) |
 
+### Default Admin Account
+
+| Username | Password | Role |
+| :--- | :--- | :--- |
+| `admin` | `AdminPassword123!` | `Admin` |
+
+*(Note: Your personal registered account `phuochoan` has also been promoted to `Admin`)*
+
 To stop all containers:
 ```bash
 docker compose down
