@@ -13,10 +13,13 @@ import {
   FiShield,
 } from "react-icons/fi";
 
-export default function Header({ isSidebarOpen, toggleSidebar }) {
+export default function Header({
+  isSidebarOpen,
+  toggleSidebar,
+  categories = [],
+}) {
   const { user, isAuthenticated, logout, loading, searchTerm, setSearchTerm } =
     useAuth();
-  console.log("Header rendering with searchTerm:", searchTerm);
 
   return (
     <header className="sticky top-0 z-20 flex h-16 flex-shrink-0 items-center justify-between border-b border-gray-700 bg-gray-800 px-4 text-gray-300 shadow-sm md:px-6 lg:px-8">
@@ -41,6 +44,7 @@ export default function Header({ isSidebarOpen, toggleSidebar }) {
           searchTerm={searchTerm}
           setSearchTerm={setSearchTerm}
           placeholder="Search tools..."
+          categories={categories}
         />
       </div>
       <div className="flex items-center gap-2 md:gap-3">

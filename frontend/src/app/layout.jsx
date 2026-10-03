@@ -82,6 +82,7 @@ export default function RootAndMainLayout({ children }) {
               <Header
                 isSidebarOpen={isSidebarOpen}
                 toggleSidebar={toggleSidebar}
+                categories={categories}
               />
               <main className="flex-grow overflow-y-auto p-4 md:p-6 lg:p-8">
                 <div className="mx-auto max-w-7xl">{children}</div>

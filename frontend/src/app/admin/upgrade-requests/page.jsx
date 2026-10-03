@@ -81,6 +81,7 @@ export default function AdminUpgradeRequestsPage() {
         <Table
           columns={columns}
           data={requests}
+          searchPlaceholder="Search requests by username, user ID, or request ID..."
           actions={{
             approve: (row) => handleProcessRequest(row.requestId, "Approved"),
             reject: (row) => handleProcessRequest(row.requestId, "Rejected"),

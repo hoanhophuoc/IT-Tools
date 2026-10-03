@@ -275,6 +275,7 @@ export default function AdminToolsPage() {
         <Table
           columns={columns}
           data={tools}
+          searchPlaceholder="Search tools by name, category, or URL..."
           actions={{
             edit: handleOpenEditModal,
             delete: handleDeleteTool,

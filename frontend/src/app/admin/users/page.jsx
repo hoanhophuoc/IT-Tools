@@ -60,7 +60,13 @@ export default function AdminUsersPage() {
         </div>
       )}
 
-      {!loading && !error && <Table columns={columns} data={users} />}
+      {!loading && !error && (
+        <Table
+          columns={columns}
+          data={users}
+          searchPlaceholder="Search users by username, role, or ID..."
+        />
+      )}
     </div>
   );
 }
