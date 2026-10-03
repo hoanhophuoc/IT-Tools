@@ -21,7 +21,7 @@ docker compose up --build -d
 | **Frontend** | `3000` | [http://localhost:3000](http://localhost:3000) | Next.js 16 Web Application |
 | **Backend API** | `5145` | [http://localhost:5145/api](http://localhost:5145/api) | ASP.NET Core 10 Web API |
 | **Swagger UI** | `5145` | [http://localhost:5145/swagger](http://localhost:5145/swagger) | Interactive API Documentation |
-| **Database** | `5432` | `localhost:5432` | PostgreSQL 17 (auto-initialized with schema) |
+| **Database** | `5432` | `localhost:5432` | PostgreSQL 18 (auto-initialized with schema) |
 
 ### Default Admin Account
 
@@ -69,7 +69,7 @@ IT-Tools/
 │   │   ├── hooks/            # Custom React hooks
 │   │   ├── lib/              # API client and utility libraries
 │   │   └── tools/            # Modular developer tools (hot-pluggable)
-│   ├── Dockerfile            # Multi-stage Docker build (Node 22 Alpine)
+│   ├── Dockerfile            # Multi-stage Docker build (Node 24 Alpine)
 │   ├── package.json          # Node dependencies & scripts
 │   └── .env.example          # Environment variables template
 │
@@ -86,7 +86,7 @@ IT-Tools/
 | Layer | Technologies |
 | :--- | :--- |
 | **Frontend** | [Next.js 16](https://nextjs.org/) (App Router, Turbopack), [React 19](https://react.dev/), [Tailwind CSS 4](https://tailwindcss.com/), [mathjs](https://mathjs.org/), [libphonenumber-js](https://gitlab.com/catamphetamine/libphonenumber-js), [ibantools](https://github.com/arhs/ibantools) |
-| **Backend** | [ASP.NET Core 10](https://dotnet.microsoft.com/), [Entity Framework Core 10](https://learn.microsoft.com/ef/core/) (Native LINQ projections), [PostgreSQL 17](https://www.postgresql.org/) ([Npgsql](https://www.npgsql.org/efcore/)), [BCrypt.Net-Next](https://github.com/BcryptNet/bcrypt.net) |
+| **Backend** | [ASP.NET Core 10](https://dotnet.microsoft.com/), [Entity Framework Core 10](https://learn.microsoft.com/ef/core/) (Native LINQ projections), [PostgreSQL 18](https://www.postgresql.org/) ([Npgsql](https://www.npgsql.org/efcore/)), [BCrypt.Net-Next](https://github.com/BcryptNet/bcrypt.net) |
 | **Auth** | JWT (JSON Web Tokens) with role-based access control (`User`, `Premium`, `Admin`) |
 | **DevOps** | [Docker](https://www.docker.com/) & [Docker Compose](https://docs.docker.com/compose/) |
 
@@ -97,7 +97,7 @@ IT-Tools/
 ### Prerequisites
 
 - [.NET SDK 10.0](https://dotnet.microsoft.com/download)
-- [Node.js](https://nodejs.org/) (v22.x or later) & [npm](https://www.npmjs.com/)
+- [Node.js](https://nodejs.org/) (v24.x or later) & [npm](https://www.npmjs.com/)
 - [PostgreSQL](https://www.postgresql.org/) (local or cloud-hosted instance)
 
 ### 1. Backend Setup

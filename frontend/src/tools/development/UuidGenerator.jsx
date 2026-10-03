@@ -15,7 +15,7 @@ function generateUUIDv7() {
     .map((b) => b.toString(16).padStart(2, "0"))
     .join("");
 
-  return `${timeHex.slice(0, 8)}-${timeHex.slice(8, 12)}-7${rand.slice(0, 3)}-${((parseInt(rand.slice(3, 4), 16) & 0x3) | 0x8).toString(16)}${rand.slice(4, 7)}-${rand.slice(7, 19)}`;
+  return `${timeHex.slice(0, 8)}-${timeHex.slice(8, 12)}-7${rand.slice(0, 3)}-${((Number.parseInt(rand.slice(3, 4), 16) & 0x3) | 0x8).toString(16)}${rand.slice(4, 7)}-${rand.slice(7, 19)}`;
 }
 
 export default function UuidGenerator() {
@@ -27,7 +27,7 @@ export default function UuidGenerator() {
 
   const generate = useCallback(() => {
     const result = [];
-    const count = Math.min(Math.max(1, parseInt(quantity) || 1), 50);
+    const count = Math.min(Math.max(1, Number.parseInt(quantity, 10) || 1), 50);
 
     for (let i = 0; i < count; i++) {
       let id = version === "v7" ? generateUUIDv7() : generateUUIDv4();
@@ -52,10 +52,11 @@ export default function UuidGenerator() {
     <div className="space-y-6">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+          <label htmlFor="uuid-version" className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
             UUID Version
           </label>
           <select
+            id="uuid-version"
             value={version}
             onChange={(e) => setVersion(e.target.value)}
             className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
@@ -66,10 +67,11 @@ export default function UuidGenerator() {
         </div>
 
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+          <label htmlFor="uuid-quantity" className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
             Quantity (1-50)
           </label>
           <input
+            id="uuid-quantity"
             type="number"
             min="1"
             max="50"

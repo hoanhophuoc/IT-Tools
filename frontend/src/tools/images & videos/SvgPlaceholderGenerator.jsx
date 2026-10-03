@@ -20,8 +20,8 @@ export default function SvgPlaceholderGenerator() {
   const [customText, setCustomText] = useState("");
 
   const handleNumberChange = (setter) => (e) => {
-    const value = parseInt(e.target.value, 10);
-    setter(isNaN(value) || value < 1 ? 1 : value);
+    const value = Number.parseInt(e.target.value, 10);
+    setter(Number.isNaN(value) || value < 1 ? 1 : value);
   };
 
   const svgString = useMemo(() => {

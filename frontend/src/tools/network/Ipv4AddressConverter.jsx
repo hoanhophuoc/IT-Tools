@@ -6,7 +6,7 @@ import InfoRow from "@/components/ui/InfoRow";
 import { isValidIpv4, ipv4ToInt, ipv4ToIpv6 } from "@/lib/ipUtils";
 
 export default function Ipv4AddressConverter() {
-  const [rawIpAddress, setRawIpAddress] = useState("192.168.1.1");
+  const [rawIpAddress, setRawIpAddress] = useState("");
   const [inputError, setInputError] = useState("");
 
   const conversions = useMemo(() => {

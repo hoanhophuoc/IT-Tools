@@ -7,7 +7,7 @@
 - **Hybrid / Multi-Language Repositories (.NET + TypeScript/JavaScript)**:
   - Use `dotnet-sonarscanner` as the unified scanner rather than running separate scanner steps.
   - Set `/d:sonar.scanner.scanAll=true` in `dotnet-sonarscanner begin`.
-  - Ensure both **Java 21+** (`actions/setup-java@v5`) and **Node.js** (`actions/setup-node@v4`) are installed in the runner job so SonarJS can analyze frontend files.
+  - Ensure both **Java 25+** (`actions/setup-java@v6`) and **Node.js** (`actions/setup-node@v7`) are installed in the runner job so SonarJS can analyze frontend files.
   - Exclude build outputs: `/d:sonar.exclusions="**/bin/**,**/obj/**,**/node_modules/**,**/.next/**,**/*.spec.js,**/*.test.js"`.
 
 ## Trivy Security Scans & SARIF Uploads
@@ -15,4 +15,19 @@
 - **SARIF Upload Matching**: Always ensure `github/codeql-action/upload-sarif`'s `sarif_file` parameter matches the exact output path specified in `trivy-action` relative to the workspace root (e.g., `trivy-frontend-results.sarif`, not `<subfolder>/trivy-frontend-results.sarif`).
 
 ## Action Versions & Deprecation Policy
-- Avoid downgrading GitHub Actions to older versions to bypass deprecation warnings; use the latest supported action versions (e.g. `actions/setup-java@v5`, `github/codeql-action/upload-sarif@v4`, `actions/checkout@v4`).
+- Avoid downgrading GitHub Actions to older versions to bypass deprecation warnings; use the latest supported action versions (e.g. `actions/setup-java@v6`, `github/codeql-action/upload-sarif@v4`, `actions/checkout@v4`).
+
+## SonarCloud / SonarQube SAST Guardrails
+- **Action Dependency Pinning (`githubactions:S7637`)**: Third-party GitHub Actions (e.g., `gitleaks-action`, `trivy-action`, `react-doctor`) must be pinned by full commit SHA with a version comment:
+  `uses: gitleaks/gitleaks-action@ff98106e4c7b2bc287b24eaf42907196329070c7 # v2.3.9`
+- **Principle of Least Privilege (`githubactions:S8233`)**: Set default workflow-level permissions to `permissions: contents: read`. Grant `security-events: write` only at the specific job level where SARIF results are uploaded.
+- **Supply Chain Script Execution (`githubactions:S6505`, `docker:S6505`, `docker:S8543`)**: Always execute `npm ci --ignore-scripts` in CI pipelines and container builds to prevent untrusted lifecycle scripts from running.
+- **Container Non-Root User (`docker:S6471`)**: Ensure final container stages drop privileges (`USER $APP_UID` in .NET ASP.NET images; `USER node` in Node.js alpine images).
+- **No Plaintext Password Hashes in SQL Seeds (`secrets:S8215`)**: Do not hardcode `$2a$` / `$2b$` bcrypt hashes in database initialization scripts (`IT-Tools.sql`). Enable `pgcrypto` (`CREATE EXTENSION IF NOT EXISTS pgcrypto;`) and generate hashes dynamically:
+  `crypt('password', gen_salt('bf', 11))`
+- **Local Sonar CLI Commands**:
+  - Use `sonar list issues -p <project>` to inspect Cloud/Server issues directly.
+  - Use `sonar analyze secrets <files...>` targeting specific modified files. Never run `sonar analyze secrets .` without exclusions as traversing `node_modules` causes scanner timeouts.
+
+## React Doctor CLI Execution
+- **Non-Interactive CI / Agent Scans**: Always pass `-y` / `--yes` (e.g. `npx react-doctor@latest -y --scope full --verbose`) when invoking React Doctor in automated or terminal workflows to prevent interactive prompt hangs.

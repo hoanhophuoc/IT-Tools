@@ -4,7 +4,9 @@ import CopyToClipboardButton from "@/components/ui/CopyToClipboardButton";
 import Button from "@/components/ui/Button";
 
 function getRandomPort() {
-  return Math.floor(Math.random() * (65535 - 1024 + 1)) + 1024;
+  const array = new Uint32Array(1);
+  crypto.getRandomValues(array);
+  return 1024 + (array[0] % (65535 - 1024 + 1));
 }
 
 export default function RandomPortGenerator() {

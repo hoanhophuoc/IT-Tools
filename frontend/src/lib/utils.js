@@ -16,7 +16,7 @@ export const formatDate = (dateInput) => {
   if (!dateInput) return "";
   try {
     const date = new Date(dateInput);
-    if (isNaN(date.getTime())) {
+    if (Number.isNaN(date.getTime())) {
       return "Invalid Date";
     }
 
@@ -37,7 +37,7 @@ export const utf8ToBase64 = (str, urlSafe = false) => {
     }
     let b64 = btoa(binary);
     if (urlSafe) {
-      b64 = b64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+      b64 = b64.replace(/\+/g, "-").replace(/\//g, "_").replace(/={1,2}$/, "");
     }
     return b64;
   } catch (e) {

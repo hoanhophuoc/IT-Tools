@@ -18,7 +18,9 @@ const LOREM_WORDS = [
 ];
 
 function getRandomWord() {
-  return LOREM_WORDS[Math.floor(Math.random() * LOREM_WORDS.length)];
+  const buf = new Uint32Array(1);
+  crypto.getRandomValues(buf);
+  return LOREM_WORDS[buf[0] % LOREM_WORDS.length];
 }
 
 function capitalize(str) {

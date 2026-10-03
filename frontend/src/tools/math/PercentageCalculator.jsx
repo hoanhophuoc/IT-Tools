@@ -5,7 +5,7 @@ import Input from "@/components/ui/Input";
 import CopyToClipboardButton from "@/components/ui/CopyToClipboardButton";
 
 const formatResult = (value) => {
-  if (value === "" || value === null || value === undefined || !isFinite(value))
+  if (value === "" || value === null || value === undefined || !Number.isFinite(value))
     return "";
   const rounded = Number(value.toFixed(6));
   return String(rounded);
@@ -20,29 +20,29 @@ export default function PercentageCalculator() {
   const [incDecTo, setIncDecTo] = useState("");
 
   const percentageOfResult = useMemo(() => {
-    const x = parseFloat(percentOfX);
-    const y = parseFloat(percentOfY);
-    if (isNaN(x) || isNaN(y)) return "";
+    const x = Number.parseFloat(percentOfX);
+    const y = Number.parseFloat(percentOfY);
+    if (Number.isNaN(x) || Number.isNaN(y)) return "";
     return formatResult((x / 100) * y);
   }, [percentOfX, percentOfY]);
 
   const isWhatPercentResult = useMemo(() => {
-    const x = parseFloat(isWhatX);
-    const y = parseFloat(isWhatY);
-    if (isNaN(x) || isNaN(y) || y === 0) return "";
+    const x = Number.parseFloat(isWhatX);
+    const y = Number.parseFloat(isWhatY);
+    if (Number.isNaN(x) || Number.isNaN(y) || y === 0) return "";
     return formatResult((x / y) * 100);
   }, [isWhatX, isWhatY]);
 
   const percentChangeResult = useMemo(() => {
-    const from = parseFloat(incDecFrom);
-    const to = parseFloat(incDecTo);
-    if (isNaN(from) || isNaN(to) || from === 0) return "";
+    const from = Number.parseFloat(incDecFrom);
+    const to = Number.parseFloat(incDecTo);
+    if (Number.isNaN(from) || Number.isNaN(to) || from === 0) return "";
     return formatResult(((to - from) / from) * 100);
   }, [incDecFrom, incDecTo]);
 
   const handleNumberChange = (setter) => (e) => {
     const value = e.target.value;
-    if (value === "" || /^-?\d*\.?\d*$/.test(value)) {
+    if (value === "" || /^-?\d*(?:\.\d*)?$/.test(value)) {
       setter(value);
     }
   };

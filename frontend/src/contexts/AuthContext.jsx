@@ -1,5 +1,5 @@
 "use client";
-import { createContext, useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import {
   apiLogin,
@@ -8,8 +8,7 @@ import {
   apiAddFavorite,
   apiRemoveFavorite,
 } from "@/lib/api";
-
-export const AuthContext = createContext(null);
+import { AuthContext } from "./authContext";
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);

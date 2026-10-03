@@ -31,7 +31,7 @@ function decimalToBase64(numStr) {
     if (hex.length % 2) hex = "0" + hex;
     let bin = "";
     for (let i = 0; i < hex.length; i += 2) {
-      bin += String.fromCharCode(parseInt(hex.slice(i, i + 2), 16));
+      bin += String.fromCharCode(Number.parseInt(hex.slice(i, i + 2), 16));
     }
     return btoa(bin);
   } catch {
@@ -87,10 +87,11 @@ export default function IntegerBaseConverter() {
       />
 
       <div>
-        <label className="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">
+        <label htmlFor="input-base" className="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">
           Input Base
         </label>
         <select
+          id="input-base"
           className="block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-indigo-400"
           value={base}
           onChange={(e) => setBase(Number(e.target.value))}

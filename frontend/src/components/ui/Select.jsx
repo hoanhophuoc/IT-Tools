@@ -19,8 +19,8 @@ const Select = React.forwardRef(
     },
     ref,
   ) => {
-    const selectId =
-      id || name || `select-${Math.random().toString(36).substring(2, 9)}`;
+    const generatedId = React.useId();
+    const selectId = id || name || generatedId;
     return (
       <div className={`w-full ${containerClassName}`}>
         {label && (

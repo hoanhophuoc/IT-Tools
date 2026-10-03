@@ -62,8 +62,9 @@ export default function StringObfuscator() {
           }}
         />
         <div className="flex items-end gap-2">
-          <label className="mb-1 font-medium">Keep spaces:</label>
+          <label htmlFor="keep-spaces" className="mb-1 font-medium">Keep spaces:</label>
           <button
+            id="keep-spaces"
             type="button"
             onClick={() => setKeepSpaces((v) => !v)}
             className={

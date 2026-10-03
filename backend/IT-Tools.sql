@@ -1,3 +1,5 @@
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
 CREATE TABLE "category" (
   "category_id" serial PRIMARY KEY,
   "name" varchar(30) UNIQUE NOT NULL
@@ -140,7 +142,7 @@ SELECT setval(pg_get_serial_sequence('tool', 'tool_id'), COALESCE(MAX(tool_id), 
 
 -- Seed default admin account (username: admin, password: AdminPassword123!)
 INSERT INTO "user" ("username", "password", "role") VALUES
-('admin', '$2a$11$lQjDMLdJOdMmDbrVtrEAUuJD8KNns9sE1Vy8GHy85FIPYVW1Wape2', 'Admin')
+('admin', crypt('AdminPassword123!', gen_salt('bf', 11)), 'Admin')
 ON CONFLICT ("username") DO NOTHING;
 
 -- Reset sequence for user

@@ -15,7 +15,7 @@ const SCALES = [
 ];
 
 function toKelvin(value, scale) {
-  value = parseFloat(value);
+  value = Number.parseFloat(value);
   switch (scale) {
     case "kelvin": return value;
     case "celsius": return value + 273.15;
@@ -25,7 +25,7 @@ function toKelvin(value, scale) {
     case "newton": return value * 100 / 33 + 273.15;
     case "reaumur": return value * 5 / 4 + 273.15;
     case "romer": return (value - 7.5) * 40 / 21 + 273.15;
-    default: return NaN;
+    default: return Number.NaN;
   }
 }
 
@@ -43,7 +43,7 @@ function fromKelvin(k) {
 }
 
 function format(val) {
-    if (typeof val !== "number" || !isFinite(val)) return "";
+    if (typeof val !== "number" || !Number.isFinite(val)) return "";
     const fixed = val.toFixed(2);
     if (fixed.endsWith(".00")) return fixed.slice(0, -3);
     if (fixed.endsWith("0")) return fixed.slice(0, -1);
@@ -54,9 +54,9 @@ export default function Temperature() {
   const [input, setInput] = useState("");
   const [scale, setScale] = useState("celsius");
 
-  const isValid = input !== "" && !isNaN(Number(input));
+  const isValid = input !== "" && !Number.isNaN(Number(input));
   const kelvin = isValid ? toKelvin(input, scale) : null;
-  const results = isValid && isFinite(kelvin) ? fromKelvin(kelvin) : {};
+  const results = isValid && Number.isFinite(kelvin) ? fromKelvin(kelvin) : {};
 
   return (
     <div className="space-y-4">
@@ -68,10 +68,11 @@ export default function Temperature() {
         type="number"
       />
       <div>
-        <label className="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">
+        <label htmlFor="temp-scale" className="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">
           Input Scale
         </label>
         <select
+          id="temp-scale"
           className="block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-indigo-400"
           value={scale}
           onChange={e => setScale(e.target.value)}

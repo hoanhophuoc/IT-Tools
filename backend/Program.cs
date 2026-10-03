@@ -26,6 +26,13 @@ builder.Services.AddDbContextPool<PostgreSQLContext>(opt =>
 // --- Authentication & Authorization ---
 var jwtSettings = configuration.GetSection("JwtSettings").Get<JwtSettings>()
     ?? throw new InvalidOperationException("JWT Settings missing");
+if (string.IsNullOrEmpty(jwtSettings.Secret))
+{
+    jwtSettings.Secret = Environment.GetEnvironmentVariable("JWT_SECRET")
+        ?? (builder.Environment.IsDevelopment()
+            ? "development_fallback_secret_key_minimum_length_for_hmacsha256_at_least_32_bytes_long"
+            : throw new InvalidOperationException("JWT Secret is not configured."));
+}
 var key = Encoding.ASCII.GetBytes(jwtSettings.Secret);
 
 builder.Services.AddAuthentication(options =>
@@ -54,7 +61,13 @@ builder.Services.AddAuthorization();
 
 // --- Services ---
 builder.Services.AddSingleton<JwtTokenService>();
-builder.Services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));
+builder.Services.Configure<JwtSettings>(opt =>
+{
+    opt.Secret = jwtSettings.Secret;
+    opt.ExpiryMinutes = jwtSettings.ExpiryMinutes;
+    opt.Issuer = jwtSettings.Issuer;
+    opt.Audience = jwtSettings.Audience;
+});
 builder.Services.AddScoped<ToolService>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<AdminService>();
@@ -85,4 +98,4 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.Run();
+await app.RunAsync();

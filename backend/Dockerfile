@@ -13,4 +13,5 @@ EXPOSE 5145
 ENV ASPNETCORE_URLS=http://+:5145
 
 COPY --from=build /app/publish .
+USER $APP_UID
 ENTRYPOINT ["dotnet", "IT-Tools.dll"]

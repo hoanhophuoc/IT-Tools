@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace IT_Tools.Services;
 
-public class AdminService(PostgreSQLContext context)
+public partial class AdminService(PostgreSQLContext context)
 {
     /// <summary>
     /// Gets all tools (including disabled ones) for admin view.
@@ -126,7 +126,8 @@ public class AdminService(PostgreSQLContext context)
         // Generate Slug from Name
         string generatedSlug = Slugify(createDto.Name);
 
-        if (await context.Tools.AnyAsync(t => t.Slug == generatedSlug || t.Name.ToLower() == createDto.Name.ToLower()))
+        string toolName = createDto.Name;
+        if (await context.Tools.AnyAsync(t => t.Slug == generatedSlug || EF.Functions.ILike(t.Name, toolName)))
         {
             return false;
         }
@@ -193,6 +194,15 @@ public class AdminService(PostgreSQLContext context)
         return true;
     }
 
+    [System.Text.RegularExpressions.GeneratedRegex(@"\s+", System.Text.RegularExpressions.RegexOptions.None, matchTimeoutMilliseconds: 1000)]
+    private static partial System.Text.RegularExpressions.Regex WhitespaceRegex();
+
+    [System.Text.RegularExpressions.GeneratedRegex(@"[^a-z0-9\-]", System.Text.RegularExpressions.RegexOptions.None, matchTimeoutMilliseconds: 1000)]
+    private static partial System.Text.RegularExpressions.Regex NonSlugCharRegex();
+
+    [System.Text.RegularExpressions.GeneratedRegex(@"-{2,}", System.Text.RegularExpressions.RegexOptions.None, matchTimeoutMilliseconds: 1000)]
+    private static partial System.Text.RegularExpressions.Regex ConsecutiveDashesRegex();
+
     private static string Slugify(string text)
     {
         if (string.IsNullOrWhiteSpace(text)) return string.Empty;
@@ -207,9 +217,9 @@ public class AdminService(PostgreSQLContext context)
             }
         }
         string decomposed = sb.ToString().Normalize(System.Text.NormalizationForm.FormC);
-        string slug = System.Text.RegularExpressions.Regex.Replace(decomposed, @"\s+", "-");
-        slug = System.Text.RegularExpressions.Regex.Replace(slug, @"[^a-z0-9\-]", "");
-        slug = System.Text.RegularExpressions.Regex.Replace(slug, @"-{2,}", "-");
+        string slug = WhitespaceRegex().Replace(decomposed, "-");
+        slug = NonSlugCharRegex().Replace(slug, "");
+        slug = ConsecutiveDashesRegex().Replace(slug, "-");
         return slug.Trim('-');
     }
 }

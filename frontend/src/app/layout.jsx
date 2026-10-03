@@ -42,7 +42,7 @@ export default function RootAndMainLayout({ children }) {
         setLoadingCategories(false);
       }
     };
-    fetchCats();
+    void fetchCats();
   }, []);
 
   useEffect(() => {

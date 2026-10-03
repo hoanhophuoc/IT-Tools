@@ -18,8 +18,8 @@ const SCALES = [
 
 function toBits(value, scale) {
   const scaleObj = SCALES.find((s) => s.value === scale);
-  if (!scaleObj) return NaN;
-  return parseFloat(value) * scaleObj.factor;
+  if (!scaleObj) return Number.NaN;
+  return Number.parseFloat(value) * scaleObj.factor;
 }
 
 function fromBits(bits) {
@@ -31,7 +31,7 @@ function fromBits(bits) {
 }
 
 function format(val) {
-  if (typeof val !== "number" || !isFinite(val)) return "";
+  if (typeof val !== "number" || !Number.isFinite(val)) return "";
   if (Math.abs(val) >= 1 && Math.abs(val) < 1000)
     return val.toFixed(2).replace(/\.00$/, "");
   if (Math.abs(val) < 1) return val.toPrecision(3);
@@ -42,9 +42,9 @@ export default function DataSize() {
   const [input, setInput] = useState("");
   const [scale, setScale] = useState("byte");
 
-  const isValid = input !== "" && !isNaN(Number(input));
+  const isValid = input !== "" && !Number.isNaN(Number(input));
   const bits = isValid ? toBits(input, scale) : null;
-  const results = isValid && isFinite(bits) ? fromBits(bits) : {};
+  const results = isValid && Number.isFinite(bits) ? fromBits(bits) : {};
 
   return (
     <div className="space-y-4">
@@ -56,10 +56,11 @@ export default function DataSize() {
         type="number"
       />
       <div>
-        <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+        <label htmlFor="data-size-unit" className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
           Input Unit
         </label>
         <select
+          id="data-size-unit"
           className="block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-indigo-400"
           value={scale}
           onChange={(e) => setScale(e.target.value)}

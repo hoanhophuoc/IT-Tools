@@ -136,13 +136,14 @@ export default function IbanValidatorParser() {
               key={iban}
               className="flex items-center justify-between gap-2 rounded bg-gray-100 p-2 dark:bg-gray-700/50"
             >
-              <span
-                className="cursor-pointer font-mono text-sm text-gray-800 hover:text-indigo-600 dark:text-gray-200 dark:hover:text-indigo-400"
+              <button
+                type="button"
+                className="cursor-pointer text-left font-mono text-sm text-gray-800 hover:text-indigo-600 dark:text-gray-200 dark:hover:text-indigo-400"
                 onClick={() => handleExampleClick(iban)}
                 title="Click to use this example"
               >
                 {friendlyFormatIBAN(iban)}
-              </span>
+              </button>
               <CopyToClipboardButton
                 textToCopy={iban}
                 size="sm"

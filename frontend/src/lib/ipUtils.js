@@ -12,18 +12,18 @@ export function ipv4ToInt(ip) {
   return (
     ip
       .split(".")
-      .reduce((res, octet) => (res << 8) | parseInt(octet, 10), 0) >>> 0
+      .reduce((res, octet) => (res << 8) | Number.parseInt(octet, 10), 0) >>> 0
   );
 }
 export function intToIpv4(intValue) {
-  if (isNaN(intValue) || intValue < 0 || intValue > 0xffffffff) return "";
+  if (Number.isNaN(intValue) || intValue < 0 || intValue > 0xffffffff) return "";
   return `${intValue >>> 24}.${(intValue >> 16) & 255}.${(intValue >> 8) & 255}.${intValue & 255}`;
 }
 export function ipv4ToIpv6(ip, shortFormat = false) {
   if (!isValidIpv4(ip)) {
     return "";
   }
-  const parts = ip.split(".").map((part) => parseInt(part, 10));
+  const parts = ip.split(".").map((part) => Number.parseInt(part, 10));
   const hexPart1 = ((parts[0] << 8) | parts[1]).toString(16).padStart(4, "0");
   const hexPart2 = ((parts[2] << 8) | parts[3]).toString(16).padStart(4, "0");
   if (shortFormat) {
@@ -52,10 +52,10 @@ export function calculateCidrFromRange(startIp, endIp) {
     }
   }
   const networkBin = startBin.substring(0, mask) + "0".repeat(32 - mask);
-  const networkInt = parseInt(networkBin, 2);
+  const networkInt = Number.parseInt(networkBin, 2);
   const newStartIp = intToIpv4(networkInt);
   const broadcastBin = startBin.substring(0, mask) + "1".repeat(32 - mask);
-  const broadcastInt = parseInt(broadcastBin, 2);
+  const broadcastInt = Number.parseInt(broadcastBin, 2);
   const newEndIp = intToIpv4(broadcastInt);
   const newSize = Math.pow(2, 32 - mask);
   const newCidr = `${newStartIp}/${mask}`;

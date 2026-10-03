@@ -10,7 +10,9 @@ function sortObject(obj) {
     return obj.map(sortObject);
   } else if (obj && typeof obj === "object" && obj.constructor === Object) {
     return Object.fromEntries(
-      Object.keys(obj).sort().map((key) => [key, sortObject(obj[key])])
+      Object.keys(obj)
+        .sort((a, b) => a.localeCompare(b))
+        .map((key) => [key, sortObject(obj[key])])
     );
   }
   return obj;

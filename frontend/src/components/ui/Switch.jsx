@@ -2,7 +2,8 @@
 import React from "react";
 
 export default function Switch({ id, checked, onChange, label, ...props }) {
-  const switchId = id || `switch-${Math.random().toString(36).substring(2, 9)}`;
+  const generatedId = React.useId();
+  const switchId = id || generatedId;
   const screenReaderLabel = props.srLabel || label || "Toggle";
 
   const handleToggle = () => {

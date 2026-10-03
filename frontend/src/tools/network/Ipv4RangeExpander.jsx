@@ -35,8 +35,8 @@ const ResultRow = ({ label, oldValue, newValue }) => (
 );
 
 export default function Ipv4RangeExpander() {
-  const [startIp, setStartIp] = useState("192.168.1.11");
-  const [endIp, setEndIp] = useState("192.168.6.251");
+  const [startIp, setStartIp] = useState("");
+  const [endIp, setEndIp] = useState("");
 
   const isStartValid = isValidIpv4(startIp);
   const isEndValid = isValidIpv4(endIp);

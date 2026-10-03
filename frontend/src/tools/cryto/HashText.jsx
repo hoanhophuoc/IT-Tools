@@ -40,7 +40,7 @@ export default function HashText() {
     let encoder;
     switch (encodingType) {
       case "base2":
-        encoder = (digest) => parseInt(digest.toString(), 16).toString(2);
+        encoder = (digest) => Number.parseInt(digest.toString(), 16).toString(2);
         break;
       case "base16":
         encoder = (digest) => digest.toString();

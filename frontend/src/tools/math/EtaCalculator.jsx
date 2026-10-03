@@ -32,13 +32,13 @@ export default function EtaCalculator() {
   const handleNumberChange =
     (setter, allowZero = false) =>
     (e) => {
-      const value = parseInt(e.target.value, 10);
+      const value = Number.parseInt(e.target.value, 10);
       setter(
-        isNaN(value) || (!allowZero && value < 1) ? (allowZero ? 0 : 1) : value,
+        Number.isNaN(value) || (!allowZero && value < 1) ? (allowZero ? 0 : 1) : value,
       );
     };
   const handleTimeSpanUnitChange = (e) => {
-    setTimeSpanUnitMultiplier(parseInt(e.target.value, 10) || 1);
+    setTimeSpanUnitMultiplier(Number.parseInt(e.target.value, 10) || 1);
   };
   const handleDateTimeChange = (e) => {
     setStartDateString(e.target.value);
@@ -50,7 +50,7 @@ export default function EtaCalculator() {
     const tsms = timeSpanValue * timeSpanUnitMultiplier || 0;
     const startTimestamp = new Date(startDateString).getTime();
 
-    if (isNaN(startTimestamp)) {
+    if (Number.isNaN(startTimestamp)) {
       return {
         totalDurationMs: 0,
         endDate: null,
@@ -73,7 +73,7 @@ export default function EtaCalculator() {
       const rateUnitsPerMs = upms / tsms;
       const durationMs = uc / rateUnitsPerMs;
 
-      if (!isFinite(durationMs)) {
+      if (!Number.isFinite(durationMs)) {
         return {
           totalDurationMs: 0,
           endDate: new Date(startTimestamp),

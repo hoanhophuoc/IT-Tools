@@ -108,7 +108,7 @@ export default function ToolPage() {
       }
     };
 
-    fetchAndLoadTool();
+    void fetchAndLoadTool();
 
     return () => {
       cancelled = true;

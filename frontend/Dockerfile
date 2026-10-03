@@ -2,7 +2,7 @@ FROM node:24-alpine AS builder
 WORKDIR /app
 
 COPY package.json package-lock.json ./
-RUN npm install
+RUN npm ci --ignore-scripts
 
 COPY . .
 
@@ -25,4 +25,5 @@ COPY --from=builder /app/node_modules ./node_modules
 
 EXPOSE 3000
 
+USER node
 CMD ["npm", "run", "start"]

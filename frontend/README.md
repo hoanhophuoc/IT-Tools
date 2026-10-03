@@ -1,6 +1,6 @@
 ## Prerequisites
 
-- [Node.js](https://nodejs.org/) (v22.x or later recommended)
+- [Node.js](https://nodejs.org/) (v24.x or later recommended)
 - [npm](https://www.npmjs.com/)
 
 ## Getting Started

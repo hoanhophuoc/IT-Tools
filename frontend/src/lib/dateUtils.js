@@ -7,7 +7,7 @@ const UNITS = [
 ];
 
 export function formatMsDuration(ms) {
-  if (isNaN(ms) || ms < 0) return "Invalid duration";
+  if (Number.isNaN(ms) || ms < 0) return "Invalid duration";
   if (ms === 0) return "0 milliseconds";
   let rem = Math.floor(ms);
   const parts = [];
@@ -31,6 +31,6 @@ const dtFormatter = new Intl.DateTimeFormat("en-GB", {
 });
 
 export function formatDateDdMmYyyyHhMm(date) {
-  if (!date || isNaN(date.getTime())) return "Invalid Date";
+  if (!date || Number.isNaN(date.getTime())) return "Invalid Date";
   return dtFormatter.format(date).replace(",", "");
 }
