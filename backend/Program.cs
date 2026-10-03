@@ -1,4 +1,4 @@
-﻿using IT_Tools.Data;
+using IT_Tools.Data;
 using IT_Tools.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -25,7 +25,7 @@ builder.Services.AddDbContextPool<PostgreSQLContext>(opt =>
     opt.UseNpgsql(configuration.GetConnectionString("PostgreSQLContext")));
 
 // AutoMapper
-builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
+builder.Services.AddAutoMapper(cfg => cfg.AddMaps(Assembly.GetExecutingAssembly()));
 
 // Authentication & Authorization
 var jwtSettings = configuration.GetSection("JwtSettings").Get<JwtSettings>()

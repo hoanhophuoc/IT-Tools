@@ -1,125 +1,209 @@
-# IT-Tools Backend API
+# IT-Tools
 
-## Overview
+A monolithic full-stack application providing a comprehensive collection of handy tools designed for developers and IT professionals.
 
-This project provides the backend API service for the IT-Tools application, a collection of handy tools designed for developers. It handles user authentication, tool management, category organization, user favorites, premium upgrade requests, and serves data to the Next.js frontend.
+This repository unites the **Next.js frontend** and the **ASP.NET Core backend** in a single monolithic repository.
 
-Built with ASP.NET Core, Entity Framework Core, and PostgreSQL.
+---
 
-## Features
+## Architecture & Project Structure
 
-- **Authentication:** User registration, login (JWT-based), password change, "forgot password" (direct reset based on username - **INSECURE, for specific internal use only as designed**).
-- **Users & Roles:** Supports Anonymous, User, Premium, and Admin roles.
-- **Tools & Categories:**
-  - Serves categorized lists of tools.
-  - Provides details for individual tools via slugs.
-  - Supports Premium/Free tool distinctions.
-  - Designed for "hot-plugging" new tools via frontend components (backend stores metadata like `component_url`).
-- **Favorites:** Authenticated users can mark/unmark tools as favorites.
-- **Premium Requests:** Users can request upgrades to Premium; Admins can manage these requests.
-- **Admin Panel:**
-  - Manage tools (Create, Read, Update Details, Update Status - Enable/Disable, Premium/Free).
-  - Manage users (Read).
-  - Manage premium upgrade requests (Read pending, Approve/Reject).
-  - Manage categories (CRUD).
+```text
+IT-Tools/
+├── backend/                  # ASP.NET Core Web API (.NET 9)
+│   ├── Controllers/          # API Controllers (Auth, Tools, Admin, Favorites, User)
+│   ├── Data/                 # EF Core DbContext & Database Configurations
+│   ├── Dtos/                 # Request/Response Data Transfer Objects
+│   ├── Mappings/             # AutoMapper profiles
+│   ├── Models/               # Domain Models (User, Tool, Category, etc.)
+│   ├── Properties/           # Launch settings & environment profiles
+│   ├── Services/             # Business Logic & Services
+│   ├── Utils/                # Utilities & helpers
+│   ├── appsettings.json      # Base application configuration
+│   ├── appsettings.Development.json # Development configuration & connection string
+│   ├── IT-Tools.csproj       # .NET 9 Project file
+│   └── IT-Tools.sln          # Solution file
+│
+├── frontend/                 # Next.js 16 (React 19, Tailwind CSS 4)
+│   ├── public/               # Static assets & icons
+│   ├── src/
+│   │   ├── app/              # Next.js App Router (pages & layouts)
+│   │   ├── components/       # Shared UI and Layout components
+│   │   ├── contexts/         # Authentication & app state contexts
+│   │   ├── hooks/            # Custom React hooks
+│   │   ├── lib/              # API client and utility libraries
+│   │   └── tools/            # Modular developer tools (hot-pluggable)
+│   ├── package.json          # Node dependencies & scripts
+│   └── .env.example          # Environment variables template
+│
+├── .gitignore                # Unified gitignore for .NET and Node.js
+└── README.md                 # Project documentation
+```
+
+---
+
+## Tech Stack
+
+| Layer | Technologies |
+| :--- | :--- |
+| **Frontend** | [Next.js 16](https://nextjs.org/) (App Router, Turbopack), [React 19](https://react.dev/), [Tailwind CSS 4](https://tailwindcss.com/), [date-fns](https://date-fns.org/), [mathjs](https://mathjs.org/) |
+| **Backend** | [ASP.NET Core 9](https://dotnet.microsoft.com/), [Entity Framework Core 9](https://learn.microsoft.com/ef/core/), [PostgreSQL](https://www.postgresql.org/) ([Npgsql](https://www.npgsql.org/efcore/)), [AutoMapper 16](https://automapper.org/), [BCrypt.Net-Next](https://github.com/BcryptNet/bcrypt.net) |
+| **Auth** | JWT (JSON Web Tokens) with role-based access control (`User`, `Premium`, `Admin`) |
+
+---
 
 ## Prerequisites
 
-Before you begin, ensure you have the following installed:
+- [.NET SDK 9.0](https://dotnet.microsoft.com/download)
+- [Node.js](https://nodejs.org/) (v20.x or later) & [npm](https://www.npmjs.com/)
+- [PostgreSQL](https://www.postgresql.org/) (local or cloud-hosted instance)
 
-- [.NET SDK](https://dotnet.microsoft.com/download) (.NET 9.0)
-- [PostgreSQL](https://www.postgresql.org/download/) (Local installation) - Or access to a PostgreSQL instance (like Aiven Cloud).
-- A Code Editor (like [Visual Studio 2022](https://visualstudio.microsoft.com/))
-- (Optional) A PostgreSQL GUI tool (like pgAdmin, DBeaver) for database inspection.
+---
 
-## Configuration
+## Getting Started
 
-Configuration is managed through `appsettings.Development.json`. For sensitive data during development.
+### 1. Backend Setup
 
-1.  **Connection String:**
+1. **Navigate to the backend directory:**
+   ```bash
+   cd backend
+   ```
 
-    - Set up your PostgreSQL database (create a user and database if needed).
-    - Configure the Connection String in `appsettings.Development.json`.
-    - **Using `appsettings.Development.json`:**
-      ```json
-      {
-        "ConnectionStrings": {
-          "DefaultConnection": "Host=localhost;Port=5432;Database=it_tools_db;Username=your_db_user;Password=your_db_password;"
-        }
-        // ... other settings
-      }
-      ```
-      _(Replace placeholders with your actual local DB credentials)_
+2. **Configure Database Connection & JWT:**
+   Open `backend/appsettings.Development.json` and adjust your connection string and JWT secret if necessary:
+   ```json
+   {
+     "ConnectionStrings": {
+       "PostgreSQLContext": "Host=localhost;Database=it_tools_db;Username=postgres;Password=your_password;Port=5432;"
+     },
+     "JwtSettings": {
+       "Secret": "your-super-secret-jwt-key-minimum-512-bits-for-security",
+       "ExpiryMinutes": 3600,
+       "Issuer": "IT-Tools.Api",
+       "Audience": "IT-Tools.Api"
+     },
+     "AppSettings": {
+       "FrontendBaseUrl": "http://localhost:3000"
+     }
+   }
+   ```
 
-2.  **JWT Settings:**
+3. **Initialize Database (Optional / Schema Setup):**
+   If creating the database tables from scratch, run the SQL script `backend/IT-Tools.sql` or apply migrations:
+   ```bash
+   dotnet ef database update
+   ```
 
-    - Configure JWT settings for token generation and validation.
-    - **Using `appsettings.Development.json`:**
-      ```json
-      {
-        // ... ConnectionStrings ...
-        "JwtSettings": {
-          "Secret": "!!!REPLACE_THIS_WITH_A_VERY_STRONG_AND_LONG_SECRET_KEY!!!", // !!!REPLACE WITH A VERY STRONG AND LONG SECRET KEY!!!
-          "ExpiryMinutes": 60,
-          "Issuer": "IT-Tools.Api",
-          "Audience": "IT-Tools.Api"
-        }
-        // ... AppSettings ...
-      }
-      ```
+4. **Run the Backend:**
+   ```bash
+   dotnet run
+   ```
+   The backend API starts on:
+   - HTTP: `http://localhost:5145`
+   - HTTPS: `https://localhost:7119`
+   - Swagger / OpenAPI Documentation: `http://localhost:5145/swagger` (or `https://localhost:7119/swagger`)
 
-3.  **App Settings:**
-    - Configure the base URL for the frontend application.
-    - **Using `appsettings.Development.json`:**
-      ```json
-      {
-        // ... ConnectionStrings, JwtSettings ...
-        "AppSettings": {
-          "FrontendBaseUrl": "http://localhost:3000"
-        }
-      }
-      ```
+---
 
-## Database Setup (EF Core Migrations)
+### 2. Frontend Setup
 
-This project uses Entity Framework Core migrations to manage the database schema.
+1. **Navigate to the frontend directory:**
+   ```bash
+   cd frontend
+   ```
 
-1.  **Ensure Configuration:** Make sure your `ConnectionStrings:DefaultConnection` is correctly set (in `appsettings.Development.json` or User Secrets) pointing to your development database.
-2.  **Apply Migrations:** Open a terminal in the project directory (`Backend/IT-Tools`) and run:
-    ```bash
-    dotnet ef database update
-    ```
-    This command will create the database if it doesn't exist and apply all pending migrations to create/update the necessary tables and constraints.
+2. **Install dependencies:**
+   ```bash
+   npm install
+   ```
 
-## Running the Application (Development Environment)
+3. **Configure Environment:**
+   Create `.env.local` or `.env` from `.env.example`:
+   ```bash
+   cp .env.example .env.local
+   ```
+   Set `NEXT_PUBLIC_API_URL` to your running backend API URL:
+   ```env
+   NEXT_PUBLIC_API_URL=http://localhost:5145/api
+   ```
 
-1.  **Navigate to the project directory:** `cd Backend/IT-Tools`
-2.  **Run the application:**
-    ```bash
-    dotnet run
-    ```
-    _(Or use `dotnet watch run` for automatic restarts on code changes)_
-3.  The API will typically start listening on URLs specified in `Properties/launchSettings.json` (e.g., `http://localhost:5145` or `https://localhost:7119`). Check the terminal output for the exact URLs.
+4. **Run the Development Server:**
+   ```bash
+   npm run dev
+   ```
+   Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+---
+
+### 3. Running Both from the Root Directory
+
+You can run both services concurrently from the repository root in separate terminals:
+
+**Terminal 1 (Backend):**
+```bash
+dotnet run --project backend/IT-Tools.csproj
+```
+
+**Terminal 2 (Frontend):**
+```bash
+npm --prefix frontend run dev
+```
+
+---
+
+## Hot-Plugging New Tools
+
+IT-Tools supports dynamically registering new tools via React components and database metadata:
+
+1. **Create the React Component:**
+   - Add your tool component in `frontend/src/tools/<category>/MyNewTool.jsx`.
+   - Ensure the component is a default export and includes `"use client";` if client-side state is required.
+
+2. **Register the Tool in the Backend Database:**
+   - Use the Admin panel (`/admin/tools`) or insert directly into the `tool` table:
+     - `name`: Human-readable tool name (e.g. `UUID Generator`)
+     - `slug`: URL slug (e.g. `uuid-generator`)
+     - `description`: Short description of what the tool does
+     - `category_id`: Category foreign key
+     - `component_url`: Relative path from `src/` (e.g. `tools/generators/UuidGenerator.jsx`)
+     - `icon`: Icon filename located in `frontend/public/images/icons/`
+     - `is_enabled`: `true`
+     - `is_premium`: `false` (or `true` for premium users)
+
+---
 
 ## API Endpoints Overview
 
-The API provides endpoints for various resources. Use the Swagger UI (`/swagger`) for detailed information, request/response models, and testing. Key areas include:
+| Endpoint | Method | Role / Auth | Description |
+| :--- | :--- | :--- | :--- |
+| `/api/auth/register` | `POST` | Public | Register a new account |
+| `/api/auth/login` | `POST` | Public | Authenticate user and receive JWT |
+| `/api/auth/change-password` | `POST` | Authenticated | Change user password |
+| `/api/tools` | `GET` | Public | Retrieve all categorized tools |
+| `/api/tools/{slug}` | `GET` | Public | Retrieve tool details by slug |
+| `/api/favorites` | `GET`, `POST`, `DELETE` | Authenticated | Manage favorite tools |
+| `/api/admin/tools` | `GET`, `POST`, `PUT` | Admin | Manage tools (CRUD) |
+| `/api/admin/users` | `GET` | Admin | List registered users |
+| `/api/admin/upgrade-requests`| `GET`, `POST` | Admin | Review premium upgrade requests |
+| `/api/user/upgrade-requests` | `POST` | Authenticated | Submit request for Premium status |
 
-- **`/api/auth/`**: Registration, Login, Password Change, Forgot Password.
-- **`/api/tools/`**: Getting categorized tools (public), getting specific tool details by slug (public).
-- **`/api/favorites/`**: Getting user favorites, adding/removing favorites (Requires Authentication).
-- **`/api/admin/tools/`**: CRUD operations for tools (Requires Admin Role).
-- **`/api/admin/users/`**: Listing users (Requires Admin Role).
-- **`/api/admin/upgrade-requests/`**: Managing premium upgrade requests (Requires Admin Role).
-- **`/api/admin/categories/`**: Fetching categories for admin forms (Requires Admin Role).
-- **`/api/user/upgrade-requests/`**: Endpoint for users to submit upgrade requests (Requires Authentication).
+---
 
-## Technology Stack
+## Scripts & Commands
 
-- **Framework:** ASP.NET Core 9
-- **ORM:** Entity Framework Core 9
-- **Database:** PostgreSQL
-- **Database Provider:** Npgsql.EntityFrameworkCore.PostgreSQL
-- **Authentication:** JWT Bearer Tokens
-- **Password Hashing:** BCrypt.Net-Next
-- **Mapping:** AutoMapper
+### Backend (`backend/`)
+- `dotnet build` - Build the C# solution
+- `dotnet run` - Start the API server
+- `dotnet watch run` - Start the API server with hot-reload
+
+### Frontend (`frontend/`)
+- `npm run dev` - Start Next.js development server with Turbopack
+- `npm run build` - Build production bundle
+- `npm run start` - Run production server
+- `npm run lint` - Run ESLint checks
+
+---
+
+## License
+
+This project is licensed under the MIT License.
