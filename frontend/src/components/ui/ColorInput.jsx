@@ -1,6 +1,5 @@
 import React from "react";
 import Input from "@/components/ui/Input";
-import { handleHexColorChange } from "@/lib/utils";
 
 export default function ColorInput({
   label,
@@ -10,7 +9,14 @@ export default function ColorInput({
   className = "",
   ...rest
 }) {
-  const handleChange = handleHexColorChange(onChange);
+  const handleChange = (e) => {
+    let val = e.target.value;
+    if (e.target.type === "text") {
+      if (!val.startsWith("#")) val = "#" + val;
+      val = "#" + val.substring(1).replace(/[^0-9a-fA-F]/g, "").substring(0, 6);
+    }
+    onChange(val);
+  };
   return (
     <div>
       {label && (

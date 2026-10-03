@@ -1,4 +1,4 @@
-﻿using IT_Tools.Dtos.Categories;
+using IT_Tools.Dtos.Categories;
 using IT_Tools.Dtos.Tools;
 using IT_Tools.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -30,15 +30,15 @@ public class ToolsController(ToolService toolService) : ControllerBase
 
     // GET /api/tools/{slug}
     [HttpGet("{slug}")]
-    [ProducesResponseType(typeof(ToolDetailsDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ToolSummaryDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<ToolDetailsDto>> GetToolDetails(string slug)
+    public async Task<ActionResult<ToolSummaryDto>> GetToolDetails(string slug)
     {
         var userId = GetCurrentUserId();
         var tool = await toolService.GetToolBySlugAsync(slug, userId);
 
         return tool == null
-            ? (ActionResult<ToolDetailsDto>)NotFound()
-            : tool.IsPremium && !User.IsInRole("Premium") && !User.IsInRole("Admin") ? (ActionResult<ToolDetailsDto>)Forbid() : (ActionResult<ToolDetailsDto>)Ok(tool);
+            ? (ActionResult<ToolSummaryDto>)NotFound()
+            : tool.IsPremium && !User.IsInRole("Premium") && !User.IsInRole("Admin") ? (ActionResult<ToolSummaryDto>)Forbid() : (ActionResult<ToolSummaryDto>)Ok(tool);
     }
 }

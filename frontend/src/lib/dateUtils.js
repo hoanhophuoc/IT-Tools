@@ -1,37 +1,36 @@
-export function formatMsDuration(durationMs) {
-  if (isNaN(durationMs) || durationMs < 0) {
-    return "Invalid duration";
-  }
-  if (durationMs === 0) {
-    return "0 milliseconds";
-  }
+const UNITS = [
+  [86400000, "day"],
+  [3600000, "hour"],
+  [60000, "minute"],
+  [1000, "second"],
+  [1, "millisecond"],
+];
 
-  const totalMs = Math.floor(durationMs);
-  const ms = totalMs % 1000;
-  const totalSeconds = Math.floor(totalMs / 1000);
-  const seconds = totalSeconds % 60;
-  const totalMinutes = Math.floor(totalSeconds / 60);
-  const minutes = totalMinutes % 60;
-  const totalHours = Math.floor(totalMinutes / 60);
-  const hours = totalHours % 24;
-  const days = Math.floor(totalHours / 24);
-
+export function formatMsDuration(ms) {
+  if (isNaN(ms) || ms < 0) return "Invalid duration";
+  if (ms === 0) return "0 milliseconds";
+  let rem = Math.floor(ms);
   const parts = [];
-  if (days > 0) parts.push(`${days} day${days !== 1 ? "s" : ""}`);
-  if (hours > 0) parts.push(`${hours} hour${hours !== 1 ? "s" : ""}`);
-  if (minutes > 0) parts.push(`${minutes} minute${minutes !== 1 ? "s" : ""}`);
-  if (seconds > 0) parts.push(`${seconds} second${seconds !== 1 ? "s" : ""}`);
-  if (ms > 0) parts.push(`${ms} millisecond${ms !== 1 ? "s" : ""}`);
-
-  return parts.length > 0 ? parts.join(" ") : "0 milliseconds";
+  for (const [dur, unit] of UNITS) {
+    const val = Math.floor(rem / dur);
+    if (val > 0) {
+      parts.push(`${val} ${unit}${val !== 1 ? "s" : ""}`);
+      rem %= dur;
+    }
+  }
+  return parts.join(" ") || "0 milliseconds";
 }
+
+const dtFormatter = new Intl.DateTimeFormat("en-GB", {
+  day: "2-digit",
+  month: "2-digit",
+  year: "numeric",
+  hour: "2-digit",
+  minute: "2-digit",
+  hour12: false,
+});
 
 export function formatDateDdMmYyyyHhMm(date) {
   if (!date || isNaN(date.getTime())) return "Invalid Date";
-  const day = String(date.getDate()).padStart(2, "0");
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const year = date.getFullYear();
-  const hours = String(date.getHours()).padStart(2, "0");
-  const minutes = String(date.getMinutes()).padStart(2, "0");
-  return `${day}/${month}/${year} ${hours}:${minutes}`;
+  return dtFormatter.format(date).replace(",", "");
 }

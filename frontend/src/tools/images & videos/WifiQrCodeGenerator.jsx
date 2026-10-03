@@ -80,7 +80,6 @@ export default function WifiQrCodeGenerator() {
   const [error, setError] = useState("");
 
   const qrCodeCanvasRef = useRef(null);
-  const downloadLinkRef = useRef(null);
 
   const showEapFields = useMemo(() => encryption === "WPA2-EAP", [encryption]);
   const showPasswordField = useMemo(
@@ -117,7 +116,7 @@ export default function WifiQrCodeGenerator() {
   ]);
 
   const handleDownload = useCallback(() => {
-    downloadCanvasAsPng(qrCodeCanvasRef, downloadLinkRef, "wifi-qr-code.png");
+    downloadCanvasAsPng(qrCodeCanvasRef, "wifi-qr-code.png");
   }, []);
 
   const canGenerateQr = useMemo(
@@ -300,13 +299,6 @@ export default function WifiQrCodeGenerator() {
               </div>
             )}
           </div>
-          <a
-            ref={downloadLinkRef}
-            download="wifi-qr-code.png"
-            style={{ display: "none" }}
-          >
-            Download Link
-          </a>
           <Button onClick={handleDownload} disabled={!canGenerateQr || !!error}>
             <FiDownload className="mr-1.5" /> Download QR Code
           </Button>

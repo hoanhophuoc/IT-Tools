@@ -42,20 +42,13 @@ function decimalToBase64(numStr) {
 function convertAllBases(input, inputBase) {
   if (!input) return { 2: "", 8: "", 10: "", 16: "", 64: "" };
 
-  let dec = "";
-  if (inputBase === 64) {
-    dec = base64ToDecimal(input);
-    if (!dec) return { 2: "", 8: "", 10: "", 16: "", 64: "" };
-  } else {
-    try {
-      dec = BigInt(`0b${parseInt(input, inputBase).toString(2)}`).toString(10);
-    } catch {
-      return { 2: "", 8: "", 10: "", 16: "", 64: "" };
-    }
-  }
-
+  const prefixMap = { 2: "0b", 8: "0o", 10: "", 16: "0x" };
   try {
-    const n = BigInt(dec);
+    const n =
+      inputBase === 64
+        ? BigInt(base64ToDecimal(input))
+        : BigInt(`${prefixMap[inputBase] ?? ""}${input}`);
+
     return {
       2: n.toString(2),
       8: n.toString(8),

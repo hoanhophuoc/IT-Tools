@@ -24,7 +24,6 @@ export default function QrCodeGenerator() {
   const [error, setError] = useState("");
 
   const qrCodeCanvasRef = useRef(null);
-  const downloadLinkRef = useRef(null);
 
   const handleTextChange = (e) => {
     setText(e.target.value);
@@ -37,7 +36,7 @@ export default function QrCodeGenerator() {
   };
 
   const handleDownload = useCallback(() => {
-    downloadCanvasAsPng(qrCodeCanvasRef, downloadLinkRef, "qr-code.png");
+    downloadCanvasAsPng(qrCodeCanvasRef, "qr-code.png");
   }, []);
 
   const hasValidText = text.trim().length > 0;
@@ -115,13 +114,6 @@ export default function QrCodeGenerator() {
               </div>
             )}
           </div>
-          <a
-            ref={downloadLinkRef}
-            download="qr-code.png"
-            style={{ display: "none" }}
-          >
-            Download Link
-          </a>
           <Button onClick={handleDownload} disabled={!hasValidText || !!error}>
             <FiDownload className="mr-1.5" /> Download QR Code
           </Button>

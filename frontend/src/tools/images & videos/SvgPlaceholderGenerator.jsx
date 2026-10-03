@@ -19,8 +19,6 @@ export default function SvgPlaceholderGenerator() {
   const [useExactSize, setUseExactSize] = useState(true);
   const [customText, setCustomText] = useState("");
 
-  const downloadLinkRef = useRef(null);
-
   const handleNumberChange = (setter) => (e) => {
     const value = parseInt(e.target.value, 10);
     setter(isNaN(value) || value < 1 ? 1 : value);
@@ -29,6 +27,7 @@ export default function SvgPlaceholderGenerator() {
   const svgString = useMemo(() => {
     const w = width || 1;
     const h = height || 1;
+    const text = customText.trim() || `${w}x${h}`;
     const escapedText = text
       .replace(/&/g, "&amp;")
       .replace(/</g, "&lt;")
@@ -48,16 +47,15 @@ export default function SvgPlaceholderGenerator() {
   }, [svgString]);
 
   const handleDownload = useCallback(() => {
-    if (!base64Svg || !downloadLinkRef.current) return;
-    const link = downloadLinkRef.current;
-    link.href = base64Svg;
+    if (!base64Svg) return;
+    const a = document.createElement("a");
+    a.href = base64Svg;
     const textPart =
       customText.trim().length > 0
         ? customText.trim().toLowerCase().replace(/\s+/g, "-")
         : "";
-    const filename = `placeholder-${textPart || width + "x" + height}.svg`;
-    link.download = filename;
-    link.click();
+    a.download = `placeholder-${textPart || width + "x" + height}.svg`;
+    a.click();
   }, [base64Svg, width, height, customText]);
 
   return (
@@ -162,9 +160,6 @@ export default function SvgPlaceholderGenerator() {
           textToCopy={base64Svg}
           buttonText="Copy Base64"
         />
-        <a ref={downloadLinkRef} style={{ display: "none" }}>
-          Hidden Download
-        </a>
         <Button onClick={handleDownload} disabled={!base64Svg}>
           <FiDownload className="mr-1.5" /> Download SVG
         </Button>

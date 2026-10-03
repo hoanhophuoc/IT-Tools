@@ -1,4 +1,4 @@
-﻿namespace IT_Tools.Dtos.Tools;
+namespace IT_Tools.Dtos.Tools;
 
 public class ToolSummaryDto
 {
@@ -9,4 +9,5 @@ public class ToolSummaryDto
     public string? Icon { get; set; }
     public bool IsPremium { get; set; }
     public bool IsFavorite { get; set; } = false;
+    public string ComponentUrl { get; set; } = string.Empty;
 }

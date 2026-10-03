@@ -97,7 +97,7 @@ IT-Tools/
 ### Prerequisites
 
 - [.NET SDK 10.0](https://dotnet.microsoft.com/download)
-- [Node.js](https://nodejs.org/) (v20.x or later) & [npm](https://www.npmjs.com/)
+- [Node.js](https://nodejs.org/) (v22.x or later) & [npm](https://www.npmjs.com/)
 - [PostgreSQL](https://www.postgresql.org/) (local or cloud-hosted instance)
 
 ### 1. Backend Setup

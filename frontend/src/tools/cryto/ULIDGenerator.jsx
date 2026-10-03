@@ -23,9 +23,8 @@ export default function ULIDGenerator() {
     }
 
     function encodeRandom(length) {
-      const cryptoObj = window.crypto || window.msCrypto;
       const buffer = new Uint8Array(length);
-      cryptoObj.getRandomValues(buffer);
+      window.crypto.getRandomValues(buffer);
       let str = "";
       for (let i = 0; i < length; i++) {
         str += ENCODING[buffer[i] % 32];

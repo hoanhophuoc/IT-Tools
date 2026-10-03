@@ -4,7 +4,6 @@ using IT_Tools.Dtos.Auth;
 using IT_Tools.Dtos.Categories;
 using IT_Tools.Dtos.Tools;
 using IT_Tools.Models;
-using IT_Tools.Utils;
 using Microsoft.EntityFrameworkCore;
 
 namespace IT_Tools.Services;
@@ -125,7 +124,7 @@ public class AdminService(PostgreSQLContext context)
         }
 
         // Generate Slug from Name
-        string generatedSlug = StringUtils.Slugify(createDto.Name);
+        string generatedSlug = Slugify(createDto.Name);
 
         if (await context.Tools.AnyAsync(t => t.Slug == generatedSlug || t.Name.ToLower() == createDto.Name.ToLower()))
         {
@@ -192,5 +191,25 @@ public class AdminService(PostgreSQLContext context)
         await context.SaveChangesAsync();
 
         return true;
+    }
+
+    private static string Slugify(string text)
+    {
+        if (string.IsNullOrWhiteSpace(text)) return string.Empty;
+
+        string normalized = text.ToLowerInvariant().Normalize(System.Text.NormalizationForm.FormD);
+        var sb = new System.Text.StringBuilder(normalized.Length);
+        foreach (char c in normalized)
+        {
+            if (System.Globalization.CharUnicodeInfo.GetUnicodeCategory(c) != System.Globalization.UnicodeCategory.NonSpacingMark)
+            {
+                sb.Append(c);
+            }
+        }
+        string decomposed = sb.ToString().Normalize(System.Text.NormalizationForm.FormC);
+        string slug = System.Text.RegularExpressions.Regex.Replace(decomposed, @"\s+", "-");
+        slug = System.Text.RegularExpressions.Regex.Replace(slug, @"[^a-z0-9\-]", "");
+        slug = System.Text.RegularExpressions.Regex.Replace(slug, @"-{2,}", "-");
+        return slug.Trim('-');
     }
 }

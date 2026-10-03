@@ -64,7 +64,6 @@ public class AuthService(PostgreSQLContext context, JwtTokenService jwtTokenServ
         }
 
         user.Password = BCryptNet.HashPassword(changePasswordDto.NewPassword);
-        context.Users.Update(user);
         await context.SaveChangesAsync();
         return true;
     }
@@ -79,7 +78,6 @@ public class AuthService(PostgreSQLContext context, JwtTokenService jwtTokenServ
         }
 
         user.Password = BCryptNet.HashPassword(forgotPasswordDto.NewPassword);
-        context.Users.Update(user);
         await context.SaveChangesAsync();
 
         return true;

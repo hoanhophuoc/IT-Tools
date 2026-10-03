@@ -1,4 +1,4 @@
-﻿using IT_Tools.Models;
+using IT_Tools.Models;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -50,12 +50,10 @@ public class JwtTokenService
         // Định nghĩa các Claims (thông tin nhúng vào token)
         var claims = new List<Claim>
         {
-            new(JwtRegisteredClaimNames.Sub, user.UserId.ToString()), // Subject = User ID (chuẩn JWT)
-            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()), // JWT ID - ID duy nhất cho token này
-            new(JwtRegisteredClaimNames.Name, user.Username), // Tên user (chuẩn JWT)
-            new(ClaimTypes.NameIdentifier, user.UserId.ToString()), // Một cách khác để lưu User ID
-            new(ClaimTypes.Name, user.Username), // Một cách khác để lưu Username
-            new(ClaimTypes.Role, user.Role) // Vai trò của user
+            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new(ClaimTypes.NameIdentifier, user.UserId.ToString()),
+            new(ClaimTypes.Name, user.Username),
+            new(ClaimTypes.Role, user.Role)
         };
 
         // Tạo thông tin chữ ký

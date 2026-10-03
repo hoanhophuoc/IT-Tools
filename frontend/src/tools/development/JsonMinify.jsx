@@ -21,16 +21,12 @@ export default function JsonMinify() {
     }
   }, [input]);
 
-  const handleInput = (e) => {
-    setInput(e.target.value);
-  };
-
   return (
     <div className="space-y-4">
       <TextArea
         label="JSON Input"
         value={input}
-        onChange={handleInput}
+        onChange={(e) => setInput(e.target.value)}
         placeholder='Paste or type your JSON here'
         rows={8}
       />

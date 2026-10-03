@@ -34,7 +34,6 @@ public class ToolService(PostgreSQLContext context)
                 CategoryId = c.CategoryId,
                 Name = c.Name,
                 Tools = c.Tools
-                    .Where(t => t.IsEnabled)
                     .OrderBy(t => t.Name)
                     .Select(t => new ToolSummaryDto
                     {
@@ -58,7 +57,7 @@ public class ToolService(PostgreSQLContext context)
     /// </summary>
     /// <param name="slug">The URL-friendly slug derived from the tool's name.</param>
     /// <returns>Tool details DTO if found, otherwise null.</returns>
-    public async Task<ToolDetailsDto?> GetToolBySlugAsync(string slug, int? userId)
+    public async Task<ToolSummaryDto?> GetToolBySlugAsync(string slug, int? userId)
     {
         var toolEntity = await context.Tools
             .AsNoTracking()
@@ -69,7 +68,7 @@ public class ToolService(PostgreSQLContext context)
         var isFavorite = userId.HasValue && await context.FavoriteTools
                 .AnyAsync(ft => ft.UserId == userId.Value && ft.ToolId == toolEntity.ToolId);
 
-        return new ToolDetailsDto
+        return new ToolSummaryDto
         {
             ToolId = toolEntity.ToolId,
             Name = toolEntity.Name,

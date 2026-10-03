@@ -78,42 +78,19 @@ export function loadScript(src) {
   });
 }
 
-export function handleHexColorChange(setter) {
-  return (e) => {
-    let value = e.target.value;
-    if (e.target.type === "text") {
-      if (!value.startsWith("#")) {
-        value = "#" + value;
-      }
-      value = "#" + value.substring(1).replace(/[^0-9a-fA-F]/g, "");
-      value = value.substring(0, 7);
-    }
-    setter(value);
-  };
-}
-
-export function downloadCanvasAsPng(
-  canvasRef,
-  linkRef,
-  filename = "download.png",
-) {
+export function downloadCanvasAsPng(canvasRef, filename = "download.png") {
   const canvas = canvasRef?.current?.querySelector
     ? canvasRef.current.querySelector("canvas")
     : canvasRef?.current || canvasRef;
-  const link = linkRef?.current || linkRef;
-  if (canvas && link) {
-    try {
-      const pngUrl = canvas
-        .toDataURL("image/png")
-        .replace("image/png", "image/octet-stream");
-      link.href = pngUrl;
-      link.download = filename;
-      link.click();
-      return true;
-    } catch (err) {
-      console.error("Failed to create data URL from canvas:", err);
-      return false;
-    }
+  if (!canvas) return false;
+  try {
+    const a = document.createElement("a");
+    a.href = canvas.toDataURL("image/png");
+    a.download = filename;
+    a.click();
+    return true;
+  } catch (err) {
+    console.error("Failed to create data URL from canvas:", err);
+    return false;
   }
-  return false;
 }
