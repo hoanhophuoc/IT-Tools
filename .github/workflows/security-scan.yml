@@ -44,7 +44,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
 
@@ -64,8 +64,8 @@ jobs:
           severity: 'CRITICAL,HIGH'
 
       - name: Upload Frontend SARIF to Security Tab
-        uses: github/codeql-action/upload-sarif@v3
-        if: always()
+        uses: github/codeql-action/upload-sarif@v4
+        if: success()
         with:
           sarif_file: 'frontend/trivy-frontend-results.sarif'
 
@@ -84,8 +84,8 @@ jobs:
         with:
           dotnet-version: '10.0.x'
 
-      - name: Setup Java (Required for SonarScanner)
-        uses: actions/setup-java@v4
+      - name: Setup Java 21 (Required for SonarScanner)
+        uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: '21'
@@ -93,7 +93,7 @@ jobs:
       - name: Setup Node.js (Required for SonarJS to analyze Frontend)
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
 
       - name: Install SonarScanner for .NET
         run: dotnet tool install --global dotnet-sonarscanner
@@ -107,8 +107,9 @@ jobs:
             /o:"hoanhophuoc" \
             /d:sonar.host.url="https://sonarcloud.io" \
             /d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
+            /d:sonar.scanner.skipJreProvisioning=true \
+            /d:sonar.projectBaseDir="." \
             /d:sonar.scanner.scanAll=true \
-            /d:sonar.sources="backend,frontend/src" \
             /d:sonar.exclusions="**/bin/**,**/obj/**,**/node_modules/**,**/.next/**,**/*.spec.js,**/*.test.js"
 
           dotnet build backend/IT-Tools.sln --configuration Release
@@ -133,7 +134,7 @@ jobs:
           severity: 'CRITICAL,HIGH'
 
       - name: Upload Docker SARIF to Security Tab
-        uses: github/codeql-action/upload-sarif@v3
-        if: always()
+        uses: github/codeql-action/upload-sarif@v4
+        if: success()
         with:
           sarif_file: 'trivy-docker-results.sarif'
