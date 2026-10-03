@@ -4,6 +4,6 @@
   "categoryName": "Crypto",
   "componentUrl": "tools/cryto/JwtParser.jsx",
   "icon": "jwt-parser.svg",
-  "isPremium": false,
+  "isPremium": true,
   "isEnabled": true
 }
