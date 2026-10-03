@@ -49,11 +49,10 @@ IT-Tools/
 │   ├── Controllers/          # API Controllers (Auth, Tools, Admin, Favorites, User)
 │   ├── Data/                 # EF Core DbContext & Database Configurations
 │   ├── Dtos/                 # Request/Response Data Transfer Objects
-│   ├── Mappings/             # AutoMapper profiles
 │   ├── Models/               # Domain Models (User, Tool, Category, etc.)
 │   ├── Properties/           # Launch settings & environment profiles
-│   ├── Services/             # Business Logic & Services
-│   ├── Utils/                # Utilities & helpers
+│   ├── Services/             # Business Logic & Services (JwtService)
+│   ├── Utils/                # Utilities & helpers (Security, SlugHelper)
 │   ├── Dockerfile            # Multi-stage Docker build (.NET 10 SDK & Runtime)
 │   ├── appsettings.json      # Base application configuration
 │   ├── appsettings.Development.json # Development configuration & connection string
@@ -74,6 +73,7 @@ IT-Tools/
 │   ├── package.json          # Node dependencies & scripts
 │   └── .env.example          # Environment variables template
 │
+├── samples/                  # Pre-configured tool JSON files for hot-plug import
 ├── docker-compose.yml        # Orchestrates db, backend, and frontend
 ├── .gitignore                # Unified gitignore for .NET and Node.js
 └── README.md                 # Project documentation
@@ -85,8 +85,8 @@ IT-Tools/
 
 | Layer | Technologies |
 | :--- | :--- |
-| **Frontend** | [Next.js 16](https://nextjs.org/) (App Router, Turbopack), [React 19](https://react.dev/), [Tailwind CSS 4](https://tailwindcss.com/), [date-fns](https://date-fns.org/), [mathjs](https://mathjs.org/) |
-| **Backend** | [ASP.NET Core 10](https://dotnet.microsoft.com/), [Entity Framework Core 10](https://learn.microsoft.com/ef/core/), [PostgreSQL 17](https://www.postgresql.org/) ([Npgsql](https://www.npgsql.org/efcore/)), [AutoMapper 16](https://automapper.org/), [BCrypt.Net-Next](https://github.com/BcryptNet/bcrypt.net) |
+| **Frontend** | [Next.js 16](https://nextjs.org/) (App Router, Turbopack), [React 19](https://react.dev/), [Tailwind CSS 4](https://tailwindcss.com/), [mathjs](https://mathjs.org/), [libphonenumber-js](https://gitlab.com/catamphetamine/libphonenumber-js), [ibantools](https://github.com/arhs/ibantools) |
+| **Backend** | [ASP.NET Core 10](https://dotnet.microsoft.com/), [Entity Framework Core 10](https://learn.microsoft.com/ef/core/) (Native LINQ projections), [PostgreSQL 17](https://www.postgresql.org/) ([Npgsql](https://www.npgsql.org/efcore/)), [BCrypt.Net-Next](https://github.com/BcryptNet/bcrypt.net) |
 | **Auth** | JWT (JSON Web Tokens) with role-based access control (`User`, `Premium`, `Admin`) |
 | **DevOps** | [Docker](https://www.docker.com/) & [Docker Compose](https://docs.docker.com/compose/) |
 
@@ -215,11 +215,11 @@ Admins can batch-register or single-register tools using JSON files:
 4. Alternatively, click **"+ Add New Tool"** and click **"📁 Load JSON File"** to pre-fill the form fields for manual review before saving.
 
 #### Ready-to-Test Sample JSON Files:
-Sample files are provided in the [`samples/`](file:///home/phuochoan/Downloads/IT-Tools/samples) directory:
-- [`samples/uuid-generator.json`](file:///home/phuochoan/Downloads/IT-Tools/samples/uuid-generator.json) — **UUID Generator** (Development)
-- [`samples/base64-string-converter.json`](file:///home/phuochoan/Downloads/IT-Tools/samples/base64-string-converter.json) — **Base64 String Converter** (Converter)
-- [`samples/jwt-parser.json`](file:///home/phuochoan/Downloads/IT-Tools/samples/jwt-parser.json) — **JWT Parser** (Crypto)
-- [`samples/all-new-tools.json`](file:///home/phuochoan/Downloads/IT-Tools/samples/all-new-tools.json) — Batch import for all 3 tools in one click.
+Sample files are provided in the [`samples/`](samples/) directory:
+- [`samples/uuid-generator.json`](samples/uuid-generator.json) — **UUID Generator** (Development)
+- [`samples/base64-string-converter.json`](samples/base64-string-converter.json) — **Base64 String Converter** (Converter)
+- [`samples/jwt-parser.json`](samples/jwt-parser.json) — **JWT Parser** (Crypto)
+- [`samples/all-new-tools.json`](samples/all-new-tools.json) — Batch import for all 3 tools in one click.
 
 #### JSON Schema Format:
 ```json
@@ -250,12 +250,17 @@ Or as an array for batch import:
 | `/api/auth/register` | `POST` | Public | Register a new account |
 | `/api/auth/login` | `POST` | Public | Authenticate user and receive JWT |
 | `/api/auth/change-password` | `POST` | Authenticated | Change user password |
+| `/api/auth/forgot-password` | `POST` | Public | Request password reset |
 | `/api/tools` | `GET` | Public | Retrieve all categorized tools |
 | `/api/tools/{slug}` | `GET` | Public | Retrieve tool details by slug |
-| `/api/favorites` | `GET`, `POST`, `DELETE` | Authenticated | Manage favorite tools |
-| `/api/admin/tools` | `GET`, `POST`, `PUT` | Admin | Manage tools (CRUD) |
+| `/api/favorites` | `GET` | Authenticated | List favorite tools |
+| `/api/favorites/{toolId}` | `POST`, `DELETE` | Authenticated | Add or remove tool from favorites |
+| `/api/admin/tools` | `GET`, `POST` | Admin | List or create tools |
+| `/api/admin/tools/{id}` | `PUT`, `DELETE` | Admin | Update or delete existing tool |
+| `/api/admin/categories` | `GET` | Admin | List all tool categories |
+| `/api/admin/upgrade-requests` | `GET` | Admin | Review premium upgrade requests |
+| `/api/admin/upgrade-requests/{requestId}/status` | `PUT` | Admin | Update status of upgrade request |
 | `/api/admin/users` | `GET` | Admin | List registered users |
-| `/api/admin/upgrade-requests`| `GET`, `POST` | Admin | Review premium upgrade requests |
 | `/api/user/upgrade-requests` | `POST` | Authenticated | Submit request for Premium status |
 
 ---
@@ -275,9 +280,9 @@ Or as an array for batch import:
 
 ### Frontend (`frontend/`)
 - `npm run dev` - Start Next.js development server with Turbopack
-- `npm run build` - Build production bundle
+- `npm run build` - Build production bundle and validate pages
 - `npm run start` - Run production server
-- `npm run lint` - Run ESLint checks
+- `npm run doctor` - Run React Doctor diagnostics
 
 ---
 

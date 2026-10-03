@@ -13,9 +13,12 @@
 
 2.  **Configure environment variables:**
 
-    - In the `.env` file in the project root.
-    - Add the base URL of your running backend API:
+    - Copy `.env.example` to `.env.local`:
+      ```bash
+      cp .env.example .env.local
       ```
+    - Add the base URL of your running backend API:
+      ```env
       NEXT_PUBLIC_API_URL=http://localhost:5145/api
       ```
       _(Replace `http://localhost:5145` with the actual URL and port your backend is listening on)_
@@ -36,7 +39,7 @@
     - Add `"use client";` if the component needs to use state, effects, or browser APIs.
     - Implement the UI and logic for the tool within this component.
 2.  **Add to the backend database:**
-    - Use the admin interface to add a new record to the `tool` table in the PostgreSQL database.
+    - Use the admin interface to add a new record to the database (or import a JSON definition via Admin > Tools).
     - Provide the necessary information:
       - `Tool Name`: e.g., "New Label Generator"
       - `Description`: A brief description.
@@ -47,7 +50,7 @@
 
 ## Available Scripts
 
-- `dev`: Runs the app in development mode.
-- `build`: Builds the app for production.
-- `start`: Starts the production server.
-- `lint`: Runs the linter (ESLint).
+- `npm run dev`: Runs the app in development mode with Turbopack.
+- `npm run build`: Builds the production bundle and validates pages.
+- `npm run start`: Starts the Next.js production server.
+- `npm run doctor`: Runs React Doctor diagnostics.
