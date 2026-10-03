@@ -1,0 +1,26 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Next.js: debug full stack",
+      "type": "node",
+      "request": "launch",
+      // Point to the actual Next.js CLI script
+      "program": "${workspaceFolder}/node_modules/next/dist/bin/next",
+      // Pass the 'dev' command as an argument
+      "args": ["dev"],
+      "runtimeArgs": ["--inspect"],
+      "skipFiles": ["<node_internals>/**"],
+      "serverReadyAction": {
+        "action": "debugWithChrome",
+        "killOnServerStop": true,
+        "pattern": "- Local:.+(https?://.+)",
+        "uriFormat": "%s",
+        "webRoot": "${workspaceFolder}"
+      }
+    }
+    // You might want similar configurations for client/server only debugging
+    // pointing to the same 'program' but potentially adjusting 'serverReadyAction'
+    // or removing it if not needed.
+  ]
+}
