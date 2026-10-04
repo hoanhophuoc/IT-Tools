@@ -11,7 +11,7 @@ const getWords = (str) =>
     .split(/\s+/)
     .filter(Boolean);
 
-export const cap = (w) => (w ? w[0].toUpperCase() + w.slice(1).toLowerCase() : "");
+import { cap } from "./caseConverterUtils.js";
 
 export default function CaseConverter() {
   const [input, setInput] = useState("");

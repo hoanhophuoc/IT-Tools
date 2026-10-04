@@ -1,9 +1,12 @@
 import { describe, it, expect } from "vitest";
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
-import CaseConverter, { cap } from "../../src/tools/converter/CaseConverter.jsx";
-import ColorConverter, { hexToRgb } from "../../src/tools/converter/ColorConverter.jsx";
-import IntegerBaseConverter, { convertAllBases } from "../../src/tools/converter/IntegerBaseConverter.jsx";
+import CaseConverter from "../../src/tools/converter/CaseConverter.jsx";
+import { cap } from "../../src/tools/converter/caseConverterUtils.js";
+import ColorConverter from "../../src/tools/converter/ColorConverter.jsx";
+import { hexToRgb } from "../../src/tools/converter/colorConverterUtils.js";
+import IntegerBaseConverter from "../../src/tools/converter/IntegerBaseConverter.jsx";
+import { convertAllBases } from "../../src/tools/converter/integerBaseConverterUtils.js";
 import Base64StringConverter from "../../src/tools/converter/Base64StringConverter.jsx";
 import * as utils from "../../src/lib/utils.js";
 
