@@ -4,10 +4,7 @@ export const utf8ToBase64 = (str, urlSafe = false) => {
   if (!str) return "";
   try {
     const bytes = new TextEncoder().encode(str);
-    let binary = "";
-    for (let i = 0; i < bytes.byteLength; i++) {
-      binary += String.fromCharCode(bytes[i]);
-    }
+    const binary = Array.from(bytes, (b) => String.fromCharCode(b)).join("");
     let b64 = btoa(binary);
     if (urlSafe) {
       b64 = b64.replace(/\+/g, "-").replace(/\//g, "_").replace(/={1,2}$/, "");

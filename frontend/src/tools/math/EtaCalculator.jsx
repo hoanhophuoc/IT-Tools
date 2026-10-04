@@ -33,12 +33,6 @@ export default function EtaCalculator() {
     const value = Number.parseInt(e.target.value, 10);
     setter(Number.isNaN(value) ? 0 : value);
   };
-  const handleTimeSpanUnitChange = (e) => {
-    setTimeSpanUnitMultiplier(Number.parseInt(e.target.value, 10) || 1);
-  };
-  const handleDateTimeChange = (e) => {
-    setStartDateString(e.target.value);
-  };
 
   const { totalDurationMs, endDate, calculationError } = useMemo(() => {
     const uc = unitCount || 0;
@@ -127,7 +121,7 @@ export default function EtaCalculator() {
           id="startedAt"
           type="datetime-local"
           value={startDateString}
-          onChange={handleDateTimeChange}
+          onChange={(e) => setStartDateString(e.target.value)}
           max={new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)
             .toISOString()
             .slice(0, 16)}
@@ -163,7 +157,9 @@ export default function EtaCalculator() {
             id="timeSpanUnit"
             aria-label="Time span unit"
             value={timeSpanUnitMultiplier}
-            onChange={handleTimeSpanUnitChange}
+            onChange={(e) =>
+              setTimeSpanUnitMultiplier(Number.parseInt(e.target.value, 10) || 1)
+            }
             options={timeSpanUnits}
             containerClassName="flex-grow"
           />

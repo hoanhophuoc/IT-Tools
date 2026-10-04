@@ -155,7 +155,6 @@ public partial class AdminService(PostgreSQLContext context)
         var tool = await context.Tools.FindAsync(toolId);
         if (tool == null)
         {
-            Console.WriteLine($"Error: Tool with ID '{toolId}' not found.");
             return false;
         }
 

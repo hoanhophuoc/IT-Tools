@@ -1,4 +1,4 @@
-﻿using IT_Tools.Dtos.Auth;
+using IT_Tools.Dtos.Auth;
 using IT_Tools.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,12 +18,6 @@ public class AuthController(AuthService authService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Register([FromBody] RegisterRequestDto registerDto)
     {
-        // Kiểm tra validation cơ bản (như là [Required] trong DTO)
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
         var createdUser = await authService.RegisterAsync(registerDto);
 
         return createdUser == null
@@ -42,11 +36,6 @@ public class AuthController(AuthService authService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Login([FromBody] LoginRequestDto loginDto)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
         var loginResponse = await authService.LoginAsync(loginDto);
 
         return loginResponse == null ? Unauthorized(new { message = "Invalid username or password." }) : Ok(loginResponse);
@@ -61,10 +50,6 @@ public class AuthController(AuthService authService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequestDto changePasswordDto)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
         var result = await authService.ChangePasswordAsync(changePasswordDto);
         return !result
             ? Unauthorized(new { message = "Invalid old password." })
@@ -80,10 +65,6 @@ public class AuthController(AuthService authService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequestDto forgotPasswordDto)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
         var result = await authService.HandleForgotPasswordAsync(forgotPasswordDto);
         return !result ? Unauthorized(new { message = "User not found." }) : Ok(new { message = "Password reset successfully." });
     }

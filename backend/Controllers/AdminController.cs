@@ -1,4 +1,4 @@
-﻿using IT_Tools.Dtos.Admin;
+using IT_Tools.Dtos.Admin;
 using IT_Tools.Dtos.Auth;
 using IT_Tools.Dtos.Categories;
 using IT_Tools.Dtos.Tools;
@@ -44,8 +44,6 @@ public class AdminController(AdminService adminService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> UpdateTool(int id, [FromBody] UpdateToolDto updateDto)
     {
-        if (!ModelState.IsValid) return BadRequest(ModelState);
-
         var success = await adminService.UpdateToolAsync(id, updateDto);
 
         return !success ? NotFound(new { message = $"Tool with ID {id} not found." }) : NoContent();
@@ -84,8 +82,6 @@ public class AdminController(AdminService adminService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> ProcessUpgradeRequest(int requestId, [FromBody] ProcessUpgradeRequestDto processDto)
     {
-        if (!ModelState.IsValid) return BadRequest(ModelState);
-
         var success = await adminService.ProcessUpgradeRequestAsync(requestId, processDto);
 
         return !success ? NotFound(new { message = $"Upgrade request with ID {requestId} not found or already processed." }) : NoContent();
@@ -110,14 +106,10 @@ public class AdminController(AdminService adminService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> CreateTool([FromBody] CreateToolDto createDto)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
         var success = await adminService.CreateToolAsync(createDto);
 
         return !success ?
             BadRequest(new { message = "Failed to create tool. Invalid Category Name or other issue." }) :
             Created();
     }
-}
+}

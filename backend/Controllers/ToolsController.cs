@@ -37,8 +37,16 @@ public class ToolsController(ToolService toolService) : ControllerBase
         var userId = GetCurrentUserId();
         var tool = await toolService.GetToolBySlugAsync(slug, userId);
 
-        return tool == null
-            ? (ActionResult<ToolSummaryDto>)NotFound()
-            : tool.IsPremium && !User.IsInRole("Premium") && !User.IsInRole("Admin") ? (ActionResult<ToolSummaryDto>)Forbid() : (ActionResult<ToolSummaryDto>)Ok(tool);
+        if (tool == null)
+        {
+            return NotFound();
+        }
+
+        if (tool.IsPremium && !User.IsInRole("Premium") && !User.IsInRole("Admin"))
+        {
+            return Forbid();
+        }
+
+        return Ok(tool);
     }
 }
