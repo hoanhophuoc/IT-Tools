@@ -34,3 +34,27 @@ export function formatDateDdMmYyyyHhMm(date) {
   if (!date || Number.isNaN(date.getTime())) return "Invalid Date";
   return dtFormatter.format(date).replace(",", "");
 }
+
+const defaultDateFormatter = new Intl.DateTimeFormat("en-US", {
+  year: "numeric",
+  month: "short",
+  day: "numeric",
+  hour: "numeric",
+  minute: "2-digit",
+  hour12: true,
+});
+
+export const formatDate = (dateInput) => {
+  if (!dateInput) return "";
+  try {
+    const date = new Date(dateInput);
+    if (Number.isNaN(date.getTime())) {
+      return "Invalid Date";
+    }
+    return defaultDateFormatter.format(date);
+  } catch (error) {
+    console.error("Error formatting date:", error);
+    return "Invalid Date";
+  }
+};
+

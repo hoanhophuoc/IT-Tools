@@ -60,18 +60,11 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddAuthorization();
 
 // --- Services ---
+builder.Services.AddSingleton(Microsoft.Extensions.Options.Options.Create(jwtSettings));
 builder.Services.AddSingleton<JwtTokenService>();
-builder.Services.Configure<JwtSettings>(opt =>
-{
-    opt.Secret = jwtSettings.Secret;
-    opt.ExpiryMinutes = jwtSettings.ExpiryMinutes;
-    opt.Issuer = jwtSettings.Issuer;
-    opt.Audience = jwtSettings.Audience;
-});
 builder.Services.AddScoped<ToolService>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<AdminService>();
-builder.Services.AddScoped<FavoriteService>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

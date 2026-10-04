@@ -5,36 +5,24 @@ import Input from "@/components/ui/Input";
 import CopyToClipboardButton from "@/components/ui/CopyToClipboardButton";
 import Button from "@/components/ui/Button";
 
+const CROCKFORD_BASE32 = "0123456789ABCDEFGHJKMNPQRSTVWXYZ";
+
+function generateSecureULID() {
+  let time = Date.now();
+  let timeStr = "";
+  for (let i = 0; i < 10; i++) {
+    timeStr = CROCKFORD_BASE32[time % 32] + timeStr;
+    time = Math.floor(time / 32);
+  }
+  const randomBytes = new Uint8Array(16);
+  window.crypto.getRandomValues(randomBytes);
+  return timeStr + Array.from(randomBytes, (b) => CROCKFORD_BASE32[b % 32]).join("");
+}
+
 export default function ULIDGenerator() {
   const [count, setCount] = useState(1);
   const [ulids, setUlids] = useState([]);
   const [format, setFormat] = useState("raw");
-
-  const generateSecureULID = () => {
-    const ENCODING = "0123456789ABCDEFGHJKMNPQRSTVWXYZ";
-
-    function encodeTime(time, length) {
-      let str = "";
-      for (let i = length - 1; i >= 0; i--) {
-        str = ENCODING[time % 32] + str;
-        time = Math.floor(time / 32);
-      }
-      return str;
-    }
-
-    function encodeRandom(length) {
-      const buffer = new Uint8Array(length);
-      window.crypto.getRandomValues(buffer);
-      let str = "";
-      for (let i = 0; i < length; i++) {
-        str += ENCODING[buffer[i] % 32];
-      }
-      return str;
-    }
-
-    const time = Date.now();
-    return encodeTime(time, 10) + encodeRandom(16);
-  };
 
   const handleGenerate = (newCount) => {
     const list = Array.from({ length: newCount }, () => generateSecureULID());

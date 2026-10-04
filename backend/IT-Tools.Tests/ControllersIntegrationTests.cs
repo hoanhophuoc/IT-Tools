@@ -93,8 +93,7 @@ public class ControllersIntegrationTests
         context.Tools.Add(tool);
         await context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var favoriteService = new FavoriteService(context);
-        var controller = new FavoritesController(favoriteService)
+        var controller = new FavoritesController(context)
         {
             ControllerContext = CreateUserContext(userId: 5)
         };
@@ -231,8 +230,7 @@ public class ControllersIntegrationTests
     public async Task FavoritesController_Throws_WhenUserIdClaimMissing()
     {
         using var context = CreateContext(nameof(FavoritesController_Throws_WhenUserIdClaimMissing));
-        var favoriteService = new FavoriteService(context);
-        var controller = new FavoritesController(favoriteService)
+        var controller = new FavoritesController(context)
         {
             ControllerContext = new ControllerContext
             {

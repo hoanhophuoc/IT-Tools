@@ -37,23 +37,12 @@ export default function HashText() {
     }
 
     const crypto = window.CryptoJS;
-    let encoder;
-    switch (encodingType) {
-      case "base2":
-        encoder = (digest) => Number.parseInt(digest.toString(), 16).toString(2);
-        break;
-      case "base16":
-        encoder = (digest) => digest.toString();
-        break;
-      case "base64":
-        encoder = (digest) => crypto.enc.Base64.stringify(digest);
-        break;
-      case "base64url":
-        encoder = (digest) => crypto.enc.Base64url.stringify(digest);
-        break;
-      default:
-        encoder = (digest) => digest.toString();
-    }
+    const encoders = {
+      base2: (d) => Number.parseInt(d.toString(), 16).toString(2),
+      base64: (d) => crypto.enc.Base64.stringify(d),
+      base64url: (d) => crypto.enc.Base64url.stringify(d),
+    };
+    const encoder = encoders[encodingType] || ((d) => d.toString());
 
     const calculated = {};
     for (const algo of HASH_ALGORITHMS) {

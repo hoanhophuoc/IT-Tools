@@ -1,7 +1,12 @@
+using IT_Tools.Controllers;
 using IT_Tools.Data;
+using IT_Tools.Dtos.Tools;
 using IT_Tools.Models;
 using IT_Tools.Services;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 using Xunit;
 
 namespace IT_Tools.Tests;
@@ -14,6 +19,16 @@ public class ToolAndFavoriteServiceTests
             .UseInMemoryDatabase(databaseName: dbName)
             .Options;
         return new PostgreSQLContext(options);
+    }
+
+    private static ControllerContext CreateUserContext(int userId)
+    {
+        var claims = new List<Claim> { new(ClaimTypes.NameIdentifier, userId.ToString()) };
+        var identity = new ClaimsIdentity(claims, "TestAuth");
+        return new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext { User = new ClaimsPrincipal(identity) }
+        };
     }
 
     [Fact]
@@ -89,9 +104,9 @@ public class ToolAndFavoriteServiceTests
     }
 
     [Fact]
-    public async Task FavoriteService_AddAndRemoveFavorite_ManagesFavoritesCorrectly()
+    public async Task FavoritesController_AddAndRemoveFavorite_ManagesFavoritesCorrectly()
     {
-        using var context = CreateInMemoryContext(nameof(FavoriteService_AddAndRemoveFavorite_ManagesFavoritesCorrectly));
+        using var context = CreateInMemoryContext(nameof(FavoritesController_AddAndRemoveFavorite_ManagesFavoritesCorrectly));
 
         var user = new User { UserId = 1, Username = "favUser", Password = "pwd", Role = "User" };
         var tool = new Tool { ToolId = 50, CategoryId = 1, Name = "FavTool", Slug = "fav-tool", Description = "Fav", Icon = "fav.svg", ComponentUrl = "/fav", IsEnabled = true };
@@ -99,39 +114,44 @@ public class ToolAndFavoriteServiceTests
         context.Tools.Add(tool);
         await context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var favService = new FavoriteService(context);
+        var controller = new FavoritesController(context)
+        {
+            ControllerContext = CreateUserContext(1)
+        };
 
         // Add Favorite
-        var addResult = await favService.AddFavoriteAsync(1, 50);
-        Assert.True(addResult);
+        var addResult = await controller.AddFavorite(50);
+        Assert.IsType<NoContentResult>(addResult);
 
         // Verify it exists
-        var favorites = (await favService.GetUserFavoritesAsync(1)).ToList();
+        var getResult = await controller.GetMyFavorites();
+        var okResult = Assert.IsType<OkObjectResult>(getResult.Result);
+        var favorites = Assert.IsAssignableFrom<IEnumerable<ToolSummaryDto>>(okResult.Value).ToList();
         var singleFav = Assert.Single(favorites);
         Assert.Equal("FavTool", singleFav.Name);
 
-        // Adding duplicate favorite returns false without duplicating
-        var addDup = await favService.AddFavoriteAsync(1, 50);
-        Assert.False(addDup);
-        var favoritesAfterDup = (await favService.GetUserFavoritesAsync(1)).ToList();
-        Assert.Single(favoritesAfterDup);
+        // Adding duplicate favorite returns BadRequest
+        var addDup = await controller.AddFavorite(50);
+        Assert.IsType<BadRequestObjectResult>(addDup);
 
         // Remove Favorite
-        var removeResult = await favService.RemoveFavoriteAsync(1, 50);
-        Assert.True(removeResult);
+        var removeResult = await controller.RemoveFavorite(50);
+        Assert.IsType<NoContentResult>(removeResult);
 
-        var favoritesAfterRemove = (await favService.GetUserFavoritesAsync(1)).ToList();
+        var getAfterRemove = await controller.GetMyFavorites();
+        var okAfterRemove = Assert.IsType<OkObjectResult>(getAfterRemove.Result);
+        var favoritesAfterRemove = Assert.IsAssignableFrom<IEnumerable<ToolSummaryDto>>(okAfterRemove.Value).ToList();
         Assert.Empty(favoritesAfterRemove);
 
-        // Remove non-existent favorite returns false
-        var removeNotFound = await favService.RemoveFavoriteAsync(1, 999);
-        Assert.False(removeNotFound);
+        // Remove non-existent favorite returns NotFound
+        var removeNotFound = await controller.RemoveFavorite(999);
+        Assert.IsType<NotFoundObjectResult>(removeNotFound);
     }
 
     [Fact]
-    public async Task FavoriteService_AddFavoriteAsync_ReturnsFalse_WhenUserOrToolMissingOrDisabled()
+    public async Task FavoritesController_AddFavorite_ReturnsBadRequest_WhenUserOrToolMissingOrDisabled()
     {
-        using var context = CreateInMemoryContext(nameof(FavoriteService_AddFavoriteAsync_ReturnsFalse_WhenUserOrToolMissingOrDisabled));
+        using var context = CreateInMemoryContext(nameof(FavoritesController_AddFavorite_ReturnsBadRequest_WhenUserOrToolMissingOrDisabled));
 
         var user = new User { UserId = 1, Username = "u1", Password = "p", Role = "User" };
         var toolDisabled = new Tool { ToolId = 2, CategoryId = 1, Name = "Disabled", Slug = "dis", Description = "d", Icon = "i", ComponentUrl = "/d", IsEnabled = false };
@@ -139,16 +159,26 @@ public class ToolAndFavoriteServiceTests
         context.Tools.Add(toolDisabled);
         await context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var favService = new FavoriteService(context);
-
         // User does not exist
-        Assert.False(await favService.AddFavoriteAsync(999, 2));
+        var missingUserController = new FavoritesController(context)
+        {
+            ControllerContext = CreateUserContext(999)
+        };
+        var res1 = await missingUserController.AddFavorite(2);
+        Assert.IsType<BadRequestObjectResult>(res1);
+
+        var validUserController = new FavoritesController(context)
+        {
+            ControllerContext = CreateUserContext(1)
+        };
 
         // Tool does not exist
-        Assert.False(await favService.AddFavoriteAsync(1, 999));
+        var res2 = await validUserController.AddFavorite(999);
+        Assert.IsType<BadRequestObjectResult>(res2);
 
         // Tool is disabled
-        Assert.False(await favService.AddFavoriteAsync(1, 2));
+        var res3 = await validUserController.AddFavorite(2);
+        Assert.IsType<BadRequestObjectResult>(res3);
     }
 
     [Fact]

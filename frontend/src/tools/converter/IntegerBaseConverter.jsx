@@ -14,11 +14,9 @@ const BASES = [
 function base64ToDecimal(str) {
   try {
     const bin = atob(str.replace(/-/g, "+").replace(/_/g, "/"));
-    let hex = "";
-    for (let i = 0; i < bin.length; i++) {
-      hex += ("0" + bin.charCodeAt(i).toString(16)).slice(-2);
-    }
-    return BigInt("0x" + hex).toString(10);
+    return Uint8Array.from(bin, (c) => c.charCodeAt(0))
+      .reduce((acc, b) => (acc << 8n) + BigInt(b), 0n)
+      .toString(10);
   } catch {
     return "";
   }
@@ -27,13 +25,12 @@ function base64ToDecimal(str) {
 function decimalToBase64(numStr) {
   try {
     let n = BigInt(numStr);
-    let hex = n.toString(16);
-    if (hex.length % 2) hex = "0" + hex;
-    let bin = "";
-    for (let i = 0; i < hex.length; i += 2) {
-      bin += String.fromCharCode(Number.parseInt(hex.slice(i, i + 2), 16));
+    const bytes = [];
+    while (n > 0n) {
+      bytes.unshift(Number(n & 255n));
+      n >>= 8n;
     }
-    return btoa(bin);
+    return btoa(String.fromCharCode(...(bytes.length ? bytes : [0])));
   } catch {
     return "";
   }

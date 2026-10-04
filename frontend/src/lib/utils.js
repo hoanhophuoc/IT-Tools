@@ -1,31 +1,4 @@
-const DEFAULT_DATE_FORMAT_OPTIONS = {
-  year: "numeric",
-  month: "short",
-  day: "numeric",
-  hour: "numeric",
-  minute: "2-digit",
-  hour12: true,
-};
-
-const defaultDateFormatter = new Intl.DateTimeFormat(
-  "en-US",
-  DEFAULT_DATE_FORMAT_OPTIONS,
-);
-
-export const formatDate = (dateInput) => {
-  if (!dateInput) return "";
-  try {
-    const date = new Date(dateInput);
-    if (Number.isNaN(date.getTime())) {
-      return "Invalid Date";
-    }
-
-    return defaultDateFormatter.format(date);
-  } catch (error) {
-    console.error("Error formatting date:", error);
-    return "Invalid Date";
-  }
-};
+export { formatDate } from "./dateUtils.js";
 
 export const utf8ToBase64 = (str, urlSafe = false) => {
   if (!str) return "";

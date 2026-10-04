@@ -11,7 +11,7 @@ import {
   apiAdminUpdateTool,
   apiAdminDeleteTool,
 } from "@/lib/api";
-import { formatDate } from "@/lib/utils";
+import { formatDate } from "@/lib/dateUtils";
 import { useAuth } from "@/hooks/useAuth";
 
 export default function AdminToolsPage() {
