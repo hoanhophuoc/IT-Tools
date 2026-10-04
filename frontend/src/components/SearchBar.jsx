@@ -127,7 +127,7 @@ export default function SearchBar({
       e.preventDefault();
       if (selectedIndex >= 0 && selectedIndex < suggestions.length) {
         handleSelectTool(suggestions[selectedIndex].slug);
-      } else if (suggestions.length > 0) {
+      } else {
         handleSelectTool(suggestions[0].slug);
       }
     } else if (e.key === "Escape") {

@@ -38,7 +38,7 @@ export default function ToolCard({ tool }) {
               width={32}
               height={32}
               onError={handleImageError}
-              className={imgError ? "hidden" : "block"}
+              className="block"
             />
           ) : null}
         </div>

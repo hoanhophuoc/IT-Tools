@@ -33,3 +33,17 @@
 - **DTO Under-posting Protection (`csharpsquid:S6964`)**: Value type input properties on API request DTOs should include the C# `required` modifier and `[JsonRequired]` attribute.
 - **PostgreSQL Case-Insensitive Matching (`external_roslyn:CA1862`)**: Use `EF.Functions.ILike(t.Name, name)` rather than `.ToLower() == .ToLower()` for EF Core database queries.
 - **Dedicated Health Check Endpoint**: Map a lightweight `app.MapGet("/healthz", () => Results.Ok("OK"))` endpoint in `Program.cs` to support container orchestrator and Dockerfile health probes without database overhead.
+
+## Testing & Coverage Standards (Vitest & .NET 10)
+- **Exact Branch Diagnostics via `coverage-final.json`**: When Vitest reports branch coverage < 100%, avoid guessing from line ranges. Query `coverage/coverage-final.json` to inspect `branchMap` and zero-count indices:
+  ```bash
+  node -e '
+  const d = require("./coverage/coverage-final.json");
+  const f = Object.keys(d).find(k => k.includes("<FileName>"));
+  for (const [id, b] of Object.entries(d[f].branchMap)) {
+    d[f].b[id].forEach((c, i) => { if (c === 0) console.log("Uncovered", id, i, b.locations[i]); });
+  }'
+  ```
+- **No Speculative Parameter Defaults in Internal Handlers**: Avoid adding unused default parameters or uncalled branches in private component event handlers (e.g. `allowZero = false`). If a branch cannot be triggered by valid component states, eliminate it rather than maintaining dead branches.
+- **Defensive Fallback Coverage**: When implementing binary fallbacks (`foo || []`, `err.message || "Unknown"`), ensure tests exercise both the truthy and falsy/missing property cases to cover both arms of logical expressions.
+- **Targeted Vitest Verification**: Always iterate using single test file executions (`npx vitest run <path/to/test.jsx> --coverage`) before executing full project suites.

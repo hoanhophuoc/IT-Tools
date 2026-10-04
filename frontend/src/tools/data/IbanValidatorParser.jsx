@@ -26,7 +26,7 @@ const ibanErrorToMessage = {
     "QR-IBAN not allowed (specific use case)",
 };
 
-const getFriendlyErrors = (errorCodes) => {
+export const getFriendlyErrors = (errorCodes) => {
   if (!errorCodes || errorCodes.length === 0) return "";
   return errorCodes
     .map(

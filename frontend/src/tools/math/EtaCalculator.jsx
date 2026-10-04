@@ -29,14 +29,10 @@ export default function EtaCalculator() {
     1000 * 60 * 60,
   );
 
-  const handleNumberChange =
-    (setter, allowZero = false) =>
-    (e) => {
-      const value = Number.parseInt(e.target.value, 10);
-      setter(
-        Number.isNaN(value) || (!allowZero && value < 1) ? (allowZero ? 0 : 1) : value,
-      );
-    };
+  const handleNumberChange = (setter) => (e) => {
+    const value = Number.parseInt(e.target.value, 10);
+    setter(Number.isNaN(value) ? 0 : value);
+  };
   const handleTimeSpanUnitChange = (e) => {
     setTimeSpanUnitMultiplier(Number.parseInt(e.target.value, 10) || 1);
   };
@@ -122,7 +118,7 @@ export default function EtaCalculator() {
           label="Amount of element to consume:"
           id="unitCount"
           type="number"
-          min="1"
+          min="0"
           value={unitCount}
           onChange={handleNumberChange(setUnitCount)}
         />
@@ -148,7 +144,7 @@ export default function EtaCalculator() {
             id="unitPerTimeSpan"
             type="number"
             aria-label="Units consumed"
-            min="1"
+            min="0"
             value={unitPerTimeSpan}
             onChange={handleNumberChange(setUnitPerTimeSpan)}
           />
@@ -159,7 +155,7 @@ export default function EtaCalculator() {
             id="timeSpan"
             type="number"
             aria-label="Time span value"
-            min="1"
+            min="0"
             value={timeSpanValue}
             onChange={handleNumberChange(setTimeSpanValue)}
           />

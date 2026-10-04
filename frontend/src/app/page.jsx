@@ -147,7 +147,7 @@ export default function RootHomePage() {
       )}
       {!noResultsFound && (
         <>
-          {hasFavorites && <FavoriteToolsSection tools={favoriteToolsList} />}
+          <FavoriteToolsSection tools={favoriteToolsList} />
           <AllToolsSection
             premiumTools={premiumTools}
             freeTools={freeTools}

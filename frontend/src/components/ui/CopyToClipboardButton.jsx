@@ -25,7 +25,6 @@ export default function CopyToClipboardButton({
       );
       return;
     }
-    if (!contentToCopy) return;
 
     try {
       await navigator.clipboard.writeText(contentToCopy);

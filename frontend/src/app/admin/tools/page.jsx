@@ -196,9 +196,7 @@ export default function AdminToolsPage() {
       });
     } finally {
       setIsImporting(false);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
+      fileInputRef.current.value = "";
     }
   };
 

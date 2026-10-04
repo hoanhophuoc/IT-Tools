@@ -21,18 +21,15 @@ export default function QrCodeGenerator() {
   const [bgColor, setBgColor] = useState("#ffffff");
   const [errorLevel, setErrorLevel] = useState("M");
   const [qrSize, setQrSize] = useState(200);
-  const [error, setError] = useState("");
 
   const qrCodeCanvasRef = useRef(null);
 
   const handleTextChange = (e) => {
     setText(e.target.value);
-    setError("");
   };
 
   const handleErrorLevelChange = (e) => {
     setErrorLevel(e.target.value);
-    setError("");
   };
 
   const handleDownload = useCallback(() => {
@@ -88,9 +85,6 @@ export default function QrCodeGenerator() {
               ))}
             </select>
           </div>
-          {error && (
-            <p className="text-sm text-red-500 dark:text-red-400">{error}</p>
-          )}
         </div>
         <div className="flex flex-col items-center justify-start gap-4 lg:col-span-1">
           <div
@@ -114,7 +108,7 @@ export default function QrCodeGenerator() {
               </div>
             )}
           </div>
-          <Button onClick={handleDownload} disabled={!hasValidText || !!error}>
+          <Button onClick={handleDownload} disabled={!hasValidText}>
             <FiDownload className="mr-1.5" /> Download QR Code
           </Button>
         </div>

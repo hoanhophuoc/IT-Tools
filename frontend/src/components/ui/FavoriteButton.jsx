@@ -18,7 +18,6 @@ export default function FavoriteButton({ toolId, onToggle, size = 18 }) {
     e.preventDefault();
     e.stopPropagation();
 
-    if (isProcessing) return;
     setIsProcessing(true);
 
     try {

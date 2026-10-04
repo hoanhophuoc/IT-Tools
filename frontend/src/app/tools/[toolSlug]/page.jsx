@@ -55,11 +55,7 @@ export default function ToolPage() {
 
         if (!canAccess) {
           setPermissionDenied(true);
-          setError(
-            isPremium
-              ? "You need a Premium account to access this tool."
-              : "Access Denied.",
-          );
+          setError("You need a Premium account to access this tool.");
           setLoading(false);
           return;
         }
@@ -81,7 +77,6 @@ export default function ToolPage() {
             }),
           { suspense: true, ssr: false },
         );
-        if (cancelled) return;
         setToolComponent(() => DynamicTool);
       } catch (err) {
         if (cancelled) return;

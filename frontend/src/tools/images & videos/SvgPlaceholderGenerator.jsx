@@ -25,8 +25,8 @@ export default function SvgPlaceholderGenerator() {
   };
 
   const svgString = useMemo(() => {
-    const w = width || 1;
-    const h = height || 1;
+    const w = width;
+    const h = height;
     const text = customText.trim() || `${w}x${h}`;
     const escapedText = text
       .replace(/&/g, "&amp;")
@@ -42,12 +42,10 @@ export default function SvgPlaceholderGenerator() {
   }, [width, height, fontSize, bgColor, fgColor, useExactSize, customText]);
 
   const base64Svg = useMemo(() => {
-    if (!svgString) return "";
     return `data:image/svg+xml;base64,${utf8ToBase64(svgString)}`;
   }, [svgString]);
 
   const handleDownload = useCallback(() => {
-    if (!base64Svg) return;
     const a = document.createElement("a");
     a.href = base64Svg;
     const textPart =
@@ -170,21 +168,15 @@ export default function SvgPlaceholderGenerator() {
           Preview:
         </h4>
         <div className="flex justify-center">
-          {base64Svg ? (
-            <img
-              src={base64Svg}
-              alt="SVG Placeholder Preview"
-              style={{
-                maxWidth: "100%",
-                maxHeight: "400px",
-                border: "1px dashed #ccc",
-              }}
-            />
-          ) : (
-            <div className="flex h-[100px] w-full items-center justify-center rounded border border-dashed border-gray-400 text-gray-500">
-              Configure options to generate preview
-            </div>
-          )}
+          <img
+            src={base64Svg}
+            alt="SVG Placeholder Preview"
+            style={{
+              maxWidth: "100%",
+              maxHeight: "400px",
+              border: "1px dashed #ccc",
+            }}
+          />
         </div>
       </div>
     </div>

@@ -68,9 +68,7 @@ function JsonPrefillBanner({ onPrefill }) {
     } catch (err) {
       alert("Error reading JSON file: " + err.message);
     } finally {
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
+      fileInputRef.current.value = "";
     }
   };
 
@@ -209,21 +207,19 @@ export default function ToolForm({ initialData, onSave, onCancel, isLoading }) {
 
     setFormData((prev) => ({
       ...prev,
-      name: (item.name || item.Name || prev.name || "").trim(),
+      name: (item.name ?? item.Name ?? prev.name).trim(),
       description: (
-        item.description ||
-        item.Description ||
-        prev.description ||
-        ""
+        item.description ??
+        item.Description ??
+        prev.description
       ).trim(),
       categoryName: loadedCategory || prev.categoryName,
       componentUrl: (
-        item.componentUrl ||
-        item.ComponentUrl ||
-        prev.componentUrl ||
-        ""
+        item.componentUrl ??
+        item.ComponentUrl ??
+        prev.componentUrl
       ).trim(),
-      icon: (item.icon || item.Icon || prev.icon || "").trim(),
+      icon: (item.icon ?? item.Icon ?? prev.icon).trim(),
       isPremium: Boolean(item.isPremium ?? item.IsPremium ?? prev.isPremium),
       isEnabled: Boolean(item.isEnabled ?? item.IsEnabled ?? prev.isEnabled),
     }));
@@ -241,8 +237,6 @@ export default function ToolForm({ initialData, onSave, onCancel, isLoading }) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      {errors.form && <p className="text-sm text-red-600">{errors.form}</p>}
-
       {!initialData && <JsonPrefillBanner onPrefill={handleJsonPrefill} />}
 
       <Input

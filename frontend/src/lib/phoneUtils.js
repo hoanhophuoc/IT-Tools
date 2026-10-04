@@ -1,8 +1,6 @@
 import { getCountries, getCountryCallingCode } from "libphonenumber-js/max";
 
-const regionNames = typeof Intl !== "undefined" && Intl.DisplayNames
-  ? new Intl.DisplayNames(["en"], { type: "region" })
-  : null;
+const regionNames = new Intl.DisplayNames(["en"], { type: "region" });
 
 export function formatPhoneNumberType(type) {
   if (!type) return undefined;
@@ -37,15 +35,12 @@ export function getDefaultCountryCode() {
   return defaultCode;
 }
 
-export function getCountryOptions() {
-  const countries = getCountries();
+export function getCountryOptions(countries = getCountries()) {
   const options = countries
     .map((code) => {
       let displayLabel = code;
       try {
-        if (regionNames) {
-          displayLabel = regionNames.of(code) || code;
-        }
+        displayLabel = regionNames.of(code);
       } catch (e) {}
 
       let callingCode = "";

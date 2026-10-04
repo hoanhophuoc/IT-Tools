@@ -6,6 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>IT_Tools</RootNamespace>
     <UserSecretsId>eb0b1496-d053-4505-8f64-42e9305e24ba</UserSecretsId>
+    <DefaultItemExcludes>$(DefaultItemExcludes);IT-Tools.Tests/**</DefaultItemExcludes>
   </PropertyGroup>
 
   <ItemGroup>

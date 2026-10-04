@@ -22,7 +22,7 @@ const isDateValue = (val) => {
   return false;
 };
 
-const compareValues = (a, b, direction) => {
+export const compareValues = (a, b, direction) => {
   if (a === b) return 0;
   if (a === null || a === undefined) return 1;
   if (b === null || b === undefined) return -1;
@@ -32,7 +32,7 @@ const compareValues = (a, b, direction) => {
   if (typeof a === "number" && typeof b === "number") {
     result = a - b;
   } else if (typeof a === "boolean" && typeof b === "boolean") {
-    result = a === b ? 0 : a ? -1 : 1;
+    result = a ? -1 : 1;
   } else if (isDateValue(a) && isDateValue(b)) {
     const aTime = a instanceof Date ? a.getTime() : Date.parse(a);
     const bTime = b instanceof Date ? b.getTime() : Date.parse(b);
@@ -469,10 +469,7 @@ const Table = ({
   };
 
   const addSortRule = (key) => {
-    setSortRules((prev) => {
-      if (prev.some((r) => r.key === key)) return prev;
-      return [...prev, { key, direction: "asc" }];
-    });
+    setSortRules((prev) => [...prev, { key, direction: "asc" }]);
   };
 
   const clearAllSorts = () => {

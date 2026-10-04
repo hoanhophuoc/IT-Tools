@@ -21,15 +21,11 @@ const Modal = ({ isOpen, onClose, title, children, size = "md" }) => {
     const dialog = dialogRef.current;
     if (!dialog) return;
 
-    if (isOpen) {
-      if (!dialog.open) {
-        dialog.showModal();
-      }
-    } else {
-      if (dialog.open) {
-        dialog.close();
-      }
-    }
+    dialog.showModal();
+
+    return () => {
+      dialog.close();
+    };
   }, [isOpen]);
 
   useEffect(() => {

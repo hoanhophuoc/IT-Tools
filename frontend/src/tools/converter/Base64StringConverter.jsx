@@ -31,10 +31,8 @@ export default function Base64StringConverter() {
   }, [input, mode, urlSafe]);
 
   const handleSwap = () => {
-    if (output && !error) {
-      setInput(output);
-      setMode(mode === "encode" ? "decode" : "encode");
-    }
+    setInput(output);
+    setMode(mode === "encode" ? "decode" : "encode");
   };
 
   return (
@@ -79,12 +77,14 @@ export default function Base64StringConverter() {
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            <label htmlFor="base64-input" className="text-sm font-medium text-gray-700 dark:text-gray-300">
               {mode === "encode" ? "Plain Text Input" : "Base64 Input"}
             </label>
             <span className="text-xs text-gray-500">{input.length} chars</span>
           </div>
           <textarea
+            id="base64-input"
+            aria-label={mode === "encode" ? "Plain Text Input" : "Base64 Input"}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             rows={8}
@@ -99,7 +99,7 @@ export default function Base64StringConverter() {
 
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            <label htmlFor="base64-output" className="text-sm font-medium text-gray-700 dark:text-gray-300">
               {mode === "encode" ? "Base64 Output" : "Plain Text Output"}
             </label>
             <div className="flex items-center gap-2">
@@ -113,8 +113,11 @@ export default function Base64StringConverter() {
             </div>
           ) : (
             <textarea
+              id="base64-output"
+              aria-label={mode === "encode" ? "Base64 Output" : "Plain Text Output"}
               readOnly
               value={output}
+              placeholder={mode === "encode" ? "Base64 output will appear here" : "Decoded text will appear here"}
               rows={8}
               className="w-full rounded-md border border-gray-200 bg-gray-50 p-3 font-mono text-sm shadow-sm dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200"
             />

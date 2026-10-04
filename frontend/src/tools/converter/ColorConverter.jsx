@@ -3,7 +3,7 @@ import { useState } from "react";
 import Input from "@/components/ui/Input";
 import InfoRow from "@/components/ui/InfoRow";
 
-function hexToRgb(hex) {
+export function hexToRgb(hex) {
   let c = hex.replace("#", "");
   if (c.length === 3) c = c.split("").map((x) => x + x).join("");
   const num = Number.parseInt(c, 16);

@@ -39,7 +39,7 @@ function decimalToBase64(numStr) {
   }
 }
 
-function convertAllBases(input, inputBase) {
+export function convertAllBases(input, inputBase) {
   if (!input) return { 2: "", 8: "", 10: "", 16: "", 64: "" };
 
   const prefixMap = { 2: "0b", 8: "0o", 10: "", 16: "0x" };

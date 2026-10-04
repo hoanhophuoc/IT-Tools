@@ -146,7 +146,6 @@ export default function Sidebar({
   const [showFavorites, setShowFavorites] = useState(true);
 
   const toggleCategory = (categoryId) => {
-    if (!isSidebarOpen) return;
     setVisibleCategories((prev) => ({
       ...prev,
       [categoryId]: !prev[categoryId],
@@ -178,13 +177,11 @@ export default function Sidebar({
               </Link>
             </div>
             <nav className="flex-grow overflow-y-auto px-2 py-4">
-              {hasFavorites && (
-                <SidebarFavoritesSection
-                  favoriteTools={favoriteToolsList}
-                  isOpen={showFavorites}
-                  onToggle={() => setShowFavorites(!showFavorites)}
-                />
-              )}
+              <SidebarFavoritesSection
+                favoriteTools={favoriteToolsList}
+                isOpen={showFavorites}
+                onToggle={() => setShowFavorites(!showFavorites)}
+              />
               {showDivider && <hr className="my-3 border-gray-700" />}
               <SidebarCategoryList
                 isLoading={isLoading}

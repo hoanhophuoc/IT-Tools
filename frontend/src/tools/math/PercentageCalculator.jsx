@@ -4,11 +4,35 @@ import { useState, useMemo } from "react";
 import Input from "@/components/ui/Input";
 import CopyToClipboardButton from "@/components/ui/CopyToClipboardButton";
 
-const formatResult = (value) => {
+export const formatResult = (value) => {
   if (value === "" || value === null || value === undefined || !Number.isFinite(value))
     return "";
   const rounded = Number(value.toFixed(6));
   return String(rounded);
+};
+
+export const isValidNumberInput = (value) =>
+  value === "" || /^-?\d*(?:\.\d*)?$/.test(value);
+
+export const calculatePercentOf = (xStr, yStr) => {
+  const x = Number.parseFloat(xStr);
+  const y = Number.parseFloat(yStr);
+  if (Number.isNaN(x) || Number.isNaN(y)) return "";
+  return formatResult((x / 100) * y);
+};
+
+export const calculateIsWhatPercent = (xStr, yStr) => {
+  const x = Number.parseFloat(xStr);
+  const y = Number.parseFloat(yStr);
+  if (Number.isNaN(x) || Number.isNaN(y) || y === 0) return "";
+  return formatResult((x / y) * 100);
+};
+
+export const calculatePercentChange = (fromStr, toStr) => {
+  const from = Number.parseFloat(fromStr);
+  const to = Number.parseFloat(toStr);
+  if (Number.isNaN(from) || Number.isNaN(to) || from === 0) return "";
+  return formatResult(((to - from) / from) * 100);
 };
 
 export default function PercentageCalculator() {
@@ -19,31 +43,24 @@ export default function PercentageCalculator() {
   const [incDecFrom, setIncDecFrom] = useState("");
   const [incDecTo, setIncDecTo] = useState("");
 
-  const percentageOfResult = useMemo(() => {
-    const x = Number.parseFloat(percentOfX);
-    const y = Number.parseFloat(percentOfY);
-    if (Number.isNaN(x) || Number.isNaN(y)) return "";
-    return formatResult((x / 100) * y);
-  }, [percentOfX, percentOfY]);
+  const percentageOfResult = useMemo(
+    () => calculatePercentOf(percentOfX, percentOfY),
+    [percentOfX, percentOfY],
+  );
 
-  const isWhatPercentResult = useMemo(() => {
-    const x = Number.parseFloat(isWhatX);
-    const y = Number.parseFloat(isWhatY);
-    if (Number.isNaN(x) || Number.isNaN(y) || y === 0) return "";
-    return formatResult((x / y) * 100);
-  }, [isWhatX, isWhatY]);
+  const isWhatPercentResult = useMemo(
+    () => calculateIsWhatPercent(isWhatX, isWhatY),
+    [isWhatX, isWhatY],
+  );
 
-  const percentChangeResult = useMemo(() => {
-    const from = Number.parseFloat(incDecFrom);
-    const to = Number.parseFloat(incDecTo);
-    if (Number.isNaN(from) || Number.isNaN(to) || from === 0) return "";
-    return formatResult(((to - from) / from) * 100);
-  }, [incDecFrom, incDecTo]);
+  const percentChangeResult = useMemo(
+    () => calculatePercentChange(incDecFrom, incDecTo),
+    [incDecFrom, incDecTo],
+  );
 
   const handleNumberChange = (setter) => (e) => {
-    const value = e.target.value;
-    if (value === "" || /^-?\d*(?:\.\d*)?$/.test(value)) {
-      setter(value);
+    if (isValidNumberInput(e.target.value)) {
+      setter(e.target.value);
     }
   };
 

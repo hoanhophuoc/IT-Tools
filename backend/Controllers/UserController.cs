@@ -24,6 +24,8 @@ public class UserController(PostgreSQLContext context) : ControllerBase
         var newRequest = new UpgradeRequest
         {
             UserId = createDto.UserId,
+            Status = "Pending",
+            RequestedAt = DateTime.UtcNow,
         };
         await context.UpgradeRequests.AddAsync(newRequest);
         await context.SaveChangesAsync();

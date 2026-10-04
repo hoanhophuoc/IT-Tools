@@ -7,7 +7,7 @@ import CopyToClipboardButton from "@/components/ui/CopyToClipboardButton";
 import { isValidIpv4, calculateCidrFromRange } from "@/lib/ipUtils";
 import { FiRepeat } from "react-icons/fi";
 
-const ResultRow = ({ label, oldValue, newValue }) => (
+export const ResultRow = ({ label, oldValue, newValue }) => (
   <tr className="border-b border-gray-200 dark:border-gray-700">
     <td className="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-400">
       {label}

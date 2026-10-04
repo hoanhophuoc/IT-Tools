@@ -20,7 +20,7 @@ const EAP_METHODS = [
 ];
 const EAP_PHASE2_METHODS = ["None", "MSCHAPV2", "GTC", "PAP", "MSCHAP"];
 
-function escapeWifiValue(str) {
+export function escapeWifiValue(str) {
   if (!str) return "";
   return str.replace(/([\\;,":])/g, "\\$1");
 }
