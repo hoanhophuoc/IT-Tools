@@ -10,6 +10,7 @@
     "build": "next build",
     "start": "next start",
     "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
     "test:smoke": "node --test test/smoke.test.mjs",
     "test:e2e": "playwright test",
     "test:perf": "node test/perf/load-test.mjs",
