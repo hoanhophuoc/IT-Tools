@@ -2,6 +2,7 @@
 
 ## Frontend (Next.js 16 / React 19)
 - **Linting & Build Verification**: `next lint` is not supported by the Next.js 16 CLI. Use `next build` to verify production builds and TypeScript/component integrity.
+- **Node.js Native ESM Resolution in Shared Utilities**: Relative imports and re-exports in shared utilities (`src/lib/*.js`) MUST include explicit file extensions (`.js`, e.g., `export { formatDate } from "./dateUtils.js";`). While Next.js Turbopack and Vitest allow omitting extensions, Node.js native ESM execution (`node --test test/smoke.test.mjs`) strictly enforces RFC-compliant URL resolution and throws `ERR_MODULE_NOT_FOUND` if extensions are omitted.
 - **Standard Platform APIs First**:
   - Use `new Intl.DisplayNames(['en'], { type: 'region' })` for country names instead of external lookup packages.
   - Use `Intl.DateTimeFormat` or native arithmetic for duration and date strings.
@@ -22,6 +23,7 @@
   - Use semantic `<button type="button">` elements instead of non-semantic clickable elements (`<span onClick=...>`).
 
 ## Backend (.NET 10 / EF Core)
+- **Microsoft.Testing.Platform (MTP) Test Command**: In .NET 10 with Microsoft.Testing.Platform, execute tests using `dotnet test <solution.sln> --configuration Release --verbosity normal`. Do not pass legacy VSTest data collector flags like `--collect:"XPlat Code Coverage"` or `--coverage` unless explicit MTP extensions are installed, as they trigger exit code 5 (`Zero tests ran`).
 - **Projections over Mappers**: Prefer direct LINQ `.Select()` projections and C# target-typed `new()` over third-party reflection-based mappers like AutoMapper for simple DTO mapping.
 - **No Redundant Include with Projections**: Never add `.Include()` calls when followed by LINQ `.Select()` projections; EF Core generates the necessary SQL joins automatically.
 - **Automatic Controller Validation**: Do not write manual `if (!ModelState.IsValid)` checks in controllers marked with `[ApiController]`; ASP.NET Core validates and responds with 400 Bad Request automatically.
