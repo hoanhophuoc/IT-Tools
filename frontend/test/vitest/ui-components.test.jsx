@@ -10,7 +10,8 @@ import ColorInput from "../../src/components/ui/ColorInput.jsx";
 import CopyToClipboardButton from "../../src/components/ui/CopyToClipboardButton.jsx";
 import Select from "../../src/components/ui/Select.jsx";
 import Modal from "../../src/components/ui/Modal.jsx";
-import Table, { compareValues } from "../../src/components/ui/Table.jsx";
+import Table from "../../src/components/ui/Table.jsx";
+import { compareValues } from "../../src/components/ui/tableUtils.js";
 import FavoriteButton from "../../src/components/ui/FavoriteButton.jsx";
 
 let mockAuth = {
