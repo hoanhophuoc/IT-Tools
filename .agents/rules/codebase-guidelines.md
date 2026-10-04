@@ -31,10 +31,17 @@
 - **Source-Generated Regex with Timeouts (`csharpsquid:S6444`, `SYSLIB1045`)**: Use `[GeneratedRegex("...", RegexOptions.None, matchTimeoutMilliseconds: 1000)]` partial methods in `partial` classes instead of dynamic `Regex.Replace` without execution timeouts.
 - **Asynchronous Host Startup (`csharpsquid:S6966`)**: Use `await app.RunAsync()` instead of synchronous `app.Run()`.
 - **DTO Under-posting Protection (`csharpsquid:S6964`)**: Value type input properties on API request DTOs should include the C# `required` modifier and `[JsonRequired]` attribute.
-- **PostgreSQL Case-Insensitive Matching (`external_roslyn:CA1862`)**: Use `EF.Functions.ILike(t.Name, name)` rather than `.ToLower() == .ToLower()` for EF Core database queries.
+- **PostgreSQL Case-Insensitive Matching (`external_roslyn:CA1862`)**: Use `EF.Functions.ILike(t.Name, name)` or `string.Equals(t.Name, name, StringComparison.OrdinalIgnoreCase)` rather than `.ToLower() == .ToLower()` for EF Core database queries and in-memory comparisons.
 - **Dedicated Health Check Endpoint**: Map a lightweight `app.MapGet("/healthz", () => Results.Ok("OK"))` endpoint in `Program.cs` to support container orchestrator and Dockerfile health probes without database overhead.
 
 ## Testing & Coverage Standards (Vitest & .NET 10)
+- **xUnit v3 Async Responsive Cancellation (`external_roslyn:xUnit1051`)**: In async tests, any call to an asynchronous method accepting an optional `CancellationToken` (e.g., `context.SaveChangesAsync`, `FirstOrDefaultAsync`, `CountAsync`, `FindAsync`) must pass `TestContext.Current.CancellationToken` so test cancellations are immediately honored.
+- **Unambiguous Type Assertions (`external_roslyn:xUnit2032`)**: Prefer `Assert.IsType<T>(value, exactMatch: false)` over `Assert.IsAssignableFrom<T>(value)`.
+- **Reuse Return Values from Assert.Single (`external_roslyn:xUnit2033`)**: When verifying a single-item collection, capture and use the returned item (`var item = Assert.Single(items); Assert.Equal("expected", item.Prop);`) instead of re-indexing with `items[0]`.
+- **Static Test Helper Methods (`external_roslyn:CA1822`)**: Mark helper methods in test classes that do not access instance state (such as `CreateContext(string dbName)`) as `static`.
+- **No Floating Promises in Node / Audit Scripts (`javascript:S9383`)**: Asynchronous top-level executions in scripts (e.g. `a11y-audit.mjs`) must handle rejections via `.catch(...)` (e.g. `run().catch(console.error);`) or be awaited.
+- **Explicit Test Assertions (`javascript:S2699`)**: Every test case (`it(...)` or `test(...)`) must contain at least one explicit assertion (verifying calls, unmounts, or DOM state), including tests that exercise unmount/cleanup or cancellation paths.
+- **Vitest DOM Matchers**: When checking for element non-existence without `@testing-library/jest-dom` extended globally, use `.toBeNull()` rather than `.not.toBeInTheDocument()`.
 - **Exact Branch Diagnostics via `coverage-final.json`**: When Vitest reports branch coverage < 100%, avoid guessing from line ranges. Query `coverage/coverage-final.json` to inspect `branchMap` and zero-count indices:
   ```bash
   node -e '

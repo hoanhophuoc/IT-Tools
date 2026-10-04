@@ -32,12 +32,21 @@
   `uses: gitleaks/gitleaks-action@ff98106e4c7b2bc287b24eaf42907196329070c7 # v2.3.9`
 - **Principle of Least Privilege (`githubactions:S8233`)**: Set default workflow-level permissions to `permissions: contents: read`. Grant `security-events: write` only at the specific job level where SARIF results are uploaded.
 - **Supply Chain Script Execution (`githubactions:S6505`, `docker:S6505`, `docker:S8543`)**: Always execute `npm ci --ignore-scripts` in CI pipelines and container builds to prevent untrusted lifecycle scripts from running.
+- **Prefer npm scripts over raw npx (`githubactions:S6505`, `githubactions:S8543`)**: In CI workflow steps, do not execute unpinned `npx <tool>` commands (e.g. `npx vitest run --coverage`), which can install on-demand packages and run untrusted lifecycle scripts. Always invoke pre-installed project scripts defined in `package.json` (`npm run <script>`), relying on dependencies pinned and locked via `npm ci --ignore-scripts`.
 - **Container Non-Root User (`docker:S6471`)**: Ensure final container stages drop privileges (`USER $APP_UID` in .NET ASP.NET images; `USER node` in Node.js alpine images).
 - **No Plaintext Password Hashes in SQL Seeds (`secrets:S8215`)**: Do not hardcode `$2a$` / `$2b$` bcrypt hashes in database initialization scripts (`IT-Tools.sql`). Enable `pgcrypto` (`CREATE EXTENSION IF NOT EXISTS pgcrypto;`) and generate hashes dynamically:
   `crypt('password', gen_salt('bf', 11))`
-- **Local Sonar CLI Commands**:
-  - Use `sonar list issues -p <project>` to inspect Cloud/Server issues directly.
-  - Use `sonar analyze secrets <files...>` targeting specific modified files. Never run `sonar analyze secrets .` without exclusions as traversing `node_modules` causes scanner timeouts.
+
+## Local SonarQube CLI & Scanner Verification
+- **Issue Inspection & Quality Gate Verification**:
+  - Run `sonar list issues -p <project>` or query `sonar api get "/api/issues/search?projectKeys=<project>&statuses=OPEN,CONFIRMED"` to inspect active issues.
+  - Run `sonar quality-gate status -p <project>` to check Quality Gate compliance directly from the terminal.
+  - Run `sonar analyze secrets <files...>` targeting specific modified files. Never run `sonar analyze secrets .` without exclusions as traversing `node_modules` causes scanner timeouts.
+- **Local Full Scans**:
+  - When triggering a local SonarCloud analysis with `dotnet-sonarscanner`, generate a temporary token via `sonar api post "/api/user_tokens/generate?name=<name>"`.
+  - Run `dotnet-sonarscanner begin ...`, build the release binary, and execute `dotnet-sonarscanner end /d:sonar.token=...`.
+  - Always revoke temporary tokens immediately afterwards (`sonar api post "/api/user_tokens/revoke?name=<name>"`).
+  - Ensure `.sonarqube/` is kept in `.gitignore` to prevent scanner metadata from polluting git tracking.
 
 ## React Doctor CLI Execution
 - **Non-Interactive CI / Agent Scans**: Always pass `-y` / `--yes` (e.g. `npx react-doctor@latest -y --scope full --verbose`) when invoking React Doctor in automated or terminal workflows to prevent interactive prompt hangs.
