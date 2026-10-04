@@ -50,3 +50,10 @@
 
 ## React Doctor CLI Execution
 - **Non-Interactive CI / Agent Scans**: Always pass `-y` / `--yes` (e.g. `npx react-doctor@latest -y --scope full --verbose`) when invoking React Doctor in automated or terminal workflows to prevent interactive prompt hangs.
+
+## Git Author Identity & Cryptographic Commit Signing
+- **Author Identity Alignment**: Always verify that `git config user.email` and `git config user.name` match the authenticated GitHub account email (`hoan.hophuoc@gmail.com`) and name (`Ho Phuoc Hoan`) before creating commits. Never commit with secondary or unlinked email addresses that do not map to the GitHub profile.
+- **Mandatory GPG Commit Signing**: When creating commits in repositories where GPG signing is enabled, ensure commits are signed using the configured GPG signing key (e.g. `git commit -S -m "..."`).
+- **Signature Preservation during History Rewrites**:
+  - Never use naive tools or standard `git filter-branch` / cherry-pick flows that strip GPG signatures when rewriting commit history.
+  - To rewrite or re-sign commits while maintaining merge topology and verified status on GitHub, iterate commit objects topologically, substitute headers, and regenerate detached GPG signatures (`gpg --detach-sign --armor -u <key_id>`) into the `gpgsig` header before hashing the commit object (`git hash-object -t commit -w`).
