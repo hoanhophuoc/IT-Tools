@@ -16,7 +16,7 @@ const SCALES = [
   { label: "Yottabyte (YB)", value: "yottabyte", factor: 8 * 1024 * 1024 * 1024 * 1024 * 1024 * 1024 * 1024 * 1024 },
 ];
 
-export function toBits(value, scale) {
+function toBits(value, scale) {
   const scaleObj = SCALES.find((s) => s.value === scale);
   if (!scaleObj) return Number.NaN;
   return Number.parseFloat(value) * scaleObj.factor;

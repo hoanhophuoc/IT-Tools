@@ -2,11 +2,13 @@ import { describe, it, expect, vi } from "vitest";
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import Temperature from "../../src/tools/measurement/Temperature.jsx";
-import DataSize, { toBits } from "../../src/tools/measurement/DataSize.jsx";
+import DataSize from "../../src/tools/measurement/DataSize.jsx";
+import { toBits } from "../../src/tools/measurement/dataSizeUtils.js";
 import Chronometer from "../../src/tools/measurement/Chronometer.jsx";
 import Ipv4AddressConverter from "../../src/tools/network/Ipv4AddressConverter.jsx";
 import Ipv4RangeExpander, { ResultRow } from "../../src/tools/network/Ipv4RangeExpander.jsx";
-import MacAddressLookup, { isValidMacFormat } from "../../src/tools/network/MacAddressLookup.jsx";
+import MacAddressLookup from "../../src/tools/network/MacAddressLookup.jsx";
+import { isValidMacFormat } from "../../src/tools/network/macAddressLookupUtils.js";
 import * as ipUtils from "../../src/lib/ipUtils.js";
 
 describe("Network and Measurement Tools Suite", () => {

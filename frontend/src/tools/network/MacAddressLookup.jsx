@@ -5,23 +5,10 @@ import ouiData from "oui-data";
 import Input from "@/components/ui/Input";
 import CopyToClipboardButton from "@/components/ui/CopyToClipboardButton";
 
-export const isValidMacFormat = (mac) => {
-  if (!mac || typeof mac !== "string") return false;
-  const macRegex =
-    /^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$|^([0-9A-Fa-f]{12})$/;
-  return macRegex.test(mac.trim());
-};
-
-const formatVendorInfo = (infoString) => {
-  if (!infoString || typeof infoString !== "string") {
-    return [{ id: "unknown", text: "Unknown vendor for this address" }];
-  }
-  return infoString
-    .split("\n")
-    .map((line) => line.trim())
-    .filter(Boolean)
-    .map((text, i) => ({ id: `${i}-${text}`, text }));
-};
+import {
+  isValidMacFormat,
+  formatVendorInfo,
+} from "./macAddressLookupUtils.js";
 
 export default function MacAddressLookup() {
   const [macAddress, setMacAddress] = useState("20:37:06:12:34:56");

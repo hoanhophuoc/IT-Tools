@@ -2,13 +2,14 @@ import { describe, it, expect } from "vitest";
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import MathEvaluator from "../../src/tools/math/MathEvaluator.jsx";
-import PercentageCalculator, {
+import PercentageCalculator from "../../src/tools/math/PercentageCalculator.jsx";
+import {
   formatResult,
   calculatePercentOf,
   calculateIsWhatPercent,
   calculatePercentChange,
   isValidNumberInput,
-} from "../../src/tools/math/PercentageCalculator.jsx";
+} from "../../src/tools/math/percentageCalculatorUtils.js";
 import EtaCalculator from "../../src/tools/math/EtaCalculator.jsx";
 
 let mockEvalUndefined = false;
