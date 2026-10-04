@@ -62,7 +62,7 @@ public class AuthControllerTests
             Password = BCrypt.Net.BCrypt.HashPassword("Pass123"),
             Role = "User"
         });
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var authService = new AuthService(context, CreateJwtTokenService());
         var controller = new AuthController(authService);
@@ -90,7 +90,7 @@ public class AuthControllerTests
             Password = BCrypt.Net.BCrypt.HashPassword("ValidPassword123!"),
             Role = "User"
         });
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var authService = new AuthService(context, CreateJwtTokenService());
         var controller = new AuthController(authService);
@@ -120,7 +120,7 @@ public class AuthControllerTests
             Password = BCrypt.Net.BCrypt.HashPassword("RealPassword!"),
             Role = "User"
         });
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var authService = new AuthService(context, CreateJwtTokenService());
         var controller = new AuthController(authService);

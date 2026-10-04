@@ -40,7 +40,7 @@ public class AdminControllerTests
         };
         context.Categories.Add(cat);
         context.Tools.Add(tool);
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var adminService = new AdminService(context);
         var controller = new AdminController(adminService);
@@ -48,7 +48,7 @@ public class AdminControllerTests
         var result = await controller.GetAllTools();
 
         var okResult = Assert.IsType<OkObjectResult>(result.Result);
-        var tools = Assert.IsAssignableFrom<IEnumerable<AdminToolDto>>(okResult.Value);
+        var tools = Assert.IsType<IEnumerable<AdminToolDto>>(okResult.Value, exactMatch: false);
         Assert.Single(tools);
     }
 
@@ -60,7 +60,7 @@ public class AdminControllerTests
             new Category { CategoryId = 1, Name = "Crypto" },
             new Category { CategoryId = 2, Name = "Math" }
         );
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var adminService = new AdminService(context);
         var controller = new AdminController(adminService);
@@ -68,7 +68,7 @@ public class AdminControllerTests
         var result = await controller.GetAllCategories();
 
         var okResult = Assert.IsType<OkObjectResult>(result.Result);
-        var categories = Assert.IsAssignableFrom<IEnumerable<AdminCategoryDto>>(okResult.Value);
+        var categories = Assert.IsType<IEnumerable<AdminCategoryDto>>(okResult.Value, exactMatch: false);
         Assert.Equal(2, categories.Count());
     }
 
@@ -77,7 +77,7 @@ public class AdminControllerTests
     {
         using var context = CreateContext(nameof(CreateTool_ReturnsCreated_WhenValid));
         context.Categories.Add(new Category { CategoryId = 1, Name = "Dev" });
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var adminService = new AdminService(context);
         var controller = new AdminController(adminService);
@@ -96,7 +96,7 @@ public class AdminControllerTests
         var result = await controller.CreateTool(dto);
 
         Assert.IsType<CreatedResult>(result);
-        var created = await context.Tools.FirstOrDefaultAsync(t => t.Name == "Port Generator");
+        var created = await context.Tools.FirstOrDefaultAsync(t => t.Name == "Port Generator", TestContext.Current.CancellationToken);
         Assert.NotNull(created);
     }
 
@@ -117,7 +117,7 @@ public class AdminControllerTests
             IsEnabled = true,
             IsPremium = false
         });
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var adminService = new AdminService(context);
         var controller = new AdminController(adminService);
@@ -136,7 +136,7 @@ public class AdminControllerTests
         var result = await controller.UpdateTool(10, updateDto);
 
         Assert.IsType<NoContentResult>(result);
-        var updated = await context.Tools.FindAsync(10);
+        var updated = await context.Tools.FindAsync([10], TestContext.Current.CancellationToken);
         Assert.NotNull(updated);
         Assert.True(updated.IsPremium);
     }
@@ -167,7 +167,7 @@ public class AdminControllerTests
         };
         context.Users.Add(user);
         context.UpgradeRequests.Add(request);
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var adminService = new AdminService(context);
         var controller = new AdminController(adminService);
@@ -177,7 +177,7 @@ public class AdminControllerTests
 
         Assert.IsType<NoContentResult>(result);
 
-        var updatedUser = await context.Users.FindAsync(5);
+        var updatedUser = await context.Users.FindAsync([5], TestContext.Current.CancellationToken);
         Assert.Equal("Premium", updatedUser!.Role);
     }
 }

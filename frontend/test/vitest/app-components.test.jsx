@@ -274,6 +274,7 @@ describe("App Components Suite", () => {
       const { unmount } = render(<SearchBar searchTerm="test" setSearchTerm={vi.fn()} />);
       unmount();
       resolveFetch([{ categoryId: 1, name: "Cat", tools: [] }]);
+      expect(api.apiGetCategorizedTools).toHaveBeenCalled();
     });
   });
 

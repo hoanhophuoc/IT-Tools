@@ -35,7 +35,7 @@ jobs:
         run: npm ci --ignore-scripts
 
       - name: Run Vitest with Coverage
-        run: npx vitest run --coverage
+        run: npm run test:coverage
 
       - name: Run Smoke Tests
         run: npm run test:smoke

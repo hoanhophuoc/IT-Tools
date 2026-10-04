@@ -405,6 +405,7 @@ describe("Next.js App Pages Suite", () => {
         componentUrl: "tools/converter/ColorConverter",
         isPremium: false,
       });
+      expect(api.apiGetToolDetails).toHaveBeenCalledWith("pending-cancel");
     });
 
     it("handles cancellation gracefully when unmounted during fetch rejection", async () => {
@@ -419,6 +420,7 @@ describe("Next.js App Pages Suite", () => {
       const { unmount } = render(<ToolPage />);
       unmount();
       rejectDetails(new Error("Network failed"));
+      expect(api.apiGetToolDetails).toHaveBeenCalledWith("reject-cancel");
     });
   });
 });

@@ -36,18 +36,18 @@ public class AdminServiceTests
         };
         context.Categories.Add(cat);
         context.Tools.Add(tool);
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var adminService = new AdminService(context);
 
         var tools = (await adminService.GetAllToolsAsync()).ToList();
-        Assert.Single(tools);
-        Assert.Equal("AdminTool", tools[0].Name);
-        Assert.False(tools[0].IsEnabled);
+        var toolResult = Assert.Single(tools);
+        Assert.Equal("AdminTool", toolResult.Name);
+        Assert.False(toolResult.IsEnabled);
 
         var categories = (await adminService.GetCategoriesAsync()).ToList();
-        Assert.Single(categories);
-        Assert.Equal("AdminCat", categories[0].Name);
+        var catResult = Assert.Single(categories);
+        Assert.Equal("AdminCat", catResult.Name);
     }
 
     [Fact]
@@ -65,7 +65,7 @@ public class AdminServiceTests
         };
         context.Users.Add(user);
         context.UpgradeRequests.Add(request);
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var adminService = new AdminService(context);
 
@@ -74,11 +74,11 @@ public class AdminServiceTests
 
         Assert.True(success);
 
-        var updatedUser = await context.Users.FindAsync(10);
+        var updatedUser = await context.Users.FindAsync([10], TestContext.Current.CancellationToken);
         Assert.NotNull(updatedUser);
         Assert.Equal("Premium", updatedUser.Role);
 
-        var updatedRequest = await context.UpgradeRequests.FindAsync(100);
+        var updatedRequest = await context.UpgradeRequests.FindAsync([100], TestContext.Current.CancellationToken);
         Assert.NotNull(updatedRequest);
         Assert.Equal("Approved", updatedRequest.Status);
     }
@@ -96,7 +96,7 @@ public class AdminServiceTests
             RequestedAt = DateTime.UtcNow
         };
         context.UpgradeRequests.Add(requestProcessed);
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var adminService = new AdminService(context);
 
@@ -121,14 +121,14 @@ public class AdminServiceTests
 
         context.Users.AddRange(user1, user2);
         context.UpgradeRequests.AddRange(req1, req2);
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var adminService = new AdminService(context);
 
         var pending = (await adminService.GetPendingUpgradeRequestsAsync()).ToList();
-        Assert.Single(pending);
-        Assert.Equal(1, pending[0].RequestId);
-        Assert.Equal("userOne", pending[0].Username);
+        var singlePending = Assert.Single(pending);
+        Assert.Equal(1, singlePending.RequestId);
+        Assert.Equal("userOne", singlePending.Username);
 
         var users = (await adminService.GetAllUsersAsync()).ToList();
         Assert.Equal(2, users.Count);
@@ -165,7 +165,7 @@ public class AdminServiceTests
         Assert.True(created1);
 
         // Category was created
-        var cat = await context.Categories.FirstOrDefaultAsync(c => c.Name == "Development");
+        var cat = await context.Categories.FirstOrDefaultAsync(c => c.Name == "Development", TestContext.Current.CancellationToken);
         Assert.NotNull(cat);
 
         // Creating duplicate tool (same name / slug) returns false
@@ -185,7 +185,7 @@ public class AdminServiceTests
             ComponentUrl = "/sql-format"
         });
         Assert.True(created2);
-        Assert.Equal(1, await context.Categories.CountAsync()); // No duplicate category created
+        Assert.Equal(1, await context.Categories.CountAsync(TestContext.Current.CancellationToken)); // No duplicate category created
     }
 
     [Fact]
@@ -210,7 +210,7 @@ public class AdminServiceTests
 
         context.Categories.AddRange(cat1, cat2);
         context.Tools.Add(tool);
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var adminService = new AdminService(context);
 
@@ -236,7 +236,7 @@ public class AdminServiceTests
         });
         Assert.True(updateSuccess);
 
-        var updated = await context.Tools.FindAsync(5);
+        var updated = await context.Tools.FindAsync([5], TestContext.Current.CancellationToken);
         Assert.NotNull(updated);
         Assert.Equal("Updated Tool", updated.Name);
         Assert.Equal(2, updated.CategoryId);
@@ -250,6 +250,6 @@ public class AdminServiceTests
         // Delete existing tool
         var deleteSuccess = await adminService.DeleteToolAsync(5);
         Assert.True(deleteSuccess);
-        Assert.Null(await context.Tools.FindAsync(5));
+        Assert.Null(await context.Tools.FindAsync([5], TestContext.Current.CancellationToken));
     }
 }

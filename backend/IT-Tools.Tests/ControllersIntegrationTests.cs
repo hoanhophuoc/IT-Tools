@@ -13,7 +13,7 @@ namespace IT_Tools.Tests;
 
 public class ControllersIntegrationTests
 {
-    private PostgreSQLContext CreateContext(string dbName)
+    private static PostgreSQLContext CreateContext(string dbName)
     {
         var options = new DbContextOptionsBuilder<PostgreSQLContext>()
             .UseInMemoryDatabase(databaseName: dbName)
@@ -21,7 +21,7 @@ public class ControllersIntegrationTests
         return new PostgreSQLContext(options);
     }
 
-    private ControllerContext CreateUserContext(int userId, string role = "User")
+    private static ControllerContext CreateUserContext(int userId, string role = "User")
     {
         var claims = new List<Claim>
         {
@@ -43,7 +43,7 @@ public class ControllersIntegrationTests
         using var context = CreateContext(nameof(UserController_CreateUpgradeRequest_ReturnsCreated_WhenNoPendingRequest));
         var user = new User { UserId = 1, Username = "testuser", Password = "hash", Role = "User" };
         context.Users.Add(user);
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var controller = new UserController(context);
         var dto = new CreateUpgradeRequestDto { UserId = 1 };
@@ -51,7 +51,7 @@ public class ControllersIntegrationTests
         var result = await controller.CreateUpgradeRequest(dto);
 
         Assert.IsType<CreatedResult>(result);
-        var created = await context.UpgradeRequests.FirstOrDefaultAsync(u => u.UserId == 1);
+        var created = await context.UpgradeRequests.FirstOrDefaultAsync(u => u.UserId == 1, TestContext.Current.CancellationToken);
         Assert.NotNull(created);
         Assert.Equal("Pending", created.Status);
     }
@@ -61,7 +61,7 @@ public class ControllersIntegrationTests
     {
         using var context = CreateContext(nameof(UserController_CreateUpgradeRequest_ReturnsBadRequest_WhenPendingAlreadyExists));
         context.UpgradeRequests.Add(new UpgradeRequest { UserId = 2, Status = "Pending" });
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var controller = new UserController(context);
         var dto = new CreateUpgradeRequestDto { UserId = 2 };
@@ -91,7 +91,7 @@ public class ControllersIntegrationTests
         context.Users.Add(user);
         context.Categories.Add(category);
         context.Tools.Add(tool);
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var favoriteService = new FavoriteService(context);
         var controller = new FavoritesController(favoriteService)
@@ -152,7 +152,7 @@ public class ControllersIntegrationTests
         };
         context.Categories.Add(category);
         context.Tools.AddRange(freeTool, premiumTool);
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var toolService = new ToolService(context);
 
@@ -211,7 +211,7 @@ public class ControllersIntegrationTests
         };
         context.Categories.Add(category);
         context.Tools.Add(tool);
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var toolService = new ToolService(context);
         var controller = new ToolsController(toolService)

@@ -50,7 +50,7 @@ public class AuthServiceTests
         Assert.Equal("User", user.Role);
         Assert.True(BCrypt.Net.BCrypt.Verify("Password123!", user.Password));
 
-        var dbUser = await context.Users.FirstOrDefaultAsync(u => u.Username == "johndoe");
+        var dbUser = await context.Users.FirstOrDefaultAsync(u => u.Username == "johndoe", TestContext.Current.CancellationToken);
         Assert.NotNull(dbUser);
     }
 

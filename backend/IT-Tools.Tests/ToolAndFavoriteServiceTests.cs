@@ -48,15 +48,15 @@ public class ToolAndFavoriteServiceTests
             IsEnabled = false
         };
         context.Tools.AddRange(toolEnabled, toolDisabled);
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var toolService = new ToolService(context);
         var categories = (await toolService.GetGroupedEnabledToolsAsync(null)).ToList();
 
-        Assert.Single(categories); // Only cat1 has enabled tools, cat2 empty excluded
-        Assert.Equal("Converters", categories[0].Name);
-        Assert.Single(categories[0].Tools);
-        Assert.Equal("Base64 Converter", categories[0].Tools[0].Name);
+        var singleCat = Assert.Single(categories); // Only cat1 has enabled tools, cat2 empty excluded
+        Assert.Equal("Converters", singleCat.Name);
+        var singleTool = Assert.Single(singleCat.Tools);
+        Assert.Equal("Base64 Converter", singleTool.Name);
     }
 
     [Fact]
@@ -76,7 +76,7 @@ public class ToolAndFavoriteServiceTests
             ComponentUrl = "/tools/color-converter"
         };
         context.Tools.Add(tool);
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var toolService = new ToolService(context);
 
@@ -97,7 +97,7 @@ public class ToolAndFavoriteServiceTests
         var tool = new Tool { ToolId = 50, CategoryId = 1, Name = "FavTool", Slug = "fav-tool", Description = "Fav", Icon = "fav.svg", ComponentUrl = "/fav", IsEnabled = true };
         context.Users.Add(user);
         context.Tools.Add(tool);
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var favService = new FavoriteService(context);
 
@@ -107,8 +107,8 @@ public class ToolAndFavoriteServiceTests
 
         // Verify it exists
         var favorites = (await favService.GetUserFavoritesAsync(1)).ToList();
-        Assert.Single(favorites);
-        Assert.Equal("FavTool", favorites[0].Name);
+        var singleFav = Assert.Single(favorites);
+        Assert.Equal("FavTool", singleFav.Name);
 
         // Adding duplicate favorite returns false without duplicating
         var addDup = await favService.AddFavoriteAsync(1, 50);
@@ -137,7 +137,7 @@ public class ToolAndFavoriteServiceTests
         var toolDisabled = new Tool { ToolId = 2, CategoryId = 1, Name = "Disabled", Slug = "dis", Description = "d", Icon = "i", ComponentUrl = "/d", IsEnabled = false };
         context.Users.Add(user);
         context.Tools.Add(toolDisabled);
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var favService = new FavoriteService(context);
 
@@ -164,14 +164,14 @@ public class ToolAndFavoriteServiceTests
         context.Categories.Add(cat);
         context.Tools.AddRange(tool1, tool2);
         context.FavoriteTools.Add(fav);
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var toolService = new ToolService(context);
 
         // Grouped tools with userId
         var grouped = (await toolService.GetGroupedEnabledToolsAsync(10)).ToList();
-        Assert.Single(grouped);
-        var tools = grouped[0].Tools.ToList();
+        var singleGrouped = Assert.Single(grouped);
+        var tools = singleGrouped.Tools.ToList();
         Assert.Equal(2, tools.Count);
         Assert.True(tools.First(t => t.ToolId == 1).IsFavorite);
         Assert.False(tools.First(t => t.ToolId == 2).IsFavorite);

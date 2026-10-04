@@ -117,4 +117,4 @@ async function run() {
   }
 }
 
-run();
+run().catch(console.error);

@@ -364,6 +364,7 @@ describe("UI Primitives Component Suite", () => {
         </Modal>
       );
       unmount();
+      expect(document.querySelector("dialog")).toBeNull();
 
       // Test unmount when dialog.open was already closed/false
       const { container, unmount: unmount2 } = render(
@@ -374,6 +375,7 @@ describe("UI Primitives Component Suite", () => {
       const dialog = container.querySelector("dialog");
       if (dialog) dialog.open = false;
       unmount2();
+      expect(container.querySelector("dialog")).toBeNull();
     });
   });
 
@@ -501,6 +503,7 @@ describe("UI Primitives Component Suite", () => {
       // Remove sort rule using remove button on badge
       const removeBtn = screen.getByTitle("Remove field");
       fireEvent.click(removeBtn);
+      expect(screen.queryByTitle("Toggle Ascending / Descending")).toBeNull();
     });
 
     it("supports column sorting, reset sort, and action callbacks", () => {

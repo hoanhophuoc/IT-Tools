@@ -113,9 +113,8 @@ public partial class AdminService(PostgreSQLContext context)
             return false;
         }
 
-        string lowerCatName = trimmedCatName.ToLower();
         var category = await context.Categories
-                                .FirstOrDefaultAsync(c => c.Name.ToLower() == lowerCatName);
+                                .FirstOrDefaultAsync(c => string.Equals(c.Name, trimmedCatName, StringComparison.OrdinalIgnoreCase));
 
         if (category == null)
         {
@@ -127,8 +126,7 @@ public partial class AdminService(PostgreSQLContext context)
         // Generate Slug from Name
         string generatedSlug = Slugify(createDto.Name);
 
-        string lowerToolName = createDto.Name.ToLower();
-        if (await context.Tools.AnyAsync(t => t.Slug == generatedSlug || t.Name.ToLower() == lowerToolName))
+        if (await context.Tools.AnyAsync(t => t.Slug == generatedSlug || string.Equals(t.Name, createDto.Name, StringComparison.OrdinalIgnoreCase)))
         {
             return false;
         }
