@@ -126,7 +126,7 @@ public class ToolAndFavoriteServiceTests
         // Verify it exists
         var getResult = await controller.GetMyFavorites();
         var okResult = Assert.IsType<OkObjectResult>(getResult.Result);
-        var favorites = Assert.IsAssignableFrom<IEnumerable<ToolSummaryDto>>(okResult.Value).ToList();
+        var favorites = Assert.IsType<IEnumerable<ToolSummaryDto>>(okResult.Value, exactMatch: false).ToList();
         var singleFav = Assert.Single(favorites);
         Assert.Equal("FavTool", singleFav.Name);
 
@@ -140,7 +140,7 @@ public class ToolAndFavoriteServiceTests
 
         var getAfterRemove = await controller.GetMyFavorites();
         var okAfterRemove = Assert.IsType<OkObjectResult>(getAfterRemove.Result);
-        var favoritesAfterRemove = Assert.IsAssignableFrom<IEnumerable<ToolSummaryDto>>(okAfterRemove.Value).ToList();
+        var favoritesAfterRemove = Assert.IsType<IEnumerable<ToolSummaryDto>>(okAfterRemove.Value, exactMatch: false).ToList();
         Assert.Empty(favoritesAfterRemove);
 
         // Remove non-existent favorite returns NotFound
