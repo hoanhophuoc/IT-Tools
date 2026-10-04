@@ -6,36 +6,11 @@ import {
   friendlyFormatIBAN,
   isQRIBAN,
   validateIBAN,
-  ValidationErrorsIBAN,
 } from "ibantools";
 import Input from "@/components/ui/Input";
 import InfoRow from "@/components/ui/InfoRow";
 import CopyToClipboardButton from "@/components/ui/CopyToClipboardButton";
-
-const ibanErrorToMessage = {
-  [ValidationErrorsIBAN.NoIBANProvided]: "No IBAN provided",
-  [ValidationErrorsIBAN.NoIBANCountry]: "No IBAN country code found",
-  [ValidationErrorsIBAN.WrongBBANLength]: "Incorrect BBAN length for country",
-  [ValidationErrorsIBAN.WrongBBANFormat]: "Incorrect BBAN format for country",
-  [ValidationErrorsIBAN.ChecksumNotNumber]:
-    "Checksum characters are not numbers",
-  [ValidationErrorsIBAN.WrongIBANChecksum]: "Invalid IBAN checksum",
-  [ValidationErrorsIBAN.WrongAccountBankBranchChecksum]:
-    "Invalid BBAN checksum (bank/branch)",
-  [ValidationErrorsIBAN.QRIBANNotAllowed]:
-    "QR-IBAN not allowed (specific use case)",
-};
-
-export const getFriendlyErrors = (errorCodes) => {
-  if (!errorCodes || errorCodes.length === 0) return "";
-  return errorCodes
-    .map(
-      (errorCode) =>
-        ibanErrorToMessage[errorCode] || `Unknown Error (${errorCode})`,
-    )
-    .filter(Boolean)
-    .join(", ");
-};
+import { getFriendlyErrors } from "./ibanUtils.js";
 
 export default function IbanValidatorParser() {
   const [rawIban, setRawIban] = useState("");

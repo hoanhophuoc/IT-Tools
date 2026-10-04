@@ -1,11 +1,13 @@
 import { describe, it, expect, vi } from "vitest";
 import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import IbanValidatorParser, { getFriendlyErrors } from "../../src/tools/data/IbanValidatorParser.jsx";
+import IbanValidatorParser from "../../src/tools/data/IbanValidatorParser.jsx";
+import { getFriendlyErrors } from "../../src/tools/data/ibanUtils.js";
 import PhoneParserFormatter from "../../src/tools/data/PhoneParserFormatter.jsx";
 import SvgPlaceholderGenerator from "../../src/tools/images & videos/SvgPlaceholderGenerator.jsx";
 import QrCodeGenerator from "../../src/tools/images & videos/QrCodeGenerator.jsx";
-import WifiQrCodeGenerator, { escapeWifiValue } from "../../src/tools/images & videos/WifiQrCodeGenerator.jsx";
+import WifiQrCodeGenerator from "../../src/tools/images & videos/WifiQrCodeGenerator.jsx";
+import { escapeWifiValue } from "../../src/tools/images & videos/wifiQrCodeUtils.js";
 import * as utils from "../../src/lib/utils.js";
 
 let mockPhoneParseThrow = false;
